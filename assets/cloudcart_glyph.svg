@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="CloudCart">
+  <defs>
+    <linearGradient id="cc-g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22A6F2"/>
+      <stop offset="100%" stop-color="#0B62C7"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#cc-g)"/>
+  <path d="M44 22a10 10 0 0 0-19.2-3.5 8 8 0 0 0-9.3 7.9V27a7 7 0 0 0 1.5 13.8h27a7.5 7.5 0 0 0 0-15z" fill="#fff" fill-opacity="0.95"/>
+  <path d="M22 44h20l-2.5 6.5a3 3 0 0 1-2.8 1.9H27.3a3 3 0 0 1-2.8-1.9L22 44z" fill="#fff" fill-opacity="0.95"/>
+  <circle cx="27.5" cy="55.5" r="2" fill="#0B62C7"/>
+  <circle cx="36.5" cy="55.5" r="2" fill="#0B62C7"/>
+</svg>

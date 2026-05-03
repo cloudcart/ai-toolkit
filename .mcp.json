@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "cloudcart-dev-mcp": {
+      "command": "npx",
+      "args": ["-y", "@cloudcart/dev-mcp@latest"]
+    }
+  }
+}

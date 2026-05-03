@@ -1,0 +1,35 @@
+{
+  "name": "cloudcart-plugin",
+  "version": "0.1.0",
+  "description": "CloudCart developer & merchant tools for OpenAI Codex — install the CloudCart CLI, search the Admin GraphQL API, validate queries, and manage your store.",
+  "author": { "name": "CloudCart" },
+  "homepage": "https://github.com/cloudcart/AI-Toolkit",
+  "repository": "https://github.com/cloudcart/AI-Toolkit",
+  "license": "MIT",
+  "keywords": [
+    "cloudcart",
+    "graphql",
+    "ecommerce",
+    "admin-api",
+    "storefront"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "CloudCart",
+    "shortDescription": "Install the CloudCart CLI, search & validate Admin GraphQL, and manage your store from chat.",
+    "longDescription": "Set up the CloudCart CLI and Dev MCP with one command, then manage your store through natural language — products, inventory, orders, customers, discounts, themes, and reports — backed by semantic search and validation against the live CloudCart Admin GraphQL schema.",
+    "developerName": "CloudCart",
+    "category": "Productivity",
+    "capabilities": ["Read"],
+    "logo": "./assets/cloudcart_glyph.svg",
+    "composerIcon": "./assets/cloudcart_glyph.svg",
+    "brandColor": "#22A6F2",
+    "websiteURL": "https://cloudcart.com",
+    "defaultPrompt": [
+      "Set up my CloudCart store",
+      "List my top 5 products",
+      "Show today's orders",
+      "Add a product called Demo for $19.99"
+    ]
+  }
+}

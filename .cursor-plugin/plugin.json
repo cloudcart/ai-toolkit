@@ -1,0 +1,18 @@
+{
+  "name": "cloudcart-plugin",
+  "description": "CloudCart developer & merchant tools for Cursor — install the CloudCart CLI, search the Admin GraphQL API, validate queries, and manage your store.",
+  "version": "0.1.0",
+  "author": { "name": "CloudCart" },
+  "logo": "../assets/cloudcart_glyph.svg",
+  "homepage": "https://github.com/cloudcart/AI-Toolkit",
+  "repository": "https://github.com/cloudcart/AI-Toolkit",
+  "license": "MIT",
+  "keywords": [
+    "cloudcart",
+    "mcp",
+    "graphql",
+    "ecommerce",
+    "admin-api",
+    "storefront"
+  ]
+}
