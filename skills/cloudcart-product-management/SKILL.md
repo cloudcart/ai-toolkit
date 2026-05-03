@@ -239,36 +239,120 @@ Confirm in plain language: "Done — created **Summer Tee** as draft (id 456) wi
    - 1 match → use it.
    - 2+ matches → show the list and ask which one.
 2. **Apply changes.** `updateProduct(id, input)` accepts partial input — send only the changed fields (snake_case).
-3. **Verify.** Re-query: `Product { id name pricing { priceFrom } flags { active hidden draft } }` and report.
+3. **Verify.** Re-query: `Product { id name pricing { from to } flags { active hidden draft } }` and report.
 
-### 3.4 Bulk edit products
+### 3.4 Bulk operations on products and variants
 
-Use the dedicated bulk mutations — much faster than looping single updates:
+The merchant's intent is open-ended: "raise prices by 15% in category Shoes", "cut Nike sneaker prices by 10 BGN", "hide everything from vendor Acme that's out of stock", "duplicate every product in category Sale into category Sale-2026", "tag every digital product with `online-only`". You won't find a dedicated mutation for most of these — you compose them from a handful of primitives.
 
-| Goal                                          | Mutation                                                         |
-| --------------------------------------------- | ---------------------------------------------------------------- |
-| Activate / deactivate                         | `productsBulkSetActive(ids: [ID!]!, active: Boolean!)`           |
-| Show / hide on storefront                     | `productsBulkSetHidden(ids: [ID!]!, hidden: Boolean!)`           |
-| Set primary category                          | `productsBulkSetCategory(ids: [ID!]!, categoryId: ID!)`          |
-| Set multiple categories (replace)             | `productsBulkSetCategories(ids: [ID!]!, categoryIds: [ID!]!)`    |
-| Set out-of-stock status                       | `productsBulkSetOutOfStockStatus(ids: [ID!]!, statusId: ID!)`    |
-| Bulk-update variant price (single value)      | `productVariantsBulkUpdatePrice(input: BulkPriceUpdateInput!)` — input shape `{ ids: [ID!]!, price: Float! }`. Sets every listed variant to the same `price`. |
-| Bulk-update variant quantity                  | `productVariantsBulkUpdateQuantity(input: BulkQuantityUpdateInput!)` — input shape `{ ids: [ID!]!, action: add\|set, quantity: Int! }`. With `add`, `quantity` may be negative; floor is 0. |
-| Activate inventory tracking                   | `productsBulkActivateTracking(ids: [ID!]!, quantity: Int)`       |
-| Stop tracking inventory                       | `productsBulkDeactivateTracking(ids: [ID!]!)`                    |
+**The transform recipe — apply to anything:**
 
-> **There is no `productsBulkSetDraft`.** To bulk-toggle draft, loop `updateProduct(id: <id>, input: { draft: yes|no })` over the target ids. Same for any bulk attribute that doesn't have a dedicated setter above.
+```
+Filter   → resolve target ids (products or variants) via products(...) / productSearch
+Preview  → show the merchant the count + first 5; wait for "yes" if ≥ 10 affected rows
+Compute  → (only for transforms — apply the formula per product / variant)
+Apply    → call the matching bulk primitive(s)
+Report   → success count + per-id errors
+```
 
-**Workflow:**
-1. Resolve the target ids — usually via a `products(...)` query with the merchant's filter ("vendor Acme", "category Hats", "stock = 0", etc.).
-2. **Safety gate (≥ 10 products):** Show the first 5 + total count and the operation in plain language:
-   "This will hide **47 products** (first 5: Summer Tee, Winter Hoodie, Cap, Mug, Sticker, …42 more). Reply **yes** to continue."
-3. Wait for confirmation, then execute.
-4. Report: "Hidden 47 products. 0 errors."
+If a single bulk primitive matches the goal, use it directly. If the merchant's request is a **transform** (formula on existing values — percent change, tier-based rule, price floor/ceiling), you'll need the Compute step: query the affected variants, calculate the new values in code, then write them back via the per-variant bulk update.
+
+#### Available bulk primitives (reference)
+
+**Bulk on whole products** — operate on product rows:
+
+| Goal                                | Mutation                                                                       |
+| ----------------------------------- | ------------------------------------------------------------------------------ |
+| Activate / deactivate (`active`)    | `productsBulkSetActive(ids: [ID!]!, active: Boolean!)`                         |
+| Show / hide on storefront           | `productsBulkSetHidden(ids: [ID!]!, hidden: Boolean!)`                         |
+| Toggle `featured`                   | `productsBulkSetFeatured(ids: [ID!]!, featured: Boolean!)`                     |
+| Toggle `new` badge                  | `productsBulkSetNew(ids: [ID!]!, isNew: Boolean!)`                             |
+| Set primary category                | `productsBulkSetCategory(ids: [ID!]!, categoryId: ID!)`                        |
+| Set multi-category links (replace)  | `productsBulkSetCategories(ids: [ID!]!, categoryIds: [ID!]!)`                  |
+| Set / clear vendor                  | `productsBulkSetVendor(ids: [ID!]!, vendorId: ID)` — `vendorId: null` clears   |
+| Attach tags by name (append-only)   | `productsBulkSetTags(ids: [ID!]!, tags: [String!]!)` — auto-creates new names  |
+| Set out-of-stock status             | `productsBulkSetOutOfStockStatus(ids: [ID!]!, statusId: ID!)`                  |
+| Activate inventory tracking         | `productsBulkActivateTracking(ids: [ID!]!, quantity: Int)`                     |
+| Stop inventory tracking             | `productsBulkDeactivateTracking(ids: [ID!]!)`                                  |
+| Duplicate (clones variants/images)  | `productsBulkDuplicate(ids: [ID!]!)` — fresh ID, sku=null, sales=0             |
+| Delete (async)                      | `productsBulkDelete(ids: [ID!]!)` — soft-deletes immediately, queues physical removal on background worker |
+
+> **There is no `productsBulkSetDraft`.** To toggle draft in bulk, loop `updateProduct(id, input: { draft: yes\|no })`. Same fallback applies for any whole-product attribute that lacks a dedicated bulk setter (description, SEO, weight, etc.).
+
+**Bulk on variants** — operate on variant rows:
+
+| Goal                                                       | Mutation                                                                                                   |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Per-variant updates on ONE product** (different values)  | `productVariantsBulkUpdate(productId: ID!, variants: [ProductVariantsBulkInput!]!)` — max 500. Each entry needs its `id` plus any subset of `price, discount_price, quantity, sku, barcode, active, v1, v2, v3, weight, …`. |
+| Same new price across N variants (cross-product OK)        | `productVariantsBulkUpdatePrice(input: BulkPriceUpdateInput!)` — `{ ids, price }`                          |
+| Same quantity change across N variants (`add` or `set`)    | `productVariantsBulkUpdateQuantity(input: BulkQuantityUpdateInput!)` — `{ ids, action: add\|set, quantity }`. Negative `quantity` allowed when `action: add`; floor is 0. |
+| Same continue-selling flag across N variants               | `productVariantsBulkUpdateSellingStatus(input: BulkSellingStatusInput!)` — `{ ids, continueSelling }`      |
+| Delete N variants of ONE product                           | `productVariantsBulkDelete(productId: ID!, variantsIds: [ID!]!)` — note the field name `variantsIds`, not `variantIds` |
+
+#### Worked example A — simple bulk (no Compute step)
+
+> "Hide everything from vendor Acme that's out of stock."
+
+1. **Filter:** `products(vendor_id: <acme_id>, stock: { operator: eq, value: 0 }, first: 100)` — paginate via `pageInfo.endCursor` if `total > 100`.
+2. **Preview:** "Found **47 products** from Acme that are out of stock. First 5: Summer Tee, Winter Hoodie, Cap, Mug, Sticker … and 42 more. Hide them all? Reply **yes** to continue."
+3. **Apply:** `productsBulkSetHidden(ids: [...], hidden: true)`.
+4. **Report:** "Hidden 47 products. 0 errors."
+
+#### Worked example B — transform with formula (Compute step)
+
+> "Raise prices by 15% on every product in category 123."
+
+1. **Filter — get product ids:** `products(category_id: 123, first: 100)` → collect ids; paginate.
+2. **Preview:** "Found **62 products** in category Shoes. I'll raise every variant price by 15% — first 3 expected changes:
+   - Air Zoom Pegasus: 199.00 → 228.85
+   - Nike Cortez: 159.00 → 182.85
+   - Adidas Stan Smith: 149.00 → 171.35
+   Reply **yes** to continue."
+3. **Compute, per product** — query the variants:
+   ```graphql
+   query VariantsForProduct($pid: ID!) {
+     product(id: $pid) {
+       variants { edges { node { id price } } }
+     }
+   }
+   ```
+   Calculate `newPrice = round(oldPrice * 1.15, 2)` per variant.
+4. **Apply, per product:**
+   ```graphql
+   mutation Bulk($pid: ID!, $vs: [ProductVariantsBulkInput!]!) {
+     productVariantsBulkUpdate(productId: $pid, variants: $vs) {
+       productVariants { id price }
+       userErrors { field message }
+     }
+   }
+   ```
+   `$vs` is `[{ id: 1001, price: 228.85 }, { id: 1002, price: 232.30 }, …]`.
+5. **Report:** "Updated 62 products / 187 variants. 2 variants skipped (manual price overrides). 0 errors." Progress every 10 products.
+
+> The transform pattern handles ANY formula: percent change, fixed delta, tier rules, "set everything below X to X", currency rounding. Only the Compute step changes.
+
+#### Worked example C — transform with cross-product shortcut
+
+> "Set the price to 19.99 BGN on every Nike sneaker (regardless of which product they're variants of)."
+
+1. **Filter — get variant ids across products:** `products(vendor_id: <nike_id>, category_id: <sneakers_id>, first: 100)` → for each, query `variants { edges { node { id } } }` → collect a flat list of variant ids.
+2. **Preview** as in B.
+3. **Apply** — single call, no Compute, no per-product loop:
+   ```graphql
+   mutation BulkPrice($input: BulkPriceUpdateInput!) {
+     productVariantsBulkUpdatePrice(input: $input) {
+       __typename
+     }
+   }
+   ```
+   `input: { ids: [<all variant ids>], price: 19.99 }`.
+4. **Report.**
+
+> Use the cross-product price shortcut whenever the **target value is the same** for all variants. Switch to `productVariantsBulkUpdate` (per-product loop) the moment values differ per row.
 
 ### 3.5 Delete a single product → `deleteProduct`
 
-`deleteProduct(id)` is a **hard delete** — no archive, no soft-delete.
+`deleteProduct(id)` removes the product permanently from the merchant's catalog. It cannot be undone from chat — the merchant would need to restore from a backup if available.
 
 **Safety gate (always):**
 
@@ -276,15 +360,17 @@ Use the dedicated bulk mutations — much faster than looping single updates:
 
 Wait for explicit "yes" / "да" before executing.
 
-### 3.6 Bulk delete products
+### 3.6 Bulk delete products → `productsBulkDelete`
 
-There is no `bulkDeleteProducts` mutation — loop `deleteProduct` per id.
+`productsBulkDelete(ids: [ID!]!)` immediately marks the products inactive and soft-deleted (they disappear from the storefront and from search right away), then queues a background job to physically remove rows and files. The mutation returns as soon as the job is enqueued.
 
 **Safety gate (always):** Show the list (id + name) and a count. If > 25 products, show the first 10 + "…and X more".
 
 "This will permanently delete **47 products** (first 10: …, …; and 37 more). This cannot be undone. Reply **yes** to confirm."
 
-After confirmation, loop with progress updates every 10. Collect per-id errors and report at the end.
+After confirmation, fire one `productsBulkDelete(ids: [...])` call. Inspect the response — non-existent / already-deleted ids come back in `skippedIds`. Report:
+
+"Deleted 45 products. 2 skipped (already removed)."
 
 ### 3.7 Find / list products
 
@@ -322,8 +408,8 @@ query ListProducts {
 - **Progress update every 10 items in any batch.**
 - **On per-item errors in a batch, collect — don't abort.** Report all failures at the end with row/id and reason.
 - **Variants:** for multi-variant products, `v1`/`v2`/`v3` option values are required. If the merchant didn't supply them, ask.
-- **Images:** prefer URL upload (`uploadProductImage` with `image_data: <url>`). Don't download and base64-encode unless the merchant explicitly asks — base64 strings burn context.
-- **Identification:** when the merchant references a product by name or sku, search first (`products(search: ...)`) and confirm if there's more than one match. Never guess between multiple matches.
+- **Images:** prefer URL upload — `uploadProductImage(productId, input: { image_data: <url>, set_primary: <bool> })`. Don't download and base64-encode unless the merchant explicitly asks — base64 strings burn context.
+- **Identification:** when the merchant references a product by name or sku, search first (`productSearch(query: ...)` for autocomplete, or `products(query: ...)` for filtered results) and confirm if there's more than one match. Never guess between multiple matches.
 - **Validate before execute.** No exceptions.
 - **Proceed directly when intent is clear.** Don't show menus or example prompts when the merchant has already given a concrete request.
 - **Always state what's about to happen in one sentence before a write operation.** E.g. "Creating **Summer Tee** as draft." — but never run mutations invisibly.
