@@ -112,16 +112,26 @@ The merchant may provide their store in any of these formats:
 | `{handle}.cloudcart.net`                      | as-is                           |
 | `https://{handle}.cloudcart.net`              | subdomain                       |
 | `https://{handle}.cloudcart.net/admin`        | subdomain                       |
-| `{handle}.ccdev.pro` (staging)                | as-is                           |
 | Custom domain (e.g. `mybrand.com`)            | ask for the `.cloudcart.net` URL (Settings → Domains in their CloudCart admin) |
 
 Normalize to `{handle}.cloudcart.net` for the `--store` flag. Strip trailing slashes and anything after the handle.
 
 If the user is already authenticated, `cloudcart auth status` will list their authenticated stores including any custom-domain mappings — check there first before re-asking.
 
-### Run the auth command
+### Choose an auth method
 
-Execute the command directly:
+Present the merchant with both options and let them pick:
+
+"How would you like to sign in?
+
+1. **Browser sign-in** — opens your CloudCart admin login in a browser window
+2. **Personal Access Token (PAT)** — you paste a token I'll use to authenticate; useful if your browser is on another machine or you prefer not to leave the chat"
+
+Wait for the merchant to choose before continuing.
+
+### Option A — Browser sign-in
+
+Run the command directly:
 
 ```
 cloudcart auth login --store {handle}.cloudcart.net
@@ -135,13 +145,40 @@ Immediately after starting the command, tell the merchant:
 
 Do not proceed or take other actions until the command exits.
 
-If the merchant prefers a Personal Access Token instead (e.g. they're scripting), they can run:
+### Option B — Personal Access Token (PAT)
+
+Tell the merchant exactly where to get the token, then wait for them to paste it:
+
+"To generate a token:
+
+1. Open `https://{handle}.cloudcart.net/admin/settings/pat-tokens` in your browser (you may need to sign in to the admin panel first).
+2. Create a new Personal Access Token.
+3. Copy the token (it starts with `cc_pat_`) and paste it back here.
+
+I'll use it once to authenticate and won't store it anywhere outside the CLI's secure credential store."
+
+If they're on macOS, mention that the CLI stores the token in the OS Keychain. On Linux/Windows the CLI uses its own encrypted local store.
+
+Open the PAT settings page for them using the OS-appropriate command (best-effort — it requires them to be already signed into their CloudCart admin in the browser):
 
 ```
-cloudcart auth login --store {handle}.cloudcart.net --token cc_pat_xxx
+# macOS
+open https://{handle}.cloudcart.net/admin/settings/pat-tokens
+# Linux
+xdg-open https://{handle}.cloudcart.net/admin/settings/pat-tokens
+# Windows
+start https://{handle}.cloudcart.net/admin/settings/pat-tokens
 ```
 
-or set `CLOUDCART_CLI_TOKEN` and `CLOUDCART_CLI_STORE` as environment variables. Don't push them toward this path unless they ask.
+When the merchant provides the token, run:
+
+```
+cloudcart auth login --store {handle}.cloudcart.net --token <pasted-token>
+```
+
+Never echo the token back into chat output, log it, or write it to a file. Pass it directly as the `--token` flag value.
+
+If the merchant is scripting or running headless, they can also set `CLOUDCART_CLI_TOKEN` and `CLOUDCART_CLI_STORE` as environment variables instead of running `auth login` — same effect. Mention this only if they ask.
 
 ### On success (exit code 0)
 
