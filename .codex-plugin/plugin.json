@@ -23,7 +23,7 @@
     "capabilities": ["Read"],
     "logo": "./assets/cloudcart_glyph.svg",
     "composerIcon": "./assets/cloudcart_glyph.svg",
-    "brandColor": "#22A6F2",
+    "brandColor": "#ff4b51",
     "websiteURL": "https://cloudcart.com",
     "defaultPrompt": [
       "Set up my CloudCart store",

@@ -72,11 +72,11 @@ Open the CloudCart signup page using the OS-appropriate command based on the OS 
 
 ```
 # macOS
-open https://www.cloudcart.com/free-trial?utm_source=cli&utm_medium=skill&utm_campaign=cloudcart-onboarding
+open https://cloudcart.com/onboarding?utm_source=cli&utm_medium=skill&utm_campaign=cloudcart-onboarding
 # Linux
-xdg-open https://www.cloudcart.com/free-trial?utm_source=cli&utm_medium=skill&utm_campaign=cloudcart-onboarding
+xdg-open https://cloudcart.com/onboarding?utm_source=cli&utm_medium=skill&utm_campaign=cloudcart-onboarding
 # Windows
-start https://www.cloudcart.com/free-trial?utm_source=cli&utm_medium=skill&utm_campaign=cloudcart-onboarding
+start https://cloudcart.com/onboarding?utm_source=cli&utm_medium=skill&utm_campaign=cloudcart-onboarding
 ```
 
 "I've opened the CloudCart signup page.
