@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "author": { "name": "CloudCart" },
   "logo": "../assets/cloudcart_glyph.svg",
-  "homepage": "https://github.com/cloudcart/AI-Toolkit",
-  "repository": "https://github.com/cloudcart/AI-Toolkit",
+  "homepage": "https://github.com/cloudcart/ai-toolkit",
+  "repository": "https://github.com/cloudcart/ai-toolkit",
   "license": "MIT",
   "keywords": [
     "cloudcart",

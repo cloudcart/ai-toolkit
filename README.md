@@ -9,26 +9,26 @@ The Toolkit gives your agent access to the CloudCart Admin GraphQL API — seman
 * **For Claude Code**: Run these two commands in a chat:
 
     ```
-    /plugin marketplace add cloudcart/AI-Toolkit
+    /plugin marketplace add cloudcart/ai-toolkit
     /plugin install cloudcart-plugin@cloudcart-ai-toolkit
     ```
 
 * **For Cursor**: Open the Command Palette (`CMD+SHIFT+P` / `CTRL+SHIFT+P`) and run **Cursor: Install Plugin From URL**. Then paste:
 
     ```
-    https://github.com/cloudcart/AI-Toolkit
+    https://github.com/cloudcart/ai-toolkit
     ```
 
 * **For Gemini CLI**: Run this command in your terminal:
 
     ```
-    gemini extensions install https://github.com/cloudcart/AI-Toolkit
+    gemini extensions install https://github.com/cloudcart/ai-toolkit
     ```
 
 * **For VS Code**: Open the Command Palette (`CMD+SHIFT+P` / `CTRL+SHIFT+P`) and run **Chat: Install Plugin From Source**. Then paste:
 
     ```
-    https://github.com/cloudcart/AI-Toolkit
+    https://github.com/cloudcart/ai-toolkit
     ```
 
 ## What you get
