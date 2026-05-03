@@ -19,7 +19,7 @@ Please open issues in the right place. PRs against this repo are welcome for:
 
 ```bash
 # Validate all JSON manifests
-for f in $(find . -name '*.json' -not -path './Shopify-AI-Toolkit/*' -not -path './node_modules/*'); do
+for f in $(find . -name '*.json' -not -path './node_modules/*' -not -path './.git/*'); do
   python3 -m json.tool "$f" > /dev/null && echo "OK $f" || echo "FAIL $f"
 done
 
