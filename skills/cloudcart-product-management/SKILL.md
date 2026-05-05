@@ -350,6 +350,132 @@ If a single bulk primitive matches the goal, use it directly. If the merchant's 
 
 > Use the cross-product price shortcut whenever the **target value is the same** for all variants. Switch to `productVariantsBulkUpdate` (per-product loop) the moment values differ per row.
 
+#### Scaling: scripts, dry-runs, snapshots
+
+When the affected set is large or the transform is hard to reverse, switch from inline tool calls to a **generated script with mandatory dry-run**. Pick the approach by row count:
+
+| Affected rows | Approach | Mandatory steps |
+| ------------- | -------- | --------------- |
+| < 10          | Inline tool calls | Text preview; ask before destructive |
+| 10–100        | Inline with progress every 10 | Preview list (5 + total); single confirmation turn |
+| 100–1 000     | **Generate a Python script + dry-run first** | Dry-run output + diff sample; single confirmation turn |
+| > 1 000       | **Script + dry-run + pre-change CSV snapshot** | Snapshot saved before any write; dry-run output; single confirmation turn |
+
+##### Don't multi-question — propose with defaults
+
+When the merchant gives a clear bulk intent ("raise category Shoes prices by 15%", "увеличи цената с 15% в категория Автомобили"), **do not respond with 4 clarifying questions.** Pick reasonable defaults, state them in one turn, and offer the merchant the chance to override anything they care about. Example:
+
+> "I'll raise every variant's `price` by 15% on the **27,285 products** in category 'Автомобили'. My defaults:
+>  - `discount_price` left unchanged (only the regular price moves)
+>  - Round result to 2 decimals
+>  - Direct products of the category only — subcategories not included
+>  - Snapshot of current prices saved to `/tmp/cc-prices-Автомобили-<ts>.csv` first
+>  - **Dry-run executes first** — no writes happen until you confirm
+>
+> Reply `yes` to run dry-run, or tell me which defaults to override (e.g. *include subcategories*, *round to .99*, *also raise discount_price*) and I'll regenerate."
+
+Wait for one confirmation reply. Then generate the script and execute it in dry-run mode automatically.
+
+##### Script skeleton
+
+For sets ≥ 100 rows, generate a Python script in `/tmp/cc-<operation>-<ts>.py` with this shape:
+
+```python
+#!/usr/bin/env python3
+"""Raise prices by 15% in category 'Автомобили' on store {handle}.cloudcart.net."""
+import argparse, csv, json, subprocess, sys, time
+from pathlib import Path
+
+STORE = "{handle}.cloudcart.net"
+CATEGORY_ID = "51368"
+MULTIPLIER = 1.15
+TS = time.strftime("%Y%m%d-%H%M%S")
+SNAPSHOT = Path(f"/tmp/cc-prices-{CATEGORY_ID}-{TS}.csv")
+LOG = Path(f"/tmp/cc-raise15-{TS}.jsonl")
+
+def gql(query, variables=None):
+    cmd = ["cloudcart", "app", "execute", "--store", STORE,
+           "--query", query, "--json"]
+    if variables is not None:
+        var_path = Path(f"/tmp/cc-vars-{TS}.json")
+        var_path.write_text(json.dumps({"input": variables} if "input" in query else variables))
+        cmd += ["--variables", str(var_path)]
+    out = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    return json.loads(out.stdout)
+
+def list_products(cursor=None):
+    return gql(
+        'query($cid:ID!,$after:String){products(category_id:$cid,first:100,after:$after){edges{node{id name variants{edges{node{id price}}}}cursor}pageInfo{hasNextPage endCursor total}}}',
+        {"cid": CATEGORY_ID, "after": cursor},
+    )
+
+def bulk_update(product_id, variants):
+    return gql(
+        'mutation($pid:ID!,$vs:[ProductVariantsBulkInput!]!){productVariantsBulkUpdate(productId:$pid,variants:$vs){productVariants{id price}userErrors{field message}}}',
+        {"pid": product_id, "vs": variants},
+    )
+
+def main(apply: bool):
+    SNAPSHOT.parent.mkdir(parents=True, exist_ok=True)
+    snap = SNAPSHOT.open("w", newline="")
+    snap_w = csv.writer(snap); snap_w.writerow(["product_id","variant_id","old_price","new_price"])
+    log = LOG.open("w")
+
+    cursor, processed, errors, skipped = None, 0, 0, 0
+    while True:
+        page = list_products(cursor)["data"]["products"]
+        for edge in page["edges"]:
+            p = edge["node"]
+            new_variants = []
+            for v_edge in p["variants"]["edges"]:
+                v = v_edge["node"]
+                if v["price"] is None:
+                    skipped += 1
+                    continue
+                new_price = round(v["price"] * MULTIPLIER, 2)
+                snap_w.writerow([p["id"], v["id"], v["price"], new_price])
+                new_variants.append({"id": v["id"], "price": new_price})
+            if not new_variants:
+                continue
+            if apply:
+                res = bulk_update(p["id"], new_variants)
+                ue = res["data"]["productVariantsBulkUpdate"]["userErrors"]
+                if ue:
+                    errors += len(ue)
+                    log.write(json.dumps({"product_id": p["id"], "errors": ue}) + "\n")
+            processed += 1
+            if processed % 10 == 0:
+                print(f"{'APPLIED' if apply else 'PREVIEW'} {processed}/{page['pageInfo']['total']}…")
+        if not page["pageInfo"]["hasNextPage"]: break
+        cursor = page["pageInfo"]["endCursor"]
+
+    snap.close(); log.close()
+    print(f"\n{'Applied' if apply else 'Dry-run'}: {processed} products, {skipped} variants skipped, {errors} errors")
+    print(f"Snapshot/diff: {SNAPSHOT}")
+    print(f"Log: {LOG}")
+    if not apply:
+        print(f"\nReview the snapshot, then re-run with --apply to write changes.")
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--apply", action="store_true", help="Actually write changes (default: dry-run)")
+    main(ap.parse_args().apply)
+```
+
+##### Dry-run → review → apply
+
+1. Run **without** `--apply` first. The script paginates the full set, computes new prices, writes the snapshot CSV (which doubles as a diff: old vs new), but issues **zero mutations**.
+2. Show the merchant a 5-row sample plus the totals: "27,285 products / 84,612 variants. 312 variants skipped (no current price). Snapshot at `/tmp/cc-prices-Автомобили-<ts>.csv`. Sample: …. Reply `yes` to apply."
+3. On `yes`, re-run with `--apply`. Progress every 10 products, errors collected in the JSONL log, final summary.
+4. The snapshot CSV is the rollback path — for reverting, generate a second script that reads it and writes `old_price` back via the same mutation.
+
+##### Why scripts (and not just a longer chain of tool calls)
+
+- **Resumable.** If a long run is interrupted (network, rate limit, merchant changes their mind), the script's checkpoint log lets you continue from where you stopped without re-doing the dry-run.
+- **Auditable.** The snapshot CSV + JSONL log are the merchant's single source of truth for "what changed when".
+- **Token-cheap.** Per-product GraphQL roundtrips happen on the merchant's machine, not in your context window. You only pay tokens for: the proposal, the script generation, the dry-run summary, and the final report.
+- **Reusable.** Same skeleton works for percent change, fixed delta, tier rules, threshold floors — only the `Compute` line changes.
+
 ### 3.5 Delete a single product → `deleteProduct`
 
 `deleteProduct(id)` removes the product permanently from the merchant's catalog. It cannot be undone from chat — the merchant would need to restore from a backup if available.
@@ -403,6 +529,9 @@ query ListProducts {
 
 - **Never inline merchant-supplied strings into shell args.** Names, descriptions, CSV rows, image URLs may contain quotes, apostrophes, emoji, or newlines. Always write variables JSON to `/tmp/cc_input_<N>.json` and pass via `--variables`.
 - **Always show a preview before bulk operations affecting ≥ 10 products.** First 5 items + total count.
+- **For sets ≥ 100 rows, generate a Python script with mandatory dry-run.** See *Scaling* in Step 3.4. The script writes a snapshot CSV first (rollback path), runs in dry-run by default, and only mutates when re-run with `--apply`.
+- **For destructive bulk transforms affecting > 1 000 rows, the snapshot CSV is non-negotiable.** Even if the merchant says "just do it", run the snapshot — it's the single rollback path.
+- **One proposal turn, not five questions.** When the merchant gives a clear bulk intent, state your defaults (which fields, rounding, scope, snapshot location, dry-run) and a single override prompt. Don't ask a checklist of clarifying questions — propose, let the merchant override what they care about, proceed.
 - **Always ask before any delete (single or bulk).** Wait for explicit yes/да.
 - **Always ask draft-or-live for batch creates.** For single creates, ask only if the merchant didn't already specify.
 - **Progress update every 10 items in any batch.**
