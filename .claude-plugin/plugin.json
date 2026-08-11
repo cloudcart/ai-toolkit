@@ -1,7 +1,7 @@
 {
   "name": "cloudcart-plugin",
   "description": "CloudCart developer & merchant tools for Claude Code — install the CloudCart CLI, search the Admin GraphQL API, validate queries, and manage your store.",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "author": { "name": "CloudCart" },
   "license": "MIT",
   "keywords": [

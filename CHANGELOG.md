@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.5
+
+A question answerable by one screen and one field produced roughly 600 words: customer-facing behaviour, courier interactions, a dead-end scenario, a pricing alternative, three unresolved documentation items and a seven-step debugging checklist. The skill was doing what it was told — `Completeness beats brevity` was a non-negotiable, and the thinking framework marked follow-ups and adjacent features as required output.
+
+The rules conflated two different obligations. Reading is where completeness belongs; the answer is where proportion belongs.
+
+- **Read exhaustively, answer proportionately.** Research relentlessly, then write the answer to the question that was asked, at the size that question deserves. Depth found and not needed is what makes the short answer trustworthy, not material owed to the reader.
+- **Extra paragraphs must earn their place** by changing what the merchant does next — a prerequisite, a surprising side effect, a blocking gate, a cheaper route to the same goal. Merely true and related is not enough; offer it instead of appending it.
+- **The thinking framework's "required" means required to consider, not to publish.** Passing the whole checklist through to the merchant is the failure the checklist exists to prevent.
+- **Only uncertainty bearing on the answer given gets reported.** Every gap met while reading is not a finding. One qualified claim reads as careful; five read as unreliable.
+
 ## 0.2.4
 
 Asked the same question twice, `cloudcart-platform-expert` gave two confident and contradictory answers about when a minimum-order limit blocks a customer. The cause is a genuine contradiction in the wiki — `settings-cart-limits-and-decrement` says the check fires at order submit, `storefront-cart-customisation` says it blocks the cart's checkout button — which the skill resolved silently instead of reporting. Three fixes:
