@@ -1,6 +1,6 @@
 ---
 name: cloudcart-cli-install
-description: "Install the CloudCart CLI (@cloudcart/cli, binary `cloudcart`) on the user's machine. Use when the user wants to: install cloudcart cli, set up cloudcart cli, get cloudcart cli running, fix cloudcart command not found, install cloudcart developer tools, install the cloudcart command-line tool, npm install cloudcart, brew install cloudcart, instalirai cloudcart cli, instalirai cloudcart, cloudcart cli setup. This skill ONLY installs the CLI; for catalog work (connecting the store, products, prices, inventory), use cloudcart-product-management after this."
+description: "Install the CloudCart CLI (@cloudcart/cli, binary `cloudcart`) on the user's machine. Use when the user wants to: install cloudcart cli, set up cloudcart cli, get cloudcart cli running, fix cloudcart command not found, install cloudcart developer tools, install the cloudcart command-line tool, npm install cloudcart, brew install cloudcart, instalirai cloudcart cli, instalirai cloudcart, cloudcart cli setup, инсталирай cloudcart, cloudcart не се намира. This skill ONLY installs the CLI. For catalogue work (connecting the store, products, prices, inventory) use cloudcart-product-management; for questions about how the CloudCart platform works use cloudcart-platform-expert."
 compatibility: Claude Code, Claude Desktop, Cursor, OpenAI Codex, Gemini CLI, VS Code Copilot
 context: fork
 maintainer: CloudCart

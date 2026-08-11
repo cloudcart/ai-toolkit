@@ -1,6 +1,6 @@
 {
   "name": "cloudcart-plugin",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "CloudCart developer & merchant tools for OpenAI Codex — install the CloudCart CLI, search the Admin GraphQL API, validate queries, and manage your store.",
   "author": { "name": "CloudCart" },
   "homepage": "https://github.com/cloudcart/ai-toolkit",

@@ -1,6 +1,6 @@
 ---
 name: cloudcart-dev-mcp-install
-description: "Install or register the CloudCart Dev MCP server (@cloudcart/dev-mcp) with the current AI host. Use when the user wants to: install cloudcart dev mcp, set up cloudcart mcp, register cloudcart mcp, add cloudcart mcp to claude desktop, add cloudcart mcp to cursor, my cloudcart mcp is not loading, my cloudcart mcp tools are missing, fix cloudcart mcp, instalirai cloudcart mcp, dobavi cloudcart mcp, configure cloudcart mcp server."
+description: "Install or register the CloudCart Dev MCP server (@cloudcart/dev-mcp) with the current AI host. ONLY for setting up the MCP server itself. Use when the user wants to: install cloudcart dev mcp, set up cloudcart mcp, register cloudcart mcp, add cloudcart mcp to claude desktop, add cloudcart mcp to cursor, my cloudcart mcp is not loading, my cloudcart mcp tools are missing, fix cloudcart mcp, instalirai cloudcart mcp, dobavi cloudcart mcp, configure cloudcart mcp server, инсталирай cloudcart mcp, добави cloudcart mcp, mcp-то не се зарежда. Do NOT use this to answer questions about how the CloudCart platform works — that is cloudcart-platform-expert, even when the question mentions the API or the MCP. Do NOT use it merely because an answer will need the MCP's tools; this skill installs the server, it does not use it."
 compatibility: Claude Code, Claude Desktop, Cursor, OpenAI Codex, Gemini CLI, VS Code Copilot
 context: fork
 maintainer: CloudCart

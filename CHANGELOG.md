@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1
+
+- Fixed skill routing: platform questions were dispatching to `cloudcart-dev-mcp-install` instead of `cloudcart-platform-expert`. The platform-expert description now leads with concrete phrasings and carries Bulgarian triggers in Cyrillic rather than only transliterated, trigger phrases moved to `when_to_use`, and each of the other three skills states explicitly when *not* to use it.
+- `cloudcart-platform-expert` now states that the Dev MCP's `semantic_search` covers the Admin GraphQL schema, not platform behaviour, so it is not a substitute for the wiki on "how does it work" questions.
+
 ## 0.2.0
 
 - Added `cloudcart-platform-expert` — answers how CloudCart is *supposed* to work (navigation, settings, business rules, plan gates), grounded in the CloudCart platform wiki. Runs in a forked context so the verbose wiki reading stays out of the main conversation.
