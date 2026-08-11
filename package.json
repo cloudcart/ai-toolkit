@@ -1,6 +1,6 @@
 {
   "name": "cloudcart-plugin",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "private": true,
   "description": "AI agent plugin manifests for the CloudCart CLI and Dev MCP server",
   "author": "CloudCart",

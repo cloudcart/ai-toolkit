@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.6
+
+Borrowed from the CloudCart support project's `platform-expert` agent, which this skill descends from — and identified why one of its rules does not transfer.
+
+That agent is a sub-agent: it reports to a parent that holds the ticket and writes the merchant reply. "Report completely, completeness beats brevity" is correct there because the recipient is another agent that selects what the merchant sees. This skill has no such parent — a forked skill's result reaches the user close to unedited — so the rule arrived without the filtering layer that made it safe. That was the 0.2.5 bug at its root.
+
+- **Who is reading your answer.** States the audience and that nothing edits the answer downstream, so the selecting is the skill's own job. Adds the two rules that follow: give the click path rather than confirming a fact, and name conditions instead of assuming a store state you cannot see.
+- **The question sets the scope, and finishing it is the finish line.** Counterweight to "cover every dimension": once the answer holds with its complete predicate, stop reading. Material never gathered cannot bloat the answer.
+- **The "which component owns this" map.** When someone points at a surface, which module produces it and where its content is configured is design knowledge a live-data lookup cannot discover on its own. The skill supplies element → owning component → screen, so a lookup can then read the value.
+
 ## 0.2.5
 
 A question answerable by one screen and one field produced roughly 600 words: customer-facing behaviour, courier interactions, a dead-end scenario, a pricing alternative, three unresolved documentation items and a seven-step debugging checklist. The skill was doing what it was told — `Completeness beats brevity` was a non-negotiable, and the thinking framework marked follow-ups and adjacent features as required output.
