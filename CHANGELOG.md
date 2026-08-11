@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.4
+
+Asked the same question twice, `cloudcart-platform-expert` gave two confident and contradictory answers about when a minimum-order limit blocks a customer. The cause is a genuine contradiction in the wiki — `settings-cart-limits-and-decrement` says the check fires at order submit, `storefront-cart-customisation` says it blocks the cart's checkout button — which the skill resolved silently instead of reporting. Three fixes:
+
+- **Contradicting pages are the finding.** Where two pages describe the same behaviour differently, report the disagreement and the surface each describes. Never pick the more plausible page, never blend them into a third version. A confident reconciliation hides a real documentation defect, and asked twice it produces two different confident answers.
+- **Uncertainty has to survive rendering.** `gaps` was the last field of the output block, and the block gets rewritten into prose before it reaches anyone — so caveats were dropped and the merchant received claims the skill never made. Renamed to `uncertain`, moved above `answer`, and every item must now also appear inline next to the sentence it qualifies.
+- **Reassurances are claims.** "Takes effect immediately", "nothing else is affected" read as the absence of a caveat and get written unchecked. The answer asserted immediate effect; no page says it. Also: preserve the source's hedges — a page saying something "usually" happens must not be upgraded into a precise mechanism.
+
 ## 0.2.3
 
 - Removed the wiki-gaps log. `cloudcart-platform-expert` no longer writes a gap file — the plugin ships to many separate users, so a local log serves no one. Gaps are still flagged, in the answer itself. The skill now declares `disallowed-tools: Write, Edit, NotebookEdit`, making read-only a property of the skill rather than an instruction it can drift from.
