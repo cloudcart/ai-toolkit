@@ -126,5 +126,5 @@ This is enforced by the server — calls without a valid `conversationId` will f
 
 - Never invent registration steps. Use only the snippets in this file.
 - If a registration UI in the host doesn't match the layout described here, describe the matching JSON snippet and let the user paste it.
-- If the MCP responds but auth-dependent flows fail later, the gap is on the CLI side — point at `cloudcart-cli-install` / `cloudcart-onboarding-merchant`.
-- After successful registration, confirm in one sentence and offer the merchant onboarding hand-off.
+- If the MCP responds but auth-dependent flows fail later, the gap is on the CLI side — point at `cloudcart-cli-install` / `cloudcart-product-management`.
+- After successful registration, confirm in one sentence and offer the hand-off to `cloudcart-product-management` (catalog work) or `cloudcart-platform-expert` (how the platform works).

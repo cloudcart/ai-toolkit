@@ -19,11 +19,22 @@ Help a CloudCart merchant manage their catalog — create, edit, delete, and bul
 
 Run `cloudcart auth status` first. Branch on the result:
 
-- **Not authenticated** → "I need to connect to your store before I can manage products. Let me run the connection flow." → invoke the `cloudcart-onboarding-merchant` skill (option 2 — connect existing store). After it succeeds, return here.
+- **Not authenticated** → connect the store (see **Connecting a store** below), then continue.
 - **CLI not installed** (`cloudcart: command not found`) → invoke the `cloudcart-cli-install` skill, then retry `cloudcart auth status`.
 - **MCP tools not visible** in this session → fall back to the CLI for discovery and validation (see **MCP-not-available fallback** at the end).
 
 Once authenticated, capture the store handle (e.g. `mystore.cloudcart.net`) for every subsequent `cloudcart app execute` call.
+
+### Connecting a store
+
+Say "I need to connect to your store before I can manage products", then ask for the store URL and normalize it to `{handle}.cloudcart.net` — strip `https://`, any `/admin` suffix, and trailing slashes. For a custom domain (e.g. `mybrand.com`), ask for the `.cloudcart.net` URL instead; the merchant finds it under Settings → Domains in their CloudCart admin.
+
+Then offer both sign-in methods and wait for the merchant to pick:
+
+1. **Browser sign-in** — `cloudcart auth login --store {handle}.cloudcart.net`. This opens a browser and blocks until the merchant completes consent. Tell them "A browser window is opening — sign in and accept the **CloudCart CLI** permissions. I'll wait here until it's done", then do nothing else until the command exits.
+2. **Personal Access Token** — point them at `https://{handle}.cloudcart.net/admin/settings/pat-tokens` to create a token (starts with `cc_pat_`), then run `cloudcart auth login --store {handle}.cloudcart.net --token <pasted-token>`. **Never echo the token back into chat, log it, or write it to a file.**
+
+On failure, report the exact error and stop — don't retry silently.
 
 ---
 
