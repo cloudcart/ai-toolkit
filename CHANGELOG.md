@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.2
+
+Tightened `cloudcart-platform-expert` after reviewing a real answer against the wiki:
+
+- **Invented interactions.** The answer stated that the order minimum is compared after discounts — plausible, useful, and not on any wiki page. The grounding rule now names that shape explicitly: a sentence describing how one feature interacts with another is where platforms genuinely differ, so it is exactly what cannot come from general knowledge.
+- **Disambiguation ordering.** The answer resolved one reading in full, then disclosed that the question had three. Disambiguation is now a gate: if you are about to write "but if you actually meant X, don't use the above", lead with the question instead.
+- **Hub frontmatter.** An aspect page can carry `plan_gates: []` while the hub that owns the screen carries real gates. Reading only the aspect reports a gated feature as ungated.
+- **Label language.** Wiki labels are English; a translated nav path next to an untranslated field name leaves the merchant scanning for a string that is not on screen.
+
 ## 0.2.1
 
 - Fixed skill routing: platform questions were dispatching to `cloudcart-dev-mcp-install` instead of `cloudcart-platform-expert`. The platform-expert description now leads with concrete phrasings and carries Bulgarian triggers in Cyrillic rather than only transliterated, trigger phrases moved to `when_to_use`, and each of the other three skills states explicitly when *not* to use it.
