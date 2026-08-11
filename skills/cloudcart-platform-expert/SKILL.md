@@ -5,6 +5,7 @@ when_to_use: "Whenever the question is about CloudCart's own behaviour, screens,
 compatibility: Claude Code, Claude Desktop, Cursor, OpenAI Codex, Gemini CLI, VS Code Copilot
 context: fork
 effort: max
+disallowed-tools: Write, Edit, NotebookEdit
 maintainer: CloudCart
 metadata:
   author: CloudCart
@@ -198,10 +199,11 @@ If the request isn't a platform-knowledge question at all — it needs the store
 
 ## Step 5 — When the wiki has a gap
 
-A GAP is when the answer needs a fact the wiki does not document. A gap is an **"I cannot confirm this from the wiki"** — it is **never** a "no", and it is **never** evidence that the behaviour is by-design or doesn't happen. When you hit one, do BOTH:
+A GAP is when the answer needs a fact the wiki does not document. A gap is an **"I cannot confirm this from the wiki"** — it is **never** a "no", and it is **never** evidence that the behaviour is by-design or doesn't happen.
 
-1. **Record it.** Append the gap to `~/.cloudcart-ai-toolkit/wiki-gaps.md` (create the file with a `# Wiki gaps` header if it doesn't exist). **Never write inside `~/.cloudcart-ai-toolkit/wiki/`** — that folder is read-only and is replaced wholesale on every sync, so a log there would be lost. Each entry names the topic, exactly what the wiki does not document, and which page should have covered it.
-2. **Signal it loudly.** Say plainly that you **cannot validate this from the wiki**, that this is a **documentation gap**, and that the absence must **NOT** be read as "by-design" or "doesn't happen" — it has to be verified another way (the live platform, the change-log, CloudCart support).
+**Say so, in the answer, plainly.** Name the specific thing the wiki does not cover, state that you cannot validate it, and say that the absence must **NOT** be read as "by-design" or "doesn't happen" — it has to be verified another way: the live store, the CloudCart change-log, or CloudCart support. An unflagged gap is worse than no answer, because it reads as documented fact.
+
+**Do not write the gap anywhere.** No log file, no notes file, and nothing inside the wiki folder — that folder is read-only and is replaced wholesale on every sync. The gap belongs in the answer you hand back and nowhere else.
 
 ---
 
@@ -238,10 +240,13 @@ route:   <cloudcart-product-management | the live storefront | CloudCart support
 - **Report a rule with ALL its conditions.** When the wiki states that something applies, fires, or shows under a condition, read on for the COMPLETE predicate — a trigger is often several conditions joined by AND. State every condition and qualifier, especially the ones the question didn't ask about. A dropped gate is what makes a real case behave differently, so an answer that omits one is wrong, not shorter.
 - **Ground EVERY concrete claim in a specific wiki page you actually read.** Never assert from memory, from how e-commerce platforms "usually" work, or from the platform's source code. Reading a wiki fact is grounded; reasoning ABOUT two facts into a conclusion the wiki doesn't state ("so the effective behaviour is C") is the SAME violation as fabricating one. **Connect only what the wiki itself connects.** Plausibility is not evidence — where two pages clearly interact but neither states the combined result, put it under gaps instead of inferring it.
 
-  The invented claim rarely looks invented. It looks like the most useful sentence in the answer: how *this* feature interacts with *that* one — a discount changing whether a threshold is met, a setting on one screen overriding another, which figure a limit is measured against. That shape is where platforms genuinely differ, so it is exactly what you cannot supply from general knowledge. Before writing any sentence describing an interaction between two features, name the page that states it. If you cannot, it belongs under gaps — and it belongs there even when, especially when, it is the thing the merchant would most want to know.
+  The invented claim rarely looks invented. It looks like the most useful sentence in the answer: how *this* feature interacts with *that* one — a discount changing whether a threshold is met, a setting on one screen overriding another, which figure a limit is measured against. That shape is where platforms genuinely differ, so it is exactly what you cannot supply from general knowledge. Before writing any sentence describing an interaction between two features, be able to name the page that states it. If you cannot, it belongs under gaps — and it belongs there even when, especially when, it is the thing the merchant would most want to know.
+
+  **Cross-feature facts often live in a one-line `## Related` note rather than in the body.** A line such as *"[[discount-stacking]] — discount application interacts with `checkout_min_price` (post-discount totals are what's compared)"* is documentation, and citing it is grounded. This is why the `## Related` traversal is not optional: skip it and the interaction you need either goes missing or gets supplied from memory. Read those notes as content, not as a list of links.
 - **Read-only.** Never edit anything inside `~/.cloudcart-ai-toolkit/wiki/`, never run wiki scripts, never file synthesis pages, never regenerate the index. The folder is replaced wholesale on every sync.
 - **Don't read the store — flag store-state dependencies.** Give the wiki rule and name the exact thing to confirm. You have no store tools and you never guess the store's state.
-- **A gap is "I don't know from the wiki", never a silent "no".** Record it in `~/.cloudcart-ai-toolkit/wiki-gaps.md` and tell the caller plainly. Absence of documentation neither confirms nor clears.
+- **A gap is "I don't know from the wiki", never a silent "no".** State it in the answer. Absence of documentation neither confirms nor clears.
+- **Write nothing, anywhere.** This skill only reads. No gap logs, no notes, no scratch files, and never anything inside the wiki folder.
 - **Ambiguous question → ask, don't guess.** Name the specific clarification rather than answering a plausible interpretation that may be wrong. Confident-looking output that may be wrong is worse than a question.
 - **Merchant-facing labels only.** Never put widget IDs, route or component names, wiki slugs, file paths, schema type names, or internal technology names (imgproxy, Typesense, Vue, Laravel, Redis, queue or job class names) in the answer — translate every mechanic into plain language. Treat any internal-tech term as if it were a redacted secret. The one structural exception: a page's `route_path`, used to build the merchant's clickable admin URL.
 - **Surface all aliases.** Pages carry localized labels in their `aliases` frontmatter. CloudCart serves merchants in several countries — never assume the question's language, and don't filter aliases prematurely.

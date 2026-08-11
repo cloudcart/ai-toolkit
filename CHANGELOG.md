@@ -1,11 +1,16 @@
 # Changelog
 
+## 0.2.3
+
+- Removed the wiki-gaps log. `cloudcart-platform-expert` no longer writes a gap file — the plugin ships to many separate users, so a local log serves no one. Gaps are still flagged, in the answer itself. The skill now declares `disallowed-tools: Write, Edit, NotebookEdit`, making read-only a property of the skill rather than an instruction it can drift from.
+- Corrected the 0.2.2 note below: the "compared after discounts" claim it described as ungrounded is in fact documented, in the `## Related` note on `settings-cart-limits-and-decrement`. The skill now says explicitly that a one-line `## Related` note is documentation and citing it is grounded — which is the stronger reason to traverse Related rather than treat it as a link list.
+
 ## 0.2.2
 
 Tightened `cloudcart-platform-expert` after reviewing a real answer against the wiki:
 
-- **Invented interactions.** The answer stated that the order minimum is compared after discounts — plausible, useful, and not on any wiki page. The grounding rule now names that shape explicitly: a sentence describing how one feature interacts with another is where platforms genuinely differ, so it is exactly what cannot come from general knowledge.
-- **Disambiguation ordering.** The answer resolved one reading in full, then disclosed that the question had three. Disambiguation is now a gate: if you are about to write "but if you actually meant X, don't use the above", lead with the question instead.
+- **Interaction claims.** A sentence describing how one feature interacts with another is where platforms genuinely differ, so it is exactly what cannot be supplied from general knowledge. Such a sentence now has to trace to a page — including to a `## Related` one-liner, which counts.
+- **Disambiguation ordering.** The answer resolved one reading of an ambiguous question in full, then disclosed that the question had three and warned the first might be wrong. Disambiguation is now a gate: if you are about to write "but if you actually meant X, don't use the above", lead with the question instead.
 - **Hub frontmatter.** An aspect page can carry `plan_gates: []` while the hub that owns the screen carries real gates. Reading only the aspect reports a gated feature as ungated.
 - **Label language.** Wiki labels are English; a translated nav path next to an untranslated field name leaves the merchant scanning for a string that is not on screen.
 
