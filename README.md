@@ -31,13 +31,31 @@ The Toolkit gives your agent access to the CloudCart Admin GraphQL API — seman
     https://github.com/cloudcart/ai-toolkit
     ```
 
+## Update
+
+Claude Code does **not** update this plugin on its own. Auto-update is enabled by default only for Anthropic's own marketplaces; third-party ones like this are off until you turn them on.
+
+To update once:
+
+```
+/plugin marketplace update cloudcart-ai-toolkit
+/plugin update cloudcart-plugin@cloudcart-ai-toolkit
+/reload-plugins
+```
+
+`/plugin marketplace update` refreshes the catalog, `/plugin update` installs the newer version, and `/reload-plugins` applies it to the session you're in — without it, the new version loads on your next launch. If the reload warns that it would invalidate the prompt cache, re-run it as `/reload-plugins --force`.
+
+To stop doing that by hand, switch this marketplace to auto-update: run `/plugin`, go to **Marketplaces**, select **cloudcart-ai-toolkit**, and choose **Enable auto-update**. Claude Code then refreshes it in the background shortly after each session starts and tells you when a new version is ready to load.
+
+To check what you're on, run `/plugin list`, or compare against [CHANGELOG.md](CHANGELOG.md).
+
 ## What you get
 
 - **Schema discovery**: Semantic search over CloudCart's Admin GraphQL schema, in any language
 - **Query validation**: Validate GraphQL queries and mutations against the live schema before they run against your store
 - **Store management**: Add products, manage inventory, view orders, customers, and more — through the CloudCart CLI's `app execute` capabilities
 - **Platform knowledge**: Answer "how is this supposed to work / where do I set it / is this by design", grounded in the CloudCart platform wiki instead of guessed from memory
-- **Auto-updates**: The CLI and Dev MCP track `@latest` and the platform wiki tracks its repository, so new capabilities and new documentation are picked up automatically
+- **Auto-updates**: The CLI and Dev MCP track `@latest` and the platform wiki tracks its repository, so new capabilities and new documentation are picked up automatically. The plugin itself is the exception — see [Update](#update)
 
 ## The platform wiki
 

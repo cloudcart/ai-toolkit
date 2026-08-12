@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.7
+
+- README now documents how to update the plugin. It had update notes for the CLI, the Dev MCP and the wiki — all of which refresh themselves — and nothing for the plugin, which does not: Claude Code enables marketplace auto-update by default only for Anthropic's own marketplaces, so a third-party one like this stays on the installed version indefinitely. Adds the manual update commands, how to switch the marketplace to auto-update, and how to check the installed version.
+
 ## 0.2.6
 
 Borrowed from the CloudCart support project's `platform-expert` agent, which this skill descends from — and identified why one of its rules does not transfer.
