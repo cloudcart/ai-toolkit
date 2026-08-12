@@ -33,9 +33,9 @@ The Toolkit gives your agent access to the CloudCart Admin GraphQL API — seman
 
 ## Update
 
-Claude Code does **not** update this plugin on its own. Auto-update is enabled by default only for Anthropic's own marketplaces; third-party ones like this are off until you turn them on.
+Claude Code does **not** update this plugin on its own. Auto-update is enabled by default only for Anthropic's own marketplaces; third-party ones like this stay on the version you installed until you act. [Turning on auto-update](#turn-on-auto-update) is a one-time fix.
 
-To update once:
+To update once, by hand:
 
 ```
 /plugin marketplace update cloudcart-ai-toolkit
@@ -45,9 +45,24 @@ To update once:
 
 `/plugin marketplace update` refreshes the catalog, `/plugin update` installs the newer version, and `/reload-plugins` applies it to the session you're in — without it, the new version loads on your next launch. If the reload warns that it would invalidate the prompt cache, re-run it as `/reload-plugins --force`.
 
-To stop doing that by hand, switch this marketplace to auto-update: run `/plugin`, go to **Marketplaces**, select **cloudcart-ai-toolkit**, and choose **Enable auto-update**. Claude Code then refreshes it in the background shortly after each session starts and tells you when a new version is ready to load.
-
 To check what you're on, run `/plugin list`, or compare against [CHANGELOG.md](CHANGELOG.md).
+
+### Turn on auto-update
+
+Worth doing once, so the above stops being manual:
+
+1. Run `/plugin`
+2. Press **Tab** until you reach the **Marketplaces** tab
+3. Select **cloudcart-ai-toolkit** from the list
+4. Choose **Enable auto-update**
+
+From then on Claude Code refreshes the catalog and updates the plugin in the background shortly after each session starts — with a random delay of up to ten minutes, so the session you're in keeps the version it launched with. When something updates, you'll be prompted to run `/reload-plugins`, or the new version simply loads next time you start.
+
+To turn it off again, follow the same path and choose **Disable auto-update**.
+
+If you administer a team, you can enable it for everyone instead of asking each person to toggle it: set `"autoUpdate": true` on the marketplace's `extraKnownMarketplaces` entry in managed settings.
+
+Auto-update covers this plugin only. `DISABLE_AUTOUPDATER=1` in your environment switches off all automatic updates, including plugins; pair it with `FORCE_AUTOUPDATE_PLUGINS=1` if you want to pin Claude Code itself but keep plugins current.
 
 ## What you get
 
