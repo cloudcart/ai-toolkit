@@ -1,0 +1,205 @@
+# {{Project name}}
+
+{{One sentence: what the project is and for whom.}}
+
+## Files
+
+- `{{spec}}.md` — the functional specification. The single source of truth for scope.
+- `TASKS.md` — the tasks for the first version (Part I of the specification).
+- `BUGS.md` — bugs found and not yet fixed.
+- `plans/` — a plan for every task (`plans/T-NNN.md`), written by `.claude/skills/project-manager/` before the task is executed.
+- `.claude/skills/` — the project's skills: `project-manager` (a plan for every task) and `stage-review` (code and security review at the end of every stage).
+- `notes/` — the working memory: what was learned but is not a rule (principle 17). The index is loaded into every session through the `@notes/INDEX.md` line below.
+
+## Stack
+
+- Language: {{TypeScript, strict}}.
+- {{Admin panel}}: {{React Router + Tailwind CSS + shadcn/ui}}.
+- {{Customer-facing part}}: {{React Router + Tailwind CSS}}.
+- API: {{GraphQL (GraphQL Yoga) | REST | …}}.
+- Database: {{…}}.
+- Sign-in: {{sign-in method; which library / which guide is followed}}.
+- Files: {{object storage}}.
+- Images: {{resizing — when and how}}.
+- Email: {{service}}.
+- Background jobs: {{queues / cron}}.
+- Hosting: {{platform and plan}}.
+
+### Architecture
+
+<!-- Every line is a decision. The non-obvious ones carry their reason on the same line. -->
+
+- {{How many applications / services and how they talk to each other.}}
+- {{Who has access to the database and how.}}
+- {{How data isolation between customers is enforced; how it is tested.}}
+- {{Atomicity: which writes succeed or fail together, and with what mechanism given the database's limits.}}
+- {{Files: what the upload goes through, type and size checks, where files are served from publicly.}}
+- {{Images: when they are resized and why not at display time.}}
+- {{Background jobs: what runs on a queue and why; idempotency; one import at a time.}}
+- {{Email: domain, limits.}}
+- {{Scale: records, rows per operation, concurrent users → rules for batched queries.}}
+- {{Money: integers, precision, rounding, currency.}}
+- {{Dates: the business's time zone; servers run in UTC.}}
+
+### {{Platform / runtime}} limits
+
+{{Plan … is required, because …}}
+
+| Limit | Value |
+|---|---|
+| {{Memory}} | {{…}} |
+| {{CPU time}} | {{…}} |
+| {{Request body}} | {{…}} |
+| {{…}} | {{…}} |
+
+- {{A rule that follows from the table.}}
+
+### {{Database}} limits
+
+| Limit | Value |
+|---|---|
+| {{Size}} | {{…}} |
+| {{Parameters per query}} | {{…}} |
+| {{…}} | {{…}} |
+
+- {{A rule that follows from the table.}}
+
+## Order of work
+
+1. **Backend** — database schema, access control, business logic.
+2. **API** — on top of the finished backend.
+3. **UI** — all components first, then blocks made of them, pages last.
+
+## Work cycle for every task
+
+1. Take the next task from `TASKS.md`.
+2. Make a plan with the `project-manager` skill and execute it by the plan (principle 10). Everything outside the task is written to the files (principles 2 and 9).
+3. Fix the bugs from `BUGS.md` related to the task.
+4. Test twice (principle 3).
+5. Mark the task `[x]` and move the fixed bugs to "Closed".
+6. Commit and push to `{{main}}` — one commit per task, with its number in the message (principle 14).
+
+The last task of every stage is "End of stage N": the `stage-review` skill reviews the stage's code and security, records the findings in `BUGS.md`, fixes them one by one, triages "New tasks" and walks through the stage's acceptance criteria.
+
+## Principles
+
+### 0. Documentation over assumptions
+
+If you don't know something, check the documentation through context7 or on the web. Don't assume — mistakes from assumptions cost more than the check.
+
+### 1. Optimal database queries
+
+- Fetch only the columns and rows you need. No `select *` and no loading everything.
+- Create indexes for the columns used to filter, sort or join.
+- Prefer more simple queries over complex joins. Independent queries are sent together.
+- Follow-up queries are batched (`where id in (...)`), never one query per row (N+1). {{Parameter limit.}}
+- Lists are paginated.
+
+### 2. No work in motion
+
+- The current task includes only what it cannot be completed correctly without. Everything else is written down, not done.
+- New work that is needed → `TASKS.md` → "New tasks".
+- A bug found → `BUGS.md`. It is not fixed in motion. Exception: a bug that blocks the current task is recorded and fixed right away — properly, per principle 6.
+- A gap or question that needs a decision → `TASKS.md` → "Open questions".
+
+### 3. Test twice
+
+Every change is tested twice for possible bugs before the task is marked done.
+
+### 4. Stay within scope
+
+- Work only on the plan and the tasks in `TASKS.md`.
+- Don't add features outside the specification. The extras from Part II are not built.
+- If something was missed and matters for correct operation, don't skip it and don't do it on your own. Write it in `TASKS.md` → "Open questions" and wait for a decision.
+
+### 5. Readable, reusable code
+
+Code is easy to read, short and reusable. Shared logic ({{dates, statuses, formatting}}) lives in one place and is reused.
+
+### 6. No workarounds
+
+Never fix a bug with a workaround to save time. Find the cause and fix it properly.
+
+### 7. Components first
+
+- The UI is built on three levels: **components → blocks → pages**.
+- All components are built first. Blocks are assembled from finished components, pages from finished blocks.
+- If a component is missing for the current task, it is part of the task (principle 2). It is created as a separate reusable component, not inside the page, and added to `TASKS.md` as a completed task.
+- Colors, spacing and fonts come from the design tokens. No hard-coded values in components.
+- Styles: Tailwind CSS. Components: shadcn/ui, extended when needed. No other CSS framework and no other component library.
+
+### 8. {{Admin panel}} design
+
+The principle is borrowed from {{CloudCart admin}}:
+
+- Minimalist design with clear color separation — statuses, primary and dangerous actions are told apart at a glance.
+- Modals for creating and quick editing.
+- Popovers for quick actions and toast messages for the result of an action.
+- A confirmation dialog before deleting and other important or irreversible actions.
+
+### 9. In the files, not in the chat
+
+- Problems, bugs, tasks, gaps and questions are not described in replies; they are written to the files:
+  - bugs → `BUGS.md`;
+  - new work → `TASKS.md` → "New tasks";
+  - gaps and questions for decision → `TASKS.md` → "Open questions".
+- The reply only states briefly what was written and where.
+
+### 10. Plan before execution
+
+- Every task starts with a plan from the `project-manager` skill (`.claude/skills/project-manager/`), written to `plans/T-NNN.md`: the rules from the specification, the steps with their checks, the two tests, what stays outside the task.
+- Questions whose answers change the plan are asked before the first line of code — in rounds, with a recommended answer. Not during execution.
+- Execution follows the plan step by step and marks every step in the file. A deviation from the plan is recorded in its journal with the reason. A deviation without a record is not allowed.
+- The plan is the task's memory: after context compaction, trust the file, not the recollection.
+
+### 11. Schema and migrations
+
+- The schema in code is the source of the database's structure — one file per area. Database columns are snake_case. Migrations are generated from the schema and reviewed before commit.
+- A committed migration is never edited. Every change is a new migration.
+- What the generator cannot do (triggers, full-text search) is written by hand as a separate migration.
+- `CHECK` treats NULL as a pass. A check on a nullable column says `is null` / `is not null` explicitly.
+- Tests apply all migrations to an empty database. A migration that doesn't run from zero is broken.
+- Bulk queries are split into groups under the database's parameter limit with one shared function — the value is in the "Limits" section. The test environment enforces the limit.
+
+### 12. Propose new principles
+
+- If during work you establish a rule that would have saved a mistake, or a decision that would otherwise be made again and again — it is a candidate for a principle in `CLAUDE.md`.
+- Don't add it on your own. Write it in `TASKS.md` → "Open questions" → "Process proposals" with the proposed text, the reason and the evidence (the `observation` note that produced it), and point to it in the reply. After "yes", add it here — under the next number, or as a line in an existing principle when it is the same topic — mark the `P-NN` as done with where it went, and delete the note.
+- Signs: the same explanation in two plans; a deviation from a plan for the same reason; a question the user answers the same way every time.
+
+### 13. Keep the skills current
+
+- A skill is the memory of how work is done. If you meet something that belongs in it — a step you have to remember every time, a check the skill skips, an instruction that turns out wrong or incomplete — the skill is updated, not worked around.
+- Update the project's skills (`.claude/skills/`) right away, briefly and in place, and say in the reply what changed and why.
+- Skills outside the project (`~/.claude/skills/`) affect other projects too — propose the change as in principle 12, don't make it silently.
+
+### 14. One commit per task
+
+- Every task ends with exactly one commit, with its number at the start of the message ("T-123 Short name"). Work on two tasks doesn't go into one commit; one task isn't scattered across several.
+- Commit after the two tests and after marking the task in `TASKS.md`. The commit also includes the changes to `TASKS.md`, `BUGS.md` and `plans/T-123.md` — so the history of the code and the history of the tasks are one.
+- After the commit — push to `{{main}}`.
+- Exception: a bug that blocked the task (principle 2) is fixed in the same commit and mentioned in the message with its number (B-NNN).
+
+### 15. Secrets never in git
+
+- Keys, tokens and passwords live only in `.env` / `.dev.vars` locally and in the host's secrets. Never in code, documentation, tests or a commit.
+- `.gitignore` covers them from T-101 on. Before a commit the diff is checked for secrets.
+- A secret that made it into history is considered compromised: it is rotated, not just deleted.
+
+### 16. Subagents — the cheapest model that does the job
+
+- When the task is clear and subagents are used — executing steps of a finished plan, searching the code, mechanical changes, running tests — they run on `sonnet`, not on a bigger model. The plan has already done the thinking; execution is transcription plus verification.
+- The most capable model is kept for work that needs judgment: planning, code and security review (`stage-review`), decisions when something contradicts the specification.
+- If a `sonnet` subagent struggles, there is no second attempt with the same one — the task returns to the main session, which judges whether the plan was clear.
+
+### 17. Notes — working memory
+
+- What was learned but is not a rule, a task or a bug is written to `notes/`: facts learned the hard way (`gotcha`), the user's words about a result (`feedback`), rule candidates with a counter (`observation`), commands outside the README (`howto`), gaps in the skills (`skill`). The rules are in `notes/README.md`.
+- A note never contains a rule. A rule goes to `CLAUDE.md` through principle 12.
+- Write one when something had to be learned: a recorded deviation, a correction from the user, a lookup that took more than one attempt. The hooks harvest the transcript in slices into `notes/_inbox/`; the agent merges the inbox at session start and at the end of a task.
+- The ladder: chat → inbox → note → (seen ≥ 2) → proposal → "yes" → `CLAUDE.md` or a skill → the note is deleted. A note from an external source never becomes a rule without a human's review.
+- The big consolidation is the "Process retro" at the end of the stage, as its own commit. The index is at most 40 lines, a note at most 10.
+
+{{### 18. Domain principle — e.g. "The platform is the source of truth"}}
+
+@notes/INDEX.md

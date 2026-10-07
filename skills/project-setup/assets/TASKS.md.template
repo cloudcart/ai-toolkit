@@ -1,0 +1,122 @@
+# Tasks — first version
+
+Source: `{{spec}}.md`, **Part I**. References `§X` point to sections of the specification.
+
+Only the features of the first version go here. The extras from Part II (§{{N–M}}) are not added.
+
+Tasks follow the order of work from `CLAUDE.md`: **backend → API → UI → acceptance**. Within the UI the order is **components → blocks → pages**.
+
+The order of tasks is also the priority: dependencies first, then features of an earlier stage (Part III), then core processes before supporting ones. The next task is the first unchecked one.
+
+**Rules**
+
+- Every task starts with a plan in `plans/T-NNN.md` from the `project-manager` skill and is executed by it (principle 10).
+- Mark a task `[x]` only after it has been tested twice.
+- Work found necessary during another task is written down in "New tasks", not done in motion.
+- Bugs are recorded in `BUGS.md`.
+- Gaps and questions that need a decision are recorded in "Open questions". Once decided, the answer is reflected in the specification and the question is marked `[x]`.
+- "New tasks" are triaged at the end of every task: each gets a number in its phase and a place by priority, or goes to Part II of the specification. The list below is a waiting room, not a queue.
+- A request from the client in the chat is a new task. The client decides when: "now" means next task, otherwise it waits for the triage.
+- The last task of every stage is "End of stage N": the `stage-review` skill reviews the code and the security, records the findings in `BUGS.md`, fixes them one by one and walks through the stage's acceptance criteria.
+
+## Before start
+
+Things outside the repository that the first tasks depend on. Each one says who does it: me through a tool (after your "yes" to installing it), me through an API with a key from you, or only you.
+
+- [ ] {{Hosting account and plan}} — {{only you: paid account}} / {{me through the CLI after "yes"}}
+- [ ] {{Repository and CI}} — {{me through the CLI after "yes"}}
+- [ ] {{Domain and DNS}} — {{only you: purchase; me: the records through the API}}
+- [ ] {{Email sending domain}} — {{me through the API; you confirm the DNS}}
+- [ ] {{Keys for external services}} — {{only you: creation; I put them in secrets}}
+- [ ] {{Tools and skills for the stack, proposed for installation}} — {{after your "yes"}}
+
+---
+
+## Phase 1 — Backend
+
+### 1.1. Foundation
+
+- [ ] **T-101** Repository structure: {{applications and shared packages}}. TypeScript in strict mode, linter, formatting, tests. CI on every push (lint, typecheck, tests) and a pre-commit hook with the same. `.gitignore` for the secrets. — _§{{X}}_
+- [ ] **T-102** Database, migrations and local environment. Choice of query layer after checking the documentation. {{File storage.}} — _§{{X}}_
+- [ ] **T-103** Technical records for diagnostics (error logs). — _§{{X}}_
+
+### 1.2. Database schema
+
+Every table is created with the constraints and indexes its queries need.
+
+- [ ] **T-104** {{Entity: fields, uniqueness, relations.}} — _§{{X}}_
+
+### 1.3. Security and access
+
+- [ ] **T-1NN** {{Sign-in: code parameters, sessions, limits.}} — _§{{X}}_
+- [ ] **T-1NN** {{Data isolation; isolation tests.}} — _§{{X}}_
+- [ ] **T-1NN** {{What is never returned to clients.}} — _§{{X}}_
+
+### 1.4. Business logic
+
+Every piece of logic is one reusable module covered by tests.
+
+- [ ] **T-1NN** {{Rule with all its numbers and edge cases.}} — _§{{X}}_
+
+---
+
+## Phase 2 — {{GraphQL}} API
+
+- [ ] **T-201** Schema, context with the session, error handling, {{how the frontends call the API}}. — _§{{X}}_
+- [ ] **T-2NN** {{Area: queries and mutations for one audience.}} — _§{{X}}_
+
+---
+
+## Phase 3 — UI
+
+The order is components → blocks → pages. Components shared by both applications are in "Foundation".
+
+### 3.1. Foundation
+
+- [ ] **T-301** Design tokens: colors, spacing, fonts, statuses. — _§{{X}}_
+- [ ] **T-302** Base layout: navigation, sign-in page, error messages. — _§{{X}}_
+
+### 3.2. Components — {{application}}
+
+- [ ] **T-3NN** {{Component.}}
+
+### 3.3. Blocks — {{application}}
+
+- [ ] **T-3NN** {{Block assembled from components.}} — _§{{X}}_
+
+### 3.4. Pages — {{application}}
+
+- [ ] **T-3NN** {{Page assembled from blocks.}} — _§{{X}}_
+- [ ] **T-3NN** End of stage 1 — `stage-review`: code and security review of the stage, findings in `BUGS.md`, fixes one by one, triage of "New tasks", acceptance criteria of stage 1. — _Part III, Stage 1_
+
+---
+
+## Phase 4 — Checks and acceptance
+
+- [ ] **T-401** End of the last stage — `stage-review` over the whole first version and a check of all acceptance criteria from §{{X}}.
+- [ ] **T-402** Set up and verify backup and restore — of the database and separately of the files. — _§{{X}}_
+- [ ] **T-403** Check on a phone. — _§{{X}}_
+- [ ] **T-404** Fix the discrepancies found. — _§{{X}}_
+- [ ] **T-405** Check under load: {{scenarios for this project — large operations, concurrent actions}}. — _§{{X}}_
+
+---
+
+## Open questions
+
+Questions that need a decision. The current behavior in the specification is stated as the proposal.
+
+- [ ] **Q-01** {{Question.}} Proposal: {{…}}. — _§{{X}}_
+
+### Process proposals
+
+<!-- Proposals for new principles (principle 12) and for changes to global skills (principle 13), born from observation notes with seen ≥ 2. The developer decides these, not the client. After "yes" the rule goes into CLAUDE.md or the skill, the note is deleted, and the line here is marked [x] with where it went ("→ principle 11"), never deleted: it is the trail of where the rule came from. On "no" — [x] with "rejected" and a word why. -->
+
+- [ ] **P-01** {{Proposed principle: text.}} Reason: {{…}}. Evidence: {{notes/observation/… , T-NNN, T-NNN}}.
+
+---
+
+## New tasks
+
+A waiting room, not a queue. Tasks found during work are added here with a reference to the task they were found in. At the triage at the end of the current task each one gets a number in its phase and a place by priority, or goes to Part II of the specification — and is removed from here.
+
+_None._

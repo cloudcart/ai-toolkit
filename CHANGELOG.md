@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.0
+
+New skill: `project-setup`. The toolkit so far helped work *on* a CloudCart store; this one helps start the software project around it — or any other project.
+
+- **Interview in two levels.** A trial run with one long questionnaire showed that rounds of ten or more questions get answered in bulk ("всичко приемам"), which hides the decisions that mattered. The skill now asks the root decisions first (stack included), then goes block by block through the specification: it writes the section, asks only the questions with more than one defensible answer, and shows what it decided by standard as a digest you veto by number. A decision made without a question is still recorded, with a status that says whether a human saw it.
+- **Four files plus two project skills.** `specification.md`, `CLAUDE.md` with every architectural decision and its reason and the platform's limits as tables, `TASKS.md` ordered by priority with spec references, `BUGS.md`; and `.claude/skills/project-manager` (a plan before every task, surviving compaction) and `.claude/skills/stage-review` (code and security review at the end of every stage).
+- **A memory the agent maintains itself.** A `notes/` layer for what was learned but is not a rule, and hooks that harvest the session transcript in slices *before* compaction — the transcript on disk is append-only through compaction, so nothing is lost and nothing races. Observations seen twice become proposals; the user's "да" turns them into principles or skill fixes. The agent never edits its own rules silently.
+- **Environment check.** Auto-compaction window of 500 000 tokens in the project settings, context7 for documentation lookups, a narrow permissions allowlist proposed rather than a blanket one.
+- **A session-start hint instead of an onboarding flow.** Claude Code has no hook that runs when a plugin is installed, and a welcome message once is forgotten by the time it is needed. `scripts/setup-hint.sh` runs at session start, looks only at the shape of the folder, and hands the agent a few lines of context where the skill is relevant: an empty folder, code without `CLAUDE.md`, or a `CLAUDE.md` without the rest of the kit — the last one points at the skill's audit mode, since a file's existence says nothing about its quality. Once per folder for the last two, nothing in a set-up project, off with `CLOUDCART_SETUP_HINTS=0`. The audit mode itself now covers the whole kit (project skills, notes, hooks, settings) with approval per group.
+
+The skill is Claude Code first: the interview and the files work on any host, the settings and hooks do not. Requires `bash` and `python3` for the hooks. The kit's source and the agent's notes are English; the project documents follow the project's language, the interview follows the user's.
+
+
 ## 0.2.8
 
 - README: **Turn on auto-update** is now its own section with numbered steps, instead of a sentence buried in a paragraph. Covers what changes once it is on (background refresh shortly after session start, current session keeps its loaded version), how to turn it off, the managed-settings route for team admins, and how it interacts with `DISABLE_AUTOUPDATER`.

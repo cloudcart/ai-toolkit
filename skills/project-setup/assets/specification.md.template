@@ -1,0 +1,143 @@
+# Functional specification and development plan for {{project}}
+
+{{Two or three sentences: what the product is, for whom, what it is NOT.}}
+
+<!-- A draft filled in block by block during the interview. Sections marked "Pending." have not been discussed yet. Rules are written as rules ("The client can…"), not as notes from a conversation. -->
+
+# Part I. First version
+
+## 1. Purpose of the platform
+
+_Pending._
+
+<!-- What problem it solves, for whom, how success is measured, what is deliberately out of scope, which existing system or process it replaces. -->
+
+## 2. Users and access
+
+### 2.1. {{Role 1}}
+
+_Pending._
+
+### 2.2. {{Role 2}}
+
+_Pending._
+
+### 2.3. Signing in
+
+_Pending._
+
+<!-- Sign-in method per role, self-registration or creation by someone else, session duration, deactivation, acting on behalf of another. -->
+
+## 3. {{Entity 1}}
+
+### 3.1. Data
+
+_Pending._
+
+### 3.2. Rules
+
+_Pending._
+
+### 3.3. Who can do what
+
+_Pending._
+
+## 4. {{Entity 2}}
+
+_Pending._
+
+<!-- One section per entity. The process sections follow. -->
+
+## 5. {{Process 1 — e.g. Placing an order}}
+
+_Pending._
+
+<!-- Steps and who performs them; statuses (status → who moves it → to which → side effects); what happens on error; later corrections and what stays frozen. -->
+
+## 6. {{Process 2}}
+
+_Pending._
+
+## 7. Currency, prices and rules
+
+_Pending._
+
+<!-- Who calculates prices and taxes, precision and rounding, discounts and their priority, quantities, dates and time zone, format checks. Skipped if the platform does all of it. -->
+
+## 8. {{Integration 1 — e.g. CloudCart API}}
+
+_Pending._
+
+<!-- What is exchanged and in which direction, who initiates, who is the source of truth, what happens on failure / rate limit / duplicate delivery, file formats, keys and uninstallation. -->
+
+## 9. Notifications
+
+_Pending._
+
+<!-- Table of event × recipient, channel, language, mandatory content, who receives the email when acting on behalf of a client. -->
+
+## 10. Administration
+
+_Pending._
+
+<!-- Screens per role with the main actions; search and filters; bulk actions; settings and who edits them; design reference. -->
+
+## 11. Client side
+
+_Pending._
+
+## 12. Core technical requirements
+
+_Pending._
+
+<!-- Interface language, devices per role, scale and the largest operations, what never leaves the server, backup and restore, legal pages, logs. -->
+
+# Part II. Later extensions
+
+<!-- Every deferred feature in two or three sentences — enough so it is not built by accident and not forgotten. -->
+
+## 13. {{Extra 1}}
+
+_Pending._
+
+# Part III. Delivery and acceptance
+
+## 14. Stages of the first version
+
+### Stage 1 — Core data and access
+
+_Pending._
+
+### Stage 2 — {{…}}
+
+_Pending._
+
+### Last stage — Checks and acceptance
+
+_Pending._
+
+## 15. Acceptance criteria of the first version
+
+_Pending._
+
+<!-- Verifiable sentences per stage, in the user's words: "A customer sees only their own subscriptions." -->
+
+## 16. Decisions by standard
+
+Rules written into Part I without a question to the user, because they have one correct answer: a standard, a good practice, a platform constraint or a consequence of something already decided. One line per decision, with the section. They are reviewed here instead of being hunted through the document; any one can be rejected with "no to N".
+
+Status: `reviewed` — shown in a digest, no veto; `unreviewed` — written in "accept everything" mode and not yet shown. The unreviewed ones have an open question in `TASKS.md`.
+
+1. §{{X}} — {{decision in one sentence}}. — _reviewed_
+
+## 17. Remaining clarifications
+
+Questions that need a decision. The current behavior in the specification is stated as the proposal.
+
+- [ ] **Q-01** {{Question.}} Proposal: {{…}}. — _§{{X}}_
+
+### Questions for the business
+
+<!-- Only when the user is a developer working for a client: product forks that the business decides. The software works by the proposal until there is a decision. -->
+
+- [ ] **Q-NN** {{Question.}} Proposal: {{…}}. — _§{{X}}_

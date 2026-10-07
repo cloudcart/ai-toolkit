@@ -70,6 +70,7 @@ Auto-update covers this plugin only. `DISABLE_AUTOUPDATER=1` in your environment
 - **Query validation**: Validate GraphQL queries and mutations against the live schema before they run against your store
 - **Store management**: Add products, manage inventory, view orders, customers, and more — through the CloudCart CLI's `app execute` capabilities
 - **Platform knowledge**: Answer "how is this supposed to work / where do I set it / is this by design", grounded in the CloudCart platform wiki instead of guessed from memory
+- **Project setup**: Interview-driven start of a new software project — a specification built block by block, then `CLAUDE.md`, `TASKS.md`, `BUGS.md`, two project-local skills and a notes layer that lets the agent learn from its own sessions. See [Project setup](#project-setup)
 - **Auto-updates**: The CLI and Dev MCP track `@latest` and the platform wiki tracks its repository, so new capabilities and new documentation are picked up automatically. The plugin itself is the exception — see [Update](#update)
 
 ## The platform wiki
@@ -95,6 +96,39 @@ scripts/sync-wiki.sh --force    # re-clone now
 | `CLOUDCART_WIKI_HOME`      | `~/.cloudcart-ai-toolkit` | Where the wiki is stored       |
 | `CLOUDCART_WIKI_TTL_HOURS` | `24`                      | How often to check for updates |
 | `CLOUDCART_WIKI_REPO`      | `cloudcart/platform-wiki` | Source repository              |
+| `CLOUDCART_SETUP_HINTS`    | `1`                       | `0` turns off the project-setup session-start hint |
+
+## Project setup
+
+The `project-setup` skill turns the first hour of a project into a repeatable procedure. Ask for it in plain words — "set up a new project", "нов проект", "направи спецификация", "разбий спецификацията на задачи" — or run `/cloudcart-plugin:project-setup`.
+
+It interviews you in two levels. **Фундамент** first: the eight to twelve root decisions, stack included, each with a recommended answer. Then **Уточнения**, nine blocks from roles and entities to integrations and non-functional requirements: it writes each section of the specification first, asks only the questions that have more than one defensible answer, and lists what it decided by standard so you can veto a line by number. Facts are looked up, decisions are yours. Business questions you can't answer go to a „Въпроси към бизнеса“ list instead of blocking the interview.
+
+What it leaves in the project:
+
+| File | What it is |
+| --- | --- |
+| `specification.md` | What is being built: Part I (first version), Part II (later), Part III (stages, acceptance criteria, decisions by standard, remaining clarifications) |
+| `CLAUDE.md` | How: stack, every architectural decision with its reason, the platform's hard limits as tables, the order of work, the working principles |
+| `TASKS.md` | In what order: numbered tasks anchored to spec sections, ordered by priority, with open questions, process proposals and new tasks |
+| `BUGS.md` | Bugs get written down instead of fixed in motion |
+| `.claude/skills/project-manager`, `.claude/skills/stage-review` | A plan before every task; a code and security review at the end of every stage |
+| `notes/` + `.claude/hooks/` | The agent's working memory and the hooks that feed it (below) |
+
+The kit itself is English, and so is the agent's working memory (`notes/`). The documents meant for people — specification, `CLAUDE.md`, `TASKS.md`, `BUGS.md`, plans — are written in the project's language: the specification's if there is one, otherwise yours. The interview runs in whatever language you write in.
+
+You don't have to remember the skill exists. A `SessionStart` hook looks at the shape of the folder you open and, when the project isn't set up, gives the agent a few lines of context so it can offer the skill in one sentence: in an empty folder every time, in a folder with code but no `CLAUDE.md` once, and once when a `CLAUDE.md` exists without the rest of the kit — then it suggests the audit mode, which reads what you have and proposes what to add, item by item, overwriting nothing. It never starts the interview by itself and never touches your files. Turn it off with `CLOUDCART_SETUP_HINTS=0`.
+
+### How the agent improves itself
+
+Lessons die at context compaction unless something catches them. The kit closes that loop with files, not with a service:
+
+1. **Notes** (`notes/`): what was learned but is not a rule — a fact that took effort, the user's words about a result, a recurring observation with a counter, a command outside the README, a gap in a skill. One small file per note, an index loaded into every session.
+2. **Harvest hooks** (`.claude/hooks/harvest.sh`): a `Stop` hook harvests the session transcript in slices *before* compaction, `PreCompact` takes the remainder, and after compaction a `SessionStart` hook tells the agent what is waiting. Harvesting runs in the background on Sonnet; only the agent writes to `notes/`.
+3. **The ladder**: an observation seen twice becomes a proposal in `TASKS.md`; your "да" turns it into a principle in `CLAUDE.md` or a fix in a skill, and the note is deleted. The agent never changes its own rules silently.
+4. **Stage retro**: `stage-review` consolidates the notes at the end of every stage, in its own commit, and checks that the harvest is actually running.
+
+Requirements for the hooks: `bash` and `python3` on the machine that runs Claude Code; macOS and Linux. Claude Code asks to approve the project's hooks the first time the project is opened. The harvester's prompt is a project file, so the agent can refine it like any other project skill.
 
 ## Other install methods
 

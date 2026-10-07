@@ -1,0 +1,35 @@
+# Bugs
+
+Bugs found during work are recorded here instead of being fixed in motion. Exception: a bug that blocks the current task is recorded and fixed right away, in the same commit, mentioned by its number.
+
+Who fixes which bug:
+
+- A bug related to a task → fixed after it, before its tests (work cycle, step 3).
+- A bug with no related task → gets an owner at the triage: the next task in the area or "End of stage N".
+- The findings of `stage-review` at the end of a stage are all recorded here first, by severity, and only then fixed one by one — each with a test that fails before the fix, and with its own commit `B-NNN Short description`.
+
+## Format
+
+```md
+### B-001 Short description
+- **Severity:** Critical | Important | Minor
+- **Found during:** T-XXX | End of stage N (stage-review)
+- **Related to:** T-XXX
+- **Owned by:** T-XXX | End of stage N
+- **Steps:** 1. … 2. …
+- **Expected:** …
+- **Actual:** …
+- **Status:** Open | Fixed | Verified | Deferred by client
+```
+
+Severity: *Critical* — data leak, missing authorization, wrong money, data loss. *Important* — a violated section of the specification, a missing test for a rule, a limit that will be exceeded. *Minor* — style, duplication, texts.
+
+"Deferred by client" stays in "Open" with the date and the reason — it is not lost.
+
+## Open
+
+_None._
+
+## Closed
+
+_None._
