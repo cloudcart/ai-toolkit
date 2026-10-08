@@ -200,6 +200,13 @@ The principle is borrowed from {{CloudCart admin}}:
 - The ladder: chat → inbox → note → (seen ≥ 2) → proposal → "yes" → `CLAUDE.md` or a skill → the note is deleted. A note from an external source never becomes a rule without a human's review.
 - The big consolidation is the "Process retro" at the end of the stage, as its own commit. The index is at most 40 lines, a note at most 10.
 
-{{### 18. Domain principle — e.g. "The platform is the source of truth"}}
+### 18. Requests — record first, assume nothing
+
+- When the user sends one or several requests in one message, nothing is built from the chat. Each request becomes a line in `TASKS.md` → "New tasks" (a bug → `BUGS.md`) after a check against what is already there: the tasks, "New tasks", "Open questions", the open bugs. A duplicate gets a note on the existing item, not a second line. The reply says what was recorded, where, and what already existed.
+- A request with more than one plausible reading, or with a missing piece — which screen, which users, what happens on failure, what "all" covers — is neither recorded as a guess nor built on one. When more than one scenario is possible, no assumption is made: the question is asked first, the line is written after the answer. The clear requests from the same message are recorded at once; they don't wait.
+- Most messages need no question at all; that is the expected outcome, not a failure to be thorough. A question exists only if you can name the two readings and the different work each one leads to — if you can't name the second reading, there is nothing to ask: record the obvious one. Only what neither the specification, the code nor `CLAUDE.md` answers. One round for the whole message, each question with the recommended reading so a "yes" settles it; never more than five, and five is a ceiling, not a target. Vague wording gets a proposed interpretation to confirm, not an open question. Something the user has already clarified once is not asked again.
+- Then the work cycle applies: the user says what is next ("now"), otherwise the new tasks wait for the triage at the end of the current task (principle 2).
+
+{{### 19. Domain principle — e.g. "The platform is the source of truth"}}
 
 @notes/INDEX.md

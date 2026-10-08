@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1
+
+- `project-setup`: new always-on principle 18, **Requests — record first, assume nothing**. Several requests in one message are recorded in `TASKS.md` after a duplicate check; a request with more than one plausible reading is asked about first and recorded after the answer, never guessed; questions are rationed to one round per message, at most five, each with a recommended reading, because the opposite failure — an agent that asks about everything — is as costly as one that assumes. Wired into the TASKS.md header rules and the project-manager skill's intake. Domain principles now start at 19.
+
+
 ## 0.3.0
 
 New skill: `project-setup`. The toolkit so far helped work *on* a CloudCart store; this one helps start the software project around it — or any other project.

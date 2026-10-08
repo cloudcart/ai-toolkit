@@ -156,7 +156,7 @@ At most fifteen lines: the four files, the two project skills and the notes laye
 
 When `CLAUDE.md`, `TASKS.md` or `BUGS.md` already exist, the job is completeness, not restyling, and the user's wording stays where it works. Read everything that exists — the three files, the spec, `.claude/skills/`, `notes/`, `.claude/hooks/`, `.claude/settings.json` — then compare against the kit and write one list of findings, grouped:
 
-1. **CLAUDE.md** — decisions without reasons, no stack section, no limits tables, no order of work, no work cycle, missing principles (10 plan, 11 schema if there is a database, 12–17), domain principles that are really rules of the spec.
+1. **CLAUDE.md** — decisions without reasons, no stack section, no limits tables, no order of work, no work cycle, missing principles (10 plan, 11 schema if there is a database, 12–18), domain principles that are really rules of the spec.
 2. **Specification** — missing, or missing Part II / Part III (stages, acceptance criteria, decisions by standard, remaining clarifications); spec blocks never covered.
 3. **TASKS.md** — tasks without spec references, numbering that doesn't encode the phase, order that isn't priority, no "Open questions", no "Process proposals", no "End of stage" tasks, no "Before start", no T-101 with CI and pre-commit.
 4. **BUGS.md** — missing, or without the format (severity, who fixes, status).

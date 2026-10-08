@@ -14,7 +14,7 @@ The model is borrowed from the writing-plans / executing-plans pair (obra/superp
 ## When
 
 - The user starts a task from `TASKS.md`: "start T-123", "next task", "continue".
-- The user asks for new work that is not in `TASKS.md`. It is recorded as a task (principle 2). The client decides when: "do it now" → it gets a number in its phase and becomes the next task; otherwise it goes to "New tasks" until the triage at the end of the current task.
+- The user asks for new work that is not in `TASKS.md` — one request or several in one message. Intake first, per principle 18: check each against the tasks, "New tasks", "Open questions" and the open bugs; record the clear ones at once (a duplicate is a note on the existing item); for the ones where you can name two readings that lead to different work, ask in one round — each with the recommended reading, never more than five, and most messages need none — and record them after the answer, never on a guess. If you can't name the second reading, there is nothing to ask: record the obvious one. The reply says what was recorded and where. The client decides when: "do it now" → it gets a number in its phase and becomes the next task; otherwise it goes to "New tasks" until the triage at the end of the current task.
 - The user asks for a plan: "make a plan for…".
 
 No code is written without a plan. Exception: a bug that blocks the current task — it is recorded in `BUGS.md` and fixed at once, but it too becomes a line in the journal of the current plan.
@@ -152,3 +152,5 @@ If the task is "End of stage N" — its plan is to run the `stage-review` skill;
 | "The test should pass" | "Should" is not proof. Run it and read the result. |
 | "I know this, no note needed" | You know it until the compaction. The note is for the next session, which starts from zero. |
 | "I'll add it straight as a principle, it's obvious" | Obvious once is an observation. It becomes a principle after a second sighting and a "yes" (principle 12). |
+| "I'll ask, just to be safe" | Safe is naming the second reading. If you can't, record the obvious one and move on; a question without a fork is noise. |
+| "The user wrote three requests, I'll ask three questions" | Requests are recorded, not interrogated. One round, only for real forks; most messages need none. |

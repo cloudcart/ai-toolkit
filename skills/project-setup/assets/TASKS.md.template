@@ -16,7 +16,7 @@ The order of tasks is also the priority: dependencies first, then features of an
 - Bugs are recorded in `BUGS.md`.
 - Gaps and questions that need a decision are recorded in "Open questions". Once decided, the answer is reflected in the specification and the question is marked `[x]`.
 - "New tasks" are triaged at the end of every task: each gets a number in its phase and a place by priority, or goes to Part II of the specification. The list below is a waiting room, not a queue.
-- A request from the client in the chat is a new task. The client decides when: "now" means next task, otherwise it waits for the triage.
+- A request from the client in the chat is a new task — one or several at once (principle 18): recorded after a check for duplicates, the genuinely ambiguous ones — two readings, different work — asked about first in one round and recorded after the answer, never on a guess; most messages need no question. The client decides when: "now" means next task, otherwise it waits for the triage.
 - The last task of every stage is "End of stage N": the `stage-review` skill reviews the code and the security, records the findings in `BUGS.md`, fixes them one by one and walks through the stage's acceptance criteria.
 
 ## Before start
