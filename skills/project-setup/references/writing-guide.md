@@ -34,6 +34,10 @@ Sections, in this order:
 
 What doesn't belong: the task list, the spec's content (reference it), setup commands that will change (a README written during T-101).
 
+### Rebuilding an existing CLAUDE.md
+
+When audit mode rebuilds rather than patches (SKILL.md, Audit mode), the template is the skeleton and the old file is the content. Work section by section: for each template section, collect what the old file says about it, wherever it says it, and write it in the template's form — a bullet per decision, the reason in the same bullet, limits as tables. Keep a two-column mapping as you go (old line → new section) and finish with the rows that have no destination, each with why. Principles get the kit's numbers; a domain rule that was "principle 4" becomes 19 or higher, and the references elsewhere change with it. Anything that reads as a rule of the specification rather than a way of working goes to the spec, with a note in the mapping. Show the mapping and the diff; write after the "yes".
+
 ## TASKS.md
 
 ### Header

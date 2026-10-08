@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.2
+
+- `project-setup` audit mode can now **rebuild** an existing `CLAUDE.md` instead of only patching it. Patching a file that has another structure leaves a file that neither the skills, the hooks nor the user read well, so when more than half of the shape is missing the skill recommends a rebuild: the template is the skeleton, the old content is poured in — under five guarantees, because the usual loss in a rewrite is silent. Nothing is lost (a shown mapping old line → new section, with explicit "dropped because" rows); contradictions are asked, never resolved silently; diff before writing, one commit; principle numbers become canonical and every reference in TASKS.md, BUGS.md, plans, notes and skills changes in the same commit, while task and bug ids never change; the language stays the project's. The user chooses patch or rebuild per file.
+
+
 ## 0.3.1
 
 - `project-setup`: new always-on principle 18, **Requests — record first, assume nothing**. Several requests in one message are recorded in `TASKS.md` after a duplicate check; a request with more than one plausible reading is asked about first and recorded after the answer, never guessed; questions are rationed to one round per message, at most five, each with a recommended reading, because the opposite failure — an agent that asks about everything — is as costly as one that assumes. Wired into the TASKS.md header rules and the project-manager skill's intake. Domain principles now start at 19.

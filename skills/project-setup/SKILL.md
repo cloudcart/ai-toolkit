@@ -164,6 +164,16 @@ When `CLAUDE.md`, `TASKS.md` or `BUGS.md` already exist, the job is completeness
 
 Show the list with a proposed action per item and get a "yes" per group — never one blanket yes, the digest rule applies here too. Run the interview only for the blocks the spec never covered. Then make the approved edits, never overwriting a file you haven't read, and finish with the Step 6 hand-over. A project set up by an older version of this skill is the common case: usually everything in groups 1–4 is there and group 5 is missing.
 
+**Patch or rebuild.** With the list, recommend one of two ways to apply it, per file, and let the user choose:
+
+- **Patch** — the file already has the kit's shape and only items are missing. Add them in place, keep everything else as it is. The default for a project set up by an earlier version of this skill.
+- **Rebuild** — the file is far from the shape: more than half of the sections are missing, the order is different, or principles and decisions are mixed into prose. Build the new file from the template and pour the old content into it. Patches on a file with another structure leave a file that neither the skills, the hooks nor the user read well, so a rebuild is the better service here — under five guarantees, because the usual loss in a rewrite is silent: one reason, one number, one exception that is simply no longer there.
+  1. **Nothing is lost.** Every line of the old file gets a place in the new one, or an explicit row "dropped — duplicate of X / contradicts Y, decided by the user". Show the mapping (old line → new section) before writing. Reasons, numbers and exceptions are carried over verbatim.
+  2. **Contradictions are asked, never resolved silently** — the old file says one thing, the template another → a question with a recommended answer, under principle 18's rules.
+  3. **Diff before writing, one commit.** Show the new file, write it after the "yes"; the old version stays in git history.
+  4. **Numbers stay consistent across files.** The kit's principles take their canonical numbers (0–18), domain principles move to 19+, and every reference ("principle 7", "принцип 7") in TASKS.md, BUGS.md, plans, notes and the project skills is updated in the same commit. Task and bug ids never change — in TASKS.md and BUGS.md a rebuild reorders sections only.
+  5. **The language stays the project's.** The template gives the structure, not the language.
+
 ## Files in this skill
 
 - `references/interview.md` — the fork test, the round rules (unique numbers, cap of seven, format), the business-question rule, the digest, Level 1 (foundation questions) and Level 2 (nine blocks: cover / forks / standards), trigger table, gap-check lenses, end criterion. The round mechanics are mattpocock/skills' *grilling*.
