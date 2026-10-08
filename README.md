@@ -117,6 +117,8 @@ What it leaves in the project:
 
 The kit itself is English, and so is the agent's working memory (`notes/`). The documents meant for people — specification, `CLAUDE.md`, `TASKS.md`, `BUGS.md`, plans — are written in the project's language: the specification's if there is one, otherwise yours. The interview runs in whatever language you write in.
 
+A short guide in Bulgarian for teams trying it out: [docs/project-setup.bg.md](docs/project-setup.bg.md).
+
 You don't have to remember the skill exists. A `SessionStart` hook looks at the shape of the folder you open and, when the project isn't set up, gives the agent a few lines of context so it can offer the skill in one sentence: in an empty folder every time, in a folder with code but no `CLAUDE.md` once, and once when a `CLAUDE.md` exists without the rest of the kit — then it suggests the audit mode, which reads what you have and proposes what to add, item by item, overwriting nothing. It never starts the interview by itself and never touches your files. Turn it off with `CLOUDCART_SETUP_HINTS=0`.
 
 ### How the agent improves itself

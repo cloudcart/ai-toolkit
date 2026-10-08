@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.3
+
+- Added `docs/project-setup.bg.md`: a short Bulgarian guide to what the `project-setup` skill does, how to install and start it, what it needs, and what feedback is useful — for teams trying it out. Linked from the README.
+
 ## 0.3.2
 
 - `project-setup` audit mode can now **rebuild** an existing `CLAUDE.md` instead of only patching it. Patching a file that has another structure leaves a file that neither the skills, the hooks nor the user read well, so when more than half of the shape is missing the skill recommends a rebuild: the template is the skeleton, the old content is poured in — under five guarantees, because the usual loss in a rewrite is silent. Nothing is lost (a shown mapping old line → new section, with explicit "dropped because" rows); contradictions are asked, never resolved silently; diff before writing, one commit; principle numbers become canonical and every reference in TASKS.md, BUGS.md, plans, notes and skills changes in the same commit, while task and bug ids never change; the language stays the project's. The user chooses patch or rebuild per file.
