@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.4
+
+- Rewrote `docs/project-setup.bg.md` as a pitch rather than a manual: the problem it solves (sessions that start from zero, decisions re-made, lessons lost at compaction), what you get, and why the learning loop matters, with the same install and start instructions.
+
 ## 0.3.3
 
 - Added `docs/project-setup.bg.md`: a short Bulgarian guide to what the `project-setup` skill does, how to install and start it, what it needs, and what feedback is useful — for teams trying it out. Linked from the README.
