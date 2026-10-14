@@ -46,7 +46,7 @@ The provider publishes `page_viewed` once per page by itself. A page adds the on
 | Tag | `<Analytics.TagView data={{tag: {id, handle, title}, products}} />` |
 | Content page | `<Analytics.ContentPageView data={{page: {id, handle}}} />` |
 
-`products` on a listing are the products it shows; the starter builds them with `listedProducts()` in `app/lib/analytics.ts`. A new page of one of these kinds renders its view; a page of another kind renders none.
+`products` on a listing are the products it shows; the starter builds them with `listedProducts()` in `app/lib/analytics.ts`. A new page of one of these kinds renders its view; a page of another kind renders none — a list of products that is not a collection, brand, tag or search ("new arrivals", say) included. Its page view is reported as `OTHER`.
 
 ## What Nitrogen reports by itself
 

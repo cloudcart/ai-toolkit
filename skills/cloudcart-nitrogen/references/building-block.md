@@ -18,6 +18,8 @@ app/building-blocks/
 
 - **Unstyled, with class hooks.** The block renders plain markup with stable classes: `cc-<block>` on its root, and `cc-<block>-<part>` on each part (`cc-low-stock-notice-count`). It takes `classNames`, one class per part, which it adds after its own; a block with only a root may take a plain `className` instead. No Tailwind classes, colours or sizes inside the block: the page passes them in.
 - **Data through props,** typed from its fragment: the generated `<FragmentName>Fragment` type in `storefrontapi.generated`. The page's query spreads the fragment. The block never fetches, and never calls the API.
+- **Links through props.** A block that links takes the address as a prop (`href: (item) => string`, the page passing `vendorPath`), so it imports nothing from the project; its test renders it inside a `MemoryRouter`.
+- **Pictures through `<Image>`,** which sets an inline `width: 100%`: give the picture a box of fixed size and size it with `size-full object-contain`, so a logo or a photo of any shape fits without shifting the layout.
 - **Text through props.** The block shows no words of its own: the page passes them from its translations (a render function or `children`). The starter's lint fails on literal text in JSX.
 - **Documented.** A doc comment on every export, with its first sentence saying what it is. A prop whose meaning is not obvious from its name gets its own comment.
 - **Accessible.** Real elements for their roles (a `<button>` for an action, a list for a list), a label for every control, and keyboard use. Motion respects `prefers-reduced-motion`.

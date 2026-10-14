@@ -7,6 +7,8 @@ The rules of step 2 of the checklist, with the patterns the starter uses. The AP
 - A route's query is a `#graphql` template literal in the route module, below the component, ending in `as const`. A query that several routes run (a category, a vendor and a tag page all list products) lives in one module under `app/lib/`.
 - A component that renders a product card exports the fragment for the card's fields next to itself. The page's query spreads it (`...ProductItem`) and interpolates its text (`${PRODUCT_ITEM_FRAGMENT}`), so the card and its data change together. Fragment names are unique across the app.
 - Select only what the page renders. A field "for later" costs every visit, and it counts toward the query's complexity.
+- A field goes into the fragment of what renders it. When only one page shows it (a category's product count on `/categories`), it goes into that route's own fragment, not into a shared one (`...CollectionCard`), which would carry it on every page that spreads it.
+- Read each field's type in the schema: `Int` may be null, `Int!` never is. Render nothing for a null, rather than a zero or an empty label.
 - After changing a `#graphql` document, run `npm run codegen`. It regenerates `storefrontapi.generated.d.ts`, which types what `storefront.query` returns for that document. Commit the regenerated file with the change.
 
 ## The loader: critical and deferred data
@@ -50,6 +52,7 @@ The page renders a deferred value in `<Suspense>` with React Router's `<Await>`.
 </Suspense>
 ```
 
+- **A section below the first screen** (a strip of brands under the home's categories) takes its fields from the page's existing deferred query when the page has one (the home's `HomeProducts`). It then neither holds up the first byte, as a field in the critical query would, nor adds a call, as its own query would.
 - Calls that do not depend on each other run together (`Promise.all`), never more than 6 at a time: a Worker has at most 6 simultaneous outgoing connections per request.
 - A query that needs another's answer waits for it. Chain such queries only when the data really depends on the first answer: each link adds a round trip.
 
@@ -65,7 +68,7 @@ Each page has a budget of calls to the API, measured in the profiler (`reference
 | search | 2 |
 | cart | 2 |
 
-A change that adds a call to one of these pages needs a reason, and you report it to the user. A new page has no budget yet: aim for one critical call and as few deferred ones as the page needs, and report the count you measured, which becomes its budget.
+A change that adds a call to one of these pages needs a reason, and you report it to the user. A new page of a kind in the table has that kind's budget: a new page that lists products has a category's, 2 calls. A new kind of page has no budget yet: aim for one critical call and as few deferred ones as the page needs, and report the count you measured, which becomes its budget.
 
 ## Cache strategies
 
@@ -100,9 +103,13 @@ query Product($handle: String!, $buyer: BuyerInput) @inContext(buyer: $buyer) {
 - The customer's own data (orders, addresses, wishlist) is read with `customerAccount.query` and changed with `customerAccount.mutate`. They add the access token from the session and never cache.
 - The token never goes in an `Authorization` header: the API takes it as an argument or through `@inContext(buyer:)`.
 
+## The API's names
+
+The Storefront API names some things differently from the admin: a brand is a `Vendor` (`vendorsConnection`, `vendor(handle:)`, `Product.vendorDetails`); a category, and a merchant's selection, is a `Collection`; a product tag is a `ProductTag`; a blog category is a `Blog`; a physical store is a `StoreLocation`. Look a name up with the Storefront MCP's `introspect_graphql_schema`.
+
 ## Pagination
 
-Lists are connections (`nodes`, `pageInfo`) that take `first`/`after` and `last`/`before`. The loader reads the page from the URL; the page renders `<Pagination>`:
+Lists are connections (`nodes`, `pageInfo`) that take `first`/`after` and `last`/`before`, both directions working. The loader reads the page from the URL; the page renders `<Pagination>`. For a list of products or cards, reuse the starter's: `PaginatedResourceSection` (from `@cloudcart/nitrogen-react`, a "load more" list built on `<Pagination>`) for a list in a fixed order, and `ProductListing` (`app/components/`) only where the visitor filters and sorts, since it brings that toolbar.
 
 ```ts
 const variables = getPaginationVariables(request, {pageBy: 24});
