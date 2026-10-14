@@ -68,7 +68,7 @@ Each page has a budget of calls to the API, measured in the profiler (`reference
 | search | 2 |
 | cart | 2 |
 
-A change that adds a call to one of these pages needs a reason, and you report it to the user. A new page of a kind in the table has that kind's budget: a new page that lists products has a category's, 2 calls. A new kind of page has no budget yet: aim for one critical call and as few deferred ones as the page needs, and report the count you measured, which becomes its budget.
+These are counted as `references/verification.md` says, on the page's first load after another page has loaded (so the shop, the menus and the consent are already cached): the page's own calls plus the footer's subscribe forms, which are never cached. A search counts with a term. A first load on a fresh dev server also counts the shared calls, so load another page first. A change that adds a call to one of these pages needs a reason, and you report it to the user. A new page of a kind in the table has that kind's budget: a new page that lists products has a category's 2 — its own query and the subscribe forms. A new kind of page has no budget yet: aim for one critical call and as few deferred ones as the page needs, and report the count you measured, which becomes its budget.
 
 ## Cache strategies
 
@@ -105,11 +105,11 @@ query Product($handle: String!, $buyer: BuyerInput) @inContext(buyer: $buyer) {
 
 ## The API's names
 
-The Storefront API names some things differently from the admin: a brand is a `Vendor` (`vendorsConnection`, `vendor(handle:)`, `Product.vendorDetails`; its page `/vendor/{handle}`, `vendorPath` in `app/lib/urls.ts`); a category, and a merchant's selection, is a `Collection`; a product tag is a `ProductTag`; a blog category is a `Blog`; a physical store is a `StoreLocation`. Look a name up with the Storefront MCP's `introspect_graphql_schema`.
+The Storefront API names some things differently from the admin: a brand is a `Vendor` (`vendorsConnection`, `vendor(handle:)`, `Product.vendorDetails`; its page `/vendor/{handle}`, `vendorPath` in `app/lib/urls.ts`, and the list of them `/vendors`); a category, and a merchant's selection, is a `Collection`; a product tag is a `ProductTag`; a blog category is a `Blog`; a physical store is a `StoreLocation`. Look a name up with the Storefront MCP's `introspect_graphql_schema`. Newest first is `sortKey: CREATED_AT, reverse: true`: `CREATED_AT` alone is oldest first.
 
 ## Pagination
 
-Lists are connections (`nodes`, `pageInfo`) that take `first`/`after` and `last`/`before`, both directions working. The loader reads the page from the URL; the page renders `<Pagination>`. For a list of products or cards, reuse the starter's: `PaginatedResourceSection` (from `@cloudcart/nitrogen-react`, a "load more" list built on `<Pagination>`) for a list in a fixed order, and `ProductListing` (`app/components/`) only where the visitor filters and sorts, since it brings that toolbar.
+Lists are connections (`nodes`, `pageInfo`) that take `first`/`after` and `last`/`before`, both directions working. The loader reads the page from the URL; the page renders `<Pagination>`. For a list of products or cards, reuse the starter's: `PaginatedResourceSection` (from `@cloudcart/nitrogen-react`, a "load more" list built on `<Pagination>`) for a list in a fixed order, and `ProductListing` (`app/components/`) only where the visitor filters and sorts, since it brings that toolbar. A fixed-order grid of product cards takes the listing's columns (`LISTING_GRID_CLASSES`) and, with no filters beside it, `FULL_WIDTH_CARD_SIZES` for the cards' `sizes` (both in `app/components/ListingToolbar.tsx`; `LISTING_CARD_SIZES` is for the grid beside the filters).
 
 ```ts
 const variables = getPaginationVariables(request, {pageBy: 24});
