@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0
+
+New skill: `cloudcart-nitrogen`, for building and changing CloudCart headless storefronts made with Nitrogen. It covers Nitrogen 2.0.
+
+- **A checklist for every change, in five steps.** It starts with *before building*: read the export maps that ship in the installed `@cloudcart/nitrogen` and `@cloudcart/nitrogen-react` (`EXPORTS.md`) and the project's own pieces, and never re-create one. Then *GraphQL*: colocated queries and fragments, one server request per page with critical and deferred data, the page's request budget, the right cache strategy, the signed-in buyer through `@inContext`, and every query validated. Then *a missing building block*: built the way Nitrogen builds its own, unstyled with `cc-*` class hooks, documented and tested in `app/building-blocks/`, ready to move into Nitrogen. Then *security*: tokens on the server, the CSP nonce, forms validated by the API. Last, *verification*: the page's calls measured in the dev profiler before and after, and `npm run check`.
+- **A quality checklist** of the industry's good practice for a storefront page: speed (Core Web Vitals, images, the request budget), accessibility (WCAG 2.1 AA), SEO (meta tags, canonical URLs, JSON-LD), consent and analytics, translations, and the loading, empty and error states.
+- **Version-aware.** The skill reads the installed Nitrogen version, and says so when it may lag a newer release; the packages' own `EXPORTS.md` and README always match the installed version.
+- **The Storefront MCP** (`@cloudcart/storefront-mcp`) is now registered next to the Dev MCP, so queries are checked against the Storefront API's schema, including the mistakes that pass schema validation and still fail.
+
 ## 0.3.4
 
 - Rewrote `docs/project-setup.bg.md` as a pitch rather than a manual: the problem it solves (sessions that start from zero, decisions re-made, lessons lost at compaction), what you get, and why the learning loop matters, with the same install and start instructions.

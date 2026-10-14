@@ -70,8 +70,9 @@ Auto-update covers this plugin only. `DISABLE_AUTOUPDATER=1` in your environment
 - **Query validation**: Validate GraphQL queries and mutations against the live schema before they run against your store
 - **Store management**: Add products, manage inventory, view orders, customers, and more — through the CloudCart CLI's `app execute` capabilities
 - **Platform knowledge**: Answer "how is this supposed to work / where do I set it / is this by design", grounded in the CloudCart platform wiki instead of guessed from memory
+- **Nitrogen storefronts**: A checklist for building and changing a CloudCart headless storefront made with Nitrogen — reuse its building blocks, write colocated GraphQL within the page's request budget, keep tokens on the server, and measure the result. See [Nitrogen storefronts](#nitrogen-storefronts)
 - **Project setup**: Interview-driven start of a new software project — a specification built block by block, then `CLAUDE.md`, `TASKS.md`, `BUGS.md`, two project-local skills and a notes layer that lets the agent learn from its own sessions. See [Project setup](#project-setup)
-- **Auto-updates**: The CLI and Dev MCP track `@latest` and the platform wiki tracks its repository, so new capabilities and new documentation are picked up automatically. The plugin itself is the exception — see [Update](#update)
+- **Auto-updates**: The CLI and the two MCP servers track `@latest` and the platform wiki tracks its repository, so new capabilities and new documentation are picked up automatically. The plugin itself is the exception — see [Update](#update)
 
 ## The platform wiki
 
@@ -97,6 +98,22 @@ scripts/sync-wiki.sh --force    # re-clone now
 | `CLOUDCART_WIKI_TTL_HOURS` | `24`                      | How often to check for updates |
 | `CLOUDCART_WIKI_REPO`      | `cloudcart/platform-wiki` | Source repository              |
 | `CLOUDCART_SETUP_HINTS`    | `1`                       | `0` turns off the project-setup session-start hint |
+
+## Nitrogen storefronts
+
+The `cloudcart-nitrogen` skill is for developers building a CloudCart headless storefront with Nitrogen, the React Router framework on Cloudflare Workers. It applies whenever the project depends on `@cloudcart/nitrogen`: ask for a page, a component or a fix as usual, and the agent works through its checklist before, during and after the change.
+
+| Step | What the agent does |
+| --- | --- |
+| Before building | Reads the export maps shipped in the installed packages (`node_modules/@cloudcart/nitrogen/EXPORTS.md`, and nitrogen-react's) and the project's own components, and uses them instead of writing new ones |
+| GraphQL | Colocated queries and fragments with only the rendered fields; critical data awaited, the rest deferred; the page's request budget; the cache strategy; every query validated with the Storefront MCP and `npm run codegen` |
+| A missing building block | Built as Nitrogen builds its own, in `app/building-blocks/`: unstyled with class hooks, documented, tested with vitest, ready to move into Nitrogen |
+| Security | Tokens on the server, the customer's token in the session cookie, the CSP nonce, forms validated by the API |
+| Verification | The page's calls in the dev profiler before and after, `npm run check`, and a quality checklist: speed, accessibility, SEO, consent, translations, and the loading, empty and error states |
+
+The skill states the Nitrogen version it covers (2.0). On another version it says so, and follows the installed packages' `EXPORTS.md` and README, which always match what is installed.
+
+The plugin also registers the **Storefront MCP** (`@cloudcart/storefront-mcp`), which the skill uses to check every query against the Storefront API's schema. It runs locally, reads only the schema, and needs no token.
 
 ## Project setup
 
@@ -143,6 +160,10 @@ npm install -g @cloudcart/cli@latest      # or: brew tap cloudcart/tap && brew i
 # Dev MCP — register with your AI host as an MCP server using:
 #   command: npx
 #   args:    -y @cloudcart/dev-mcp@latest
+
+# Storefront MCP, for Nitrogen storefronts — the same way:
+#   command: npx
+#   args:    -y @cloudcart/storefront-mcp@latest
 ```
 
 ## Contributing
