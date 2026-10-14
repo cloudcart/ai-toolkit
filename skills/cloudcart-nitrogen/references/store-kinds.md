@@ -10,7 +10,7 @@ Two rules hold for every kind:
 ## Every kind
 
 - The product's gallery from `media`, in the merchant's order, with the selected variant's pictures first (`mediaIds`); a YouTube video plays in place (`ExternalVideo`).
-- The price with `<Money>` from `formatted`; a discount from `discount` and `compareAtPrice`, shown only as `ProductPrice` shows it (`hideDiscountPrice` hides it).
+- The price with `<Money>` from `formatted`; a discount from `discount` and `compareAtPrice`. `<ProductPrice>` shows the `compareAtPrice` it is given, so pass `null` when the merchant hides the old price (`discount.hideDiscountPrice`), as the starter's `shownCompareAtPrice` (`app/lib/variants.ts`) does for every price of a product.
 - Availability from `availableForSale` and the variant's `statusName` (the store's own words: "in stock", "on request"…), and back-in-stock sign-up (`productBackInStockSubscribe`) when a variant is sold out and the store offers it.
 - Reviews (`reviewSummary`, `reviews`) when the store runs them: both are empty otherwise.
 - Volume prices (`quantityDiscounts`), the minimum quantity (`minimumQuantity`), and consumer credit (`creditOffers`) when the merchant offers them.
