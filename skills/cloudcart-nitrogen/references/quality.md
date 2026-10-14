@@ -77,7 +77,7 @@ How the store should look and be structured is decided in stage 1 (`references/d
 - [ ] **Empty:** a list with nothing in it says so and offers a way on (the project's `EmptyState`), never an empty box.
 - [ ] **Failed:** a deferred section that fails renders its `errorElement` or nothing, and the page still works. A route's error boundary (`RouteErrorBoundary` in the starter) catches what is left. A mutation's `userErrors` show next to their field.
 - [ ] **Signed out:** a customer page sends a signed-out visitor to sign in; `customerAccount` does this when the token is missing or refused.
-- [ ] **Sold out, unavailable, not delivered there:** the page shows what the API says (`availableForSale`, the cart's `warnings`), and never hides it.
+- [ ] **Sold out, unavailable, not delivered there:** the page shows what the API says (`availableForSale`; the `warnings` of a cart mutation's answer and of each cart line), and never hides it.
 
 ## Design
 

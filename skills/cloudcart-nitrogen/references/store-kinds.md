@@ -15,7 +15,7 @@ Two rules hold for every kind:
 - Reviews (`reviewSummary`, `reviews`) when the store runs them: both are empty otherwise.
 - Volume prices (`quantityDiscounts`), the minimum quantity (`minimumQuantity`), and consumer credit (`creditOffers`) when the merchant offers them.
 - Stock in the merchant's physical stores (`stockByStore`) when the store has them.
-- **Search, listings and cards.** The search and the listings as `references/design.md` says. A listing's filters are the facets the API returns with its products (`Collection.filters`), in the merchant's order. A card shows the picture, the title, the price (`<ProductPrice>`), a discount in the complementary colour, the merchant's labels (`labels`), "new" (`isNew`) and sold out. Each kind below names what can help to choose in it: options to pick from, not a list to add whole. Every field on a card is selected for every product of every listing, so add the one or two that matter most to that store's buyers.
+- **Search, listings and cards.** The search and the listings as `references/design.md` says. A listing's filters are the facets the API returns with its products (`products(…) { filters }`, a `ProductConnection` field), in the merchant's order. A card shows the picture, the title, the price (`<ProductPrice>`), a discount in the complementary colour, the merchant's labels (`labels`), "new" (`isNew`) and sold out. Each kind below names what can help to choose in it: options to pick from, not a list to add whole. Every field on a card is selected for every product of every listing, so add the one or two that matter most to that store's buyers.
 
 ## Fashion: apparel, accessories, shoes, bags
 
