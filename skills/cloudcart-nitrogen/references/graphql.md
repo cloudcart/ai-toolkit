@@ -2,6 +2,52 @@
 
 The rules of stage 2 of the skill, the build, with the patterns the starter uses. The API is the CloudCart Storefront GraphQL API; `storefront` and `customerAccount` come from the request context that every loader and action receives (`context.storefront`, `context.customerAccount`).
 
+## GraphQL, not REST
+
+A REST API has an endpoint for each resource: a page calls several of them and joins the answers. GraphQL turns this around. The page sends one document that describes the whole shape it renders, such as the product with its variants, its brand and its pictures, and the API follows the relations on the server. Most mistakes in a storefront's data come from writing GraphQL as if it were REST.
+
+A page splits its data into several calls for these reasons only:
+
+- **A different cache lifetime or client:** the merchant's settings (`CacheSettings()`) apart from the catalogue, and the customer's own data through `customerAccount`, which never caches.
+- **A different moment:** what the first screen needs (awaited) apart from what is below it (deferred).
+- **A real dependence:** a call that needs another's answer. The product page's reviews wait for the settings that say whether the store shows them.
+- **A Nitrogen helper that runs its own query:** `getCookieConsent()` and `getMarketingPixels()` share one call, and the cart has its own (`context.cart`). Use the helper; do not copy its fields into your document.
+
+Never split a page's data one call per resource. The starter's product page makes four calls, each for one of these reasons (`app/routes/product.$handle.tsx`).
+
+Each habit below shows in the code, and has a GraphQL way. Look for them when you write a query, and when you review one:
+
+| The REST habit | How it shows in the code | The GraphQL way |
+|---|---|---|
+| A call per resource | A module of helpers such as `getProduct()`, `getCollection()` and `getMenu()`, each running one root field, and a loader that awaits several of them with the same cache | One colocated document with every root field the page needs at that moment |
+| The whole resource everywhere | One large fragment, or the same long selection, spread on pages that render a few of its fields | A fragment for each component, with only the fields it renders, spread by the pages that render that component: a fragment is for colocation, not for reuse |
+| Related data fetched by id | An `id` or `handle` from one answer passed to another `storefront.query` in the same loader; a query inside `.map()` or a loop over `nodes` (an N+1) | Nest it in the same document (`product { vendorDetails { … } }`), and select a list's items through a fragment on its `nodes` |
+| A value written into the document | `${…}` inside a `#graphql` document with anything but a fragment's text (`${PRODUCT_ITEM_FRAGMENT}` is right); a document built with `+`, `.replace()` or `.join()` | Declare a variable (`$handle: String!`) and pass the value in `variables`. A value written in can break the document or change what it asks, and each value makes a new document that the API parses and caches again |
+| A second call for the same field, or for an optional part | Two documents that differ only in their arguments; a call made only when a flag is set | Aliases in one document (the home's `featured: products(…)` and `newest: products(…)`), and `@include(if: $withList)` for a part only some visits need (the product page's reviews) |
+| A query after a mutation | `storefront.mutate(…)` and then `storefront.query(…)` in the same action, to read the new state | Select what the page needs in the mutation's payload: the cart's mutations answer with the `cart` |
+| Filtering, sorting or paging in code | `.filter()`, `.sort()` or `.slice()` on `nodes`; `first: 100` on a catalogue list (`products`, `search`) "to get everything". One item's own lists, such as a product's variants or a customer's addresses, are rightly asked whole | The API's arguments: `filters`, `query`, `sortKey` with `reverse`, and `first` with `after`. A page holds at most 100 items: a larger `first` is cut to 100 |
+| Calling the endpoint | `fetch()` to `/api/sf` or to the store's API in the app's code | `context.storefront.query` in a loader, and an action for a change: they bring the cache, the profiler, the tokens and the buyer's IP |
+| An anonymous operation | `query {` or `query(` with no name | Name each operation after its purpose (the starter's `query Product(…)`, `query HomeProducts(…)`): the profiler lists the calls by their names, and an anonymous one shows none |
+| An answer taken as all or nothing | Reading a status code, or a `try`/`catch` as the only error handling around `storefront.query` | An answer can carry `data` and `errors` together: a field that failed is `null`, and the rest is there. `storefront.query` throws only when the request itself fails, and returns GraphQL errors as `errors` beside the data. Render without a part that is `null`, and read `errors` where a missing part matters |
+| A list of products inside a list | `products` or `relatedProducts` inside the `nodes` of `collections`, `vendorsConnection`, `products` or `search` | Below |
+
+### A list inside a list
+
+The API loads some lists inside a list for all the items at once, and others once per item. The same query was measured on a test store with 3 items and with 9:
+
+| Inside each item | 3 items | 9 items |
+|---|---|---|
+| A category's subcategories (`collections` › `children`) | 4 database queries | 4 |
+| A product's pictures (`products` › `images`) | 34 database queries | 34 |
+| A category's products (`collections` › `products`) | 81 database queries, 3 catalogue searches | 213, 9 |
+| A brand's products (`vendorsConnection` › `products`) | 77, 3 | 199, 9 |
+| A product's related products (`products` › `relatedProducts`) | 105, 4 | 246, 10 |
+
+- **An item's own details:** its pictures, its variants, a category's subcategories. They load for all the items at once, so ask them with a small `first` (the product cards' `images(first: 5)`).
+- **A list of products inside a list:** it runs a catalogue search for each item. Keep the outer list short and fixed in the document (`collections(first: 4)`, not a `first` the URL sets), and the inner `first` small. Never put it inside a paginated list, or one the visitor can lengthen.
+- **An item's other lists:** a product's categories, files, linked products and reviews, and an article's comments. They cost database queries for each item, so ask them on the item's own page, not for each card.
+- **The API does not refuse such a query.** Its complexity counts a list once, whatever its `first`, so the server's work grows with every item and nothing stops it.
+
 ## Colocation
 
 - A route's query is a `#graphql` template literal in the route module, below the component, ending in `as const`. A query that several routes run (a category, a vendor and a tag page all list products) lives in one module under `app/lib/`.
@@ -147,4 +193,4 @@ Two paginated lists on one page each take a `namespace`, in both `getPaginationV
 
 1. **The storefront MCP.** In a new session call `learn_cloudcart_storefront` first: it maps the whole API and names the operation for each step. Its guide is written for every client of the API; in a Nitrogen storefront this skill wins where they differ: the customer's token stays in the session cookie and never goes in an `Authorization` header (`customerAccount` sends it, and the buyer goes as `@inContext(buyer: $buyer)`); `$country` and `$language`, when a document declares them, are filled by Nitrogen's client; and the checkout is the platform's (`cart.checkoutUrl`), so the guide's delivery, payment and `cartSubmitForCompletion` steps are not the storefront's. Then check every new or changed document with `validate_graphql_codeblocks`. It also catches mistakes that pass schema validation and still fail, such as `amount` without `formatted`. Use `introspect_graphql_schema` to look up a type or field.
 2. **`npm run codegen`** types every `#graphql` document against the schema shipped with Nitrogen (`@cloudcart/nitrogen/storefront.schema.graphql`, the file `node_modules/@cloudcart/nitrogen/dist/storefront.schema.graphql`: search it for a field), and fails on a field or argument the schema lacks.
-3. **Limits.** The API refuses a query that is more than 10 levels deep or has a complexity over 1000. A page's queries stay within both.
+3. **Limits.** The API refuses a query that is more than 10 levels deep or has a complexity over 1000. A page's queries stay within both. The complexity does not grow with a list's `first`, so it does not catch a list inside a list ("A list inside a list", above).
