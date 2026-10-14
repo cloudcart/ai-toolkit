@@ -29,7 +29,7 @@ customerEmailHash: customerAccount.getEmailHash() ?? null,  // a SHA-256 hash, n
 ```
 
 - `<GoogleConsentMode consent={cookieConsent}>` goes in `<head>`, before any Google tag: it tells Google the visitor's choice first.
-- The CSP in `app/entry.server.tsx` allows the vendors' scripts with `MARKETING_PIXEL_SCRIPT_SOURCES` in `scriptSrc`. Do not drop it, and do not open the CSP wider for a pixel.
+- The CSP in `app/entry.server.tsx` allows the scripts of the pixels the store runs: `marketingPixelScriptSources(pixels)` in `scriptSrc`, with `getMarketingPixels` (the root loader's call, no request of its own). Do not drop it, and do not open the CSP wider for a pixel.
 
 ## Each page says what it is
 
