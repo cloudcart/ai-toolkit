@@ -70,10 +70,10 @@ Never publish these yourself: they would be counted twice.
 
 ## How to check it
 
-In the dev server, open the browser's network panel:
+In the dev server, open the browser's network panel. The dev server works on the live store: where the merchant turned on server-side reporting (`analyticsSettings { pixels { serverSide } }`), each page view below goes on to the merchant's Meta, TikTok and Google Analytics accounts, and accepting a group in the banner sends the browser's events there too. Tell the user and ask before you do either.
 
 1. Each page sends `analyticsEventPublish` to `/api/sf` once for its page view (`PAGE_VIEW`, with the page's kind); a product page also sends a product view (`VIEW_CONTENT`), and a search page a search (`SEARCH`).
-2. Before the visitor chooses in the banner, no request goes to the vendors (`google-analytics.com`, `googletagmanager.com`, `facebook.com/tr`, `analytics.tiktok.com`). After they accept a group, the vendors of that group load and receive the page's events.
+2. Before the visitor chooses in the banner, no request goes to the vendors (`google-analytics.com`, `googletagmanager.com`, `facebook.com/tr`, `analytics.tiktok.com`). After they accept a group, the vendors of that group load and receive the page's events (with the user's word, above).
 3. An add to cart sends `product_added_to_cart` once.
 
 Report what you saw. If you could not open a browser, say so: the reporting is then not verified.

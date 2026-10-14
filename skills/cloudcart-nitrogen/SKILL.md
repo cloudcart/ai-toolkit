@@ -43,6 +43,12 @@ The project was created from CloudCart's starter (the public template `cloudcart
 
 The starter's pages are held to the same targets as yours: the request budget (`references/graphql.md`) and stage 5's review. When the project's copy has drifted from the starter in a way this skill says is wrong, follow the skill and tell the user.
 
+## What reaches the live store
+
+- **A push deploys.** The platform's workflow in the repository (`.github/workflows/nova-deploy.yml`) deploys a push to the default branch to the merchant's live storefront, and an older copy of it deploys a pull request too: read it. Push, open a pull request or run `cloudcart nitrogen deploy` only when the user says so.
+- **The dev server and GraphiQL work on the live store.** A fast order, a contact or inquiry form, a review, a newsletter sign-up, a subscription or a back-in-stock request sent from them is real: an order, a mail, a subscriber. Send one only with the user's word, and tell them what it made.
+- **Test visits** can reach the merchant's ad accounts: stages 4 and 5 say when to ask.
+
 ## Stage 1. The store and its design — `references/design.md`, `references/store-kinds.md`
 
 Decide what the storefront looks like and holds before writing code: the pages, their sections and the data each one shows. That decides the components and the queries of stage 2.
@@ -98,7 +104,7 @@ Build it the way Nitrogen builds its own, so it can move into Nitrogen as it is:
 
 - **The wiring stays as the starter has it:** `<Analytics.Provider>` in the root, with the shop, the cart, the consent and the merchant's pixels from the admin. Never add a vendor's script by hand.
 - **Each page renders the view for its kind** (`<Analytics.ProductView>`, `<Analytics.CollectionView>`, …), once; a page of another kind renders none.
-- **Check that they fire:** in the browser's network panel, one `analyticsEventPublish` per page view; before the visitor's choice, no request to a vendor of a group that waits for consent; after it, the vendors receive the page's events; an add to cart sends `product_added_to_cart` once. Report what you saw, or that you could not open a browser.
+- **Check that they fire:** in the browser's network panel, one `analyticsEventPublish` per page view; before the visitor's choice, no request to a vendor of a group that waits for consent; after it, the vendors receive the page's events; an add to cart sends `product_added_to_cart` once. Where the merchant reports server-side, these are real events in their ad accounts: ask the user first (`references/tracking.md`). Report what you saw, or that you could not open a browser.
 
 ## Stage 5. The review of the whole site — `references/verification.md`, `references/quality.md`
 
@@ -107,6 +113,6 @@ Before a release, and for every page a change touches:
 - **Caching:** on a second load the profiler (`/__nitrogen/subrequests`) shows the shared data as `HIT` or `STALE`; each query has the strategy its data needs; private pages are never cached.
 - **The queries:** each page's calls against its budget, no N+1, no field the page does not render, and where a call or a field can go. Report the numbers before and after.
 - **SEO:** every indexable page passes `references/seo.md`'s checklist.
-- **Speed:** a Lighthouse performance score of **at least 90 on a phone** (its default mobile profile) for the home, a category and a product page — PageSpeed Insights on the live site, or Lighthouse on the production build. Report the scores and what holds them back.
+- **Speed:** a Lighthouse performance score of **at least 90 on a phone** (its default mobile profile) for the home, a category and a product page — Lighthouse on the production build, or PageSpeed Insights on the live site. A test visit to a store that reports server-side reaches the merchant's ad accounts: ask the user first (`references/verification.md`). Report the scores and what holds them back.
 - **`npm run check` passes** (codegen, typecheck, lint, build, and the tests once there are any), and the whole checklist in `references/quality.md` is gone through.
 - **Report what you measured,** with the numbers. "It should be fine" is not a measurement.
