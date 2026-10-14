@@ -42,7 +42,7 @@ export interface LowStockNoticeProps {
   variant: LowStockNoticeFragment;
   /** Shown at this many left or fewer; nothing above it. */
   threshold?: number;
-  /** The text around the count, from the project's translations: `(count) => t('product.lowStock', {count})`. */
+  /** The text, from the project's translations; it gets the count, to show only when the merchant wants it shown. */
   children: (count: number) => React.ReactNode;
   /** Classes added to each part's `cc-*` class. */
   classNames?: Partial<Record<LowStockNoticePart, string>>;
@@ -109,11 +109,13 @@ Check that the test can fail: change the behaviour it covers (here, the default 
 import {LowStockNotice, LOW_STOCK_NOTICE_FRAGMENT} from '~/building-blocks/LowStockNotice';
 
 <LowStockNotice variant={selectedVariant} classNames={{root: 'mt-2 text-small text-warning'}}>
-  {(count) => t('product.lowStock', {count})}
+  {() => t('product.fewLeft')}
 </LowStockNotice>
 ```
 
-The page's query spreads `...LowStockNotice` on the variant and interpolates `${LOW_STOCK_NOTICE_FRAGMENT}`. The text's key (`product.lowStock`) goes into every file in `app/locales/` first: the keys are typed, so a missing one fails the typecheck. The classes come from the project's design tokens, as the rest of the page's do.
+Whether shoppers see how many are left is the merchant's choice: the platform's own storefront shows a quantity only when the merchant's theme setting says so, and the storefront cannot read that setting. Ask the user; without a yes, the text names no number ("Only a few left"), as above. With it: `{(count) => t('product.lowStock', {count})}`.
+
+The page's query spreads `...LowStockNotice` on the variant and interpolates `${LOW_STOCK_NOTICE_FRAGMENT}`. The text's key (`product.fewLeft`) goes into every file in `app/locales/` first: the keys are typed, so a missing one fails the typecheck. The classes come from the project's design tokens, as the rest of the page's do.
 
 ## Ready to move into Nitrogen
 
