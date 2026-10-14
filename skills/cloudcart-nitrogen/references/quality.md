@@ -61,7 +61,8 @@ How the store should look and be structured is decided in stage 1 (`references/d
 - [ ] **Reduced motion:** animation and transitions respect `prefers-reduced-motion`.
 - [ ] **Semantics:** one `h1` and headings in order; landmarks (`header`, `nav`, `main`, `footer`); a label for every control; a real `<button>` for an action and a link for navigation.
 - [ ] **Text alternatives:** `<Image>` takes the merchant's alt text; a decorative picture has an empty `alt`; an icon-only button has a label from the translations.
-- [ ] **Contrast:** colours from the design tokens only, and every pair the store set (the accent, the highlight and the text on them) at least 4.5:1, 3:1 for large text and controls.
+- [ ] **Embedded frames are named:** the merchant's HTML goes through `<RichText>`, which titles an untitled `<iframe>` from its source; the merchant is told to give each frame its own `title`.
+- [ ] **Contrast:** colours from the design tokens only, and every pair the store set (the accent, the highlight and the text on them) at least 4.5:1, 3:1 for large text; a control whose edge is all that shows it (a text field, a colour swatch) has that edge at 3:1 against the page (the starter's `--color-control`).
 - [ ] **An automated check** (axe, or Lighthouse's accessibility audits) reports no serious or critical violation on the page.
 
 ## Translations

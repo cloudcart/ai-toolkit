@@ -66,7 +66,7 @@ Decide what the storefront looks like and holds before writing code: the pages, 
 2. **Look at what the project already has,** and at the starter's nearest page (above). Read its `AGENTS.md` first: the starter ships one with the project's conventions. Then search `app/routes/` (one file per page), `app/components/` (small UI pieces in `app/components/ui/`), `app/lib/` (helpers, fragments, the platform's page addresses in `urls.ts`, the `meta` helpers in `meta.ts`), `app/building-blocks/` and `app/locales/` (one JSON file per language).
 3. **Use what exists.** Never re-create a piece that Nitrogen or the project already has: a price, an image, a cart form, pagination, SEO tags, a consent banner, a translation helper. If a piece almost fits, use its props or wrap it. If a Nitrogen piece is wrong, report it to the user, and do not fork it.
 4. **Take data from the API; never derive it.** Prices and totals come as `formatted`, the discount from `Product.discount`, the cart's totals from `Cart.totals`. If the API gives a wrong value, report it, and do not compute around it. Pages keep the platform's addresses (`/product/{handle}`, `/category/{handle}`, …), and the checkout stays the platform's.
-5. **The merchant's content** (pages, articles, descriptions) is HTML from the store: render it with `<RichText>`.
+5. **The merchant's content** (pages, articles, descriptions) is HTML from the store: render it with `<RichText>`, which names an untitled embedded frame (`<iframe>`) from its source, so a screen reader can announce it. When a page embeds frames, tell the merchant to give each one a `title`.
 
 ### GraphQL that fetches only what the page renders
 
