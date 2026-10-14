@@ -39,7 +39,8 @@ It runs codegen, typecheck, lint (design tokens, translations, ESLint, Prettier)
 The target is a Lighthouse performance score of at least 90 with its default mobile profile, for the home, a category and a product page. Measure what ships, not the dev server:
 
 - **A deployed storefront:** deploy a preview (`cloudcart nitrogen deploy --preview`) and run its pages through PageSpeed Insights (pagespeed.web.dev), which runs Lighthouse's mobile profile.
-- **Locally:** Lighthouse in Chrome's DevTools, or `npx lighthouse <url> --only-categories=performance`, against the production build.
+- **Locally:** Lighthouse in Chrome's DevTools, or `npx lighthouse <url> --only-categories=performance`, against the production build served over HTTP/2, as Cloudflare serves it. Over HTTP/1.1 Lighthouse simulates six connections to the host, so a build's many small files cost round trips that production does not pay: the starter's pages measured 88–91 over HTTP/1.1 and 96–97 over HTTP/2, the same build. The deployed preview is the reference.
+- **Keep test runs away from the merchant's pixels:** locally, block their hosts (`--blocked-url-patterns=*facebook.com*`, and the same for `facebook.net`, `tiktok.com`, `googletagmanager.com`, `google-analytics.com`, `doubleclick.net`), so no test visit reaches the merchant's ad accounts, and say that the score leaves the pixels out. Nitrogen adds their scripts only once the page has loaded and is idle.
 
 Run each page three times and take the median: one run varies by several points. Report the score with its metrics (FCP, LCP, TBT, CLS) and what holds it back: the largest-contentful-paint element and the opportunities Lighthouse lists. A score under 90 is reported to the user with that cause.
 

@@ -38,7 +38,7 @@ The project was created from CloudCart's starter (the public template `cloudcart
 | Security | `server.ts` (Nitrogen's request handler, `storeDomain`), `app/entry.server.tsx` (the CSP), `app/lib/urls.ts` (`localRedirectPath`), `app/lib/headers.ts` |
 | Analytics | `app/root.tsx` (`<Analytics.Provider>`), `app/lib/analytics.ts` (`listedProducts`), each page's view |
 | Listings and cards | `app/routes/category.$handle.tsx`, `app/components/ProductListing.tsx`, `app/components/ProductItem.tsx` |
-| Forms | `app/components/ProductRequestForms.tsx`, the routes under `app/routes/account*` |
+| Forms | `app/components/ProductRequestForms.tsx`, `app/components/ui/Field.tsx` (16 px text on a phone), the routes under `app/routes/account*` |
 | Design | `app/styles/app.css` (the tokens), `app/components/ui/` |
 
 The starter's pages are held to the same targets as yours: the request budget (`references/graphql.md`) and stage 5's review. When the project's copy has drifted from the starter in a way this skill says is wrong, follow the skill and tell the user.
