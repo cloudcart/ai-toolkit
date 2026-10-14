@@ -36,7 +36,8 @@ Read `version` in `node_modules/@cloudcart/nitrogen/package.json` (install the d
 3. **Use what exists.** Never re-create a piece that Nitrogen or the project already has: a price, an image, a cart form, pagination, SEO tags, a consent banner, a translation helper. If a piece almost fits, use its props or wrap it. If a Nitrogen piece is wrong, report it to the user, and do not fork it.
 4. **Take data from the API; never derive it.** Prices and totals come as `formatted`, the discount from `Product.discount`, the cart's totals from `Cart.totals`. If the API gives a wrong value, report it, and do not compute around it. Pages keep the platform's addresses (`/product/{handle}`, `/category/{handle}`, …), and the checkout stays the platform's.
 5. **The merchant's content** (pages, articles, product and category descriptions) is HTML from the store. Render it with `<RichText>`, which names an untitled embedded frame (`<iframe>`) from its source so that a screen reader can announce it. When a page embeds frames, tell the merchant to give each one a `title`.
-6. **Nothing fits?** Build it as section 3 says.
+6. **The kind of store.** Ask which kind the store is (fashion, electronics, food, …), or read it from the catalogue, and show what that kind needs from the API: `references/store-kinds.md`.
+7. **Nothing fits?** Build it as section 3 says.
 
 ## 2. GraphQL and data — `references/graphql.md`
 
@@ -74,5 +75,5 @@ Build it the way Nitrogen builds its own, so that it can move into Nitrogen as i
 
 - **Measure the page before and after** in the dev server's profiler, `/__nitrogen/subrequests`, under `npm run dev`. Load the page twice and count its calls to the API. Look for no new calls beyond the budget, and no N+1: the same operation repeated once per item.
 - **`npm run check` passes:** codegen, typecheck, lint and build. The starter's `check` has no tests: add `npm test` to it with the first building block (`references/building-block.md`).
-- **Go through the quality checklist,** `references/quality.md`: speed, accessibility and devices, SEO, consent and analytics, translations, the states between success and failure, and design.
+- **Go through the quality checklist,** `references/quality.md`: speed, accessibility and devices, SEO, consent and analytics, translations, the states between success and failure, and design. A page's meta tags, canonical, `noindex` and structured data are in `references/seo.md`; analytics and the merchant's pixels in `references/tracking.md`.
 - **Report what you measured,** with the numbers. "It should be fine" is not a measurement.

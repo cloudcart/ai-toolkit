@@ -27,8 +27,8 @@ The industry's good practice for a storefront page, as CloudCart sets it for Nit
 ## SEO
 
 - [ ] **Rendered on the server:** what a search engine should read comes from the loader, not from the browser after the page loads.
-- [ ] **Meta tags** from the route's `meta` export with `getSeoMeta`: title, description, and the canonical URL on the platform's address for the page (`app/lib/urls.ts`).
-- [ ] **Structured data (JSON-LD)** with Nitrogen's helpers: `generateProductJsonLd`, `generateBreadcrumbJsonLd`, `generateCollectionJsonLd`, `generateArticleJsonLd` and `generateOrganizationJsonLd`.
+- [ ] **Meta tags** from the route's `meta` export with `seoMeta` (`app/lib/meta.ts`): title, description, and the canonical URL on the platform's address for the page (`app/lib/urls.ts`); `privateMeta` on a private or form page. The details: `references/seo.md`.
+- [ ] **Structured data (JSON-LD)** with Nitrogen's helpers: `generateProductJsonLd`, `generateBreadcrumbJsonLd` (through the starter's `breadcrumbJsonLd` and `crumbsJsonLd`), `generateCollectionJsonLd`, `generateArticleJsonLd` and `generateOrganizationJsonLd`.
 - [ ] **Not found is a 404:** a loader that finds nothing throws `new Response(null, {status: 404})`. `server.ts` passes every 404 through `storefrontRedirect`, which applies the merchant's 301 redirects.
 - [ ] **The platform's addresses** for existing pages. `robots.txt` and `llms.txt` are routes of the starter. The sitemap is the platform's, so the storefront has no sitemap route.
 
@@ -36,7 +36,7 @@ The industry's good practice for a storefront page, as CloudCart sets it for Nit
 
 - [ ] **Each event once per page view:** the page renders Nitrogen's analytics view for its kind (`<Analytics.ProductView>`, `<Analytics.CollectionView>`, …) inside `<Analytics.Provider>`, and nothing else publishes the same event.
 - [ ] **The merchant's consent decides:** the banner (`<PrivacyBanner>`), the visitor's choice (`useCustomerPrivacy`) and Google's signals (`<GoogleConsentMode>`) come from the merchant's GDPR app. A tracking script loads only after the visitor allows its consent group; `getMarketingPixels` gives each of the merchant's pixels with the group it waits for.
-- [ ] **No tracking the merchant did not set up:** pixels and vendors come from the admin, not from the storefront's code.
+- [ ] **No tracking the merchant did not set up:** pixels and vendors come from the admin, not from the storefront's code. The details: `references/tracking.md`.
 
 ## Translations
 
