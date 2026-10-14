@@ -37,7 +37,7 @@ Two rules hold for every kind:
 
 - **Dimensions and weight:** `dimensions` (length, width, height, unit) and the variant's `weight` and `weightUnit`.
 - **Made to order:** `customizations` (the buyer's choices beyond the variant, with their prices), and a sold-out item with `statusType` `REQUEST`, which the store takes on request.
-- **Delivery:** large items often have their own couriers and slots. The cart's delivery quote and options come from the API (`cartDeliveryQuote`, `cartDeliverySlots`); never promise a delivery date the API did not give.
+- **Delivery:** large items often have their own couriers and slots, which the platform's checkout offers once the cart is handed over (`cart.checkoutUrl`); never promise a delivery date or price the API did not give. `cartDeliveryQuote` and `cartDeliverySlots` are steps of the API's own checkout for other clients — the first stores prices on the cart and needs an address, the second a chosen courier — not the storefront's.
 - **Listings and cards:** pictures large enough to judge a piece (two a row on a phone, three on a desktop rather than four); filters by the merchant's material and colour facets.
 
 ## Health and beauty
@@ -51,7 +51,7 @@ Two rules hold for every kind:
 
 - **The unit price:** `ProductVariant.unitPrice` with `unitPriceMeasurement` (the price per kg, per litre…). Show it next to the price, wherever the price is shown.
 - **The food information** from `properties` and the description: ingredients, allergens, net quantity, storage, the producer, on the product page, before the purchase.
-- **Delivery slots** (`cartDeliverySlots`) for fresh goods, and the minimum quantity (`minimumQuantity`).
+- **Delivery slots** for fresh goods are chosen in the platform's checkout; on the storefront, the minimum quantity (`minimumQuantity`).
 - **Listings and cards:** the unit price on the card, and an add to cart on the card (`AddToCartButton`) for a product with one variant, for the buyer who orders the same again.
 
 ## Baby, toys and games
