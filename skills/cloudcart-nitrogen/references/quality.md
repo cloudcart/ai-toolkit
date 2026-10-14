@@ -42,8 +42,9 @@ How the store should look and be structured is decided in stage 1 (`references/d
 ## SEO
 
 - [ ] **Every indexable page passes `references/seo.md`'s list:** rendered on the server; title, description, canonical on the store's domain and image; `privateMeta` on private and form pages; a listing's pages each their own canonical; JSON-LD for its kind; one `h1`; alt text on content images; a 404 for a missing record.
-- [ ] **The platform's addresses** for existing pages; `robots.txt` and `llms.txt` are the starter's routes; the sitemap is the platform's, so the storefront has no sitemap route.
-- [ ] **Lighthouse's SEO audits pass** on the home, a category and a product page.
+- [ ] **The platform's addresses** for existing pages. The sitemap is the platform's, so the storefront has no sitemap route.
+- [ ] **`/llms.txt` and `robots.txt` answer.** `/llms.txt` serves `shop.llmsTxt` — the merchant's text, or the platform's default when they wrote none — and answers 404 when the store publishes none (a trial or an expired plan, or switched off). `robots.txt` names it (`Llms:`) and, on the store's domain, the platform's sitemap (`Sitemap:`). A storefront without the two routes takes them from the starter (`app/routes/[robots.txt].tsx`, `app/routes/[llms.txt].tsx`).
+- [ ] **Lighthouse's SEO audits pass** on the home, a category and a product page. Two fail by design: off the store's domain, `is-crawlable` (Nitrogen's request handler sends `X-Robots-Tag: noindex` on every other host, so a preview or a dev server stays out of search results), and `robots-txt`, which does not know the `Llms:` line.
 
 ## Consent and analytics
 
