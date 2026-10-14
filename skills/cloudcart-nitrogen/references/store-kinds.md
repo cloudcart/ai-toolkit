@@ -1,6 +1,6 @@
 # By kind of store
 
-What a storefront shows for each kind of store, built from what the Storefront API already returns. Ask the user which kind the store is, or read it from the catalogue. The merchant chooses the store's kinds in the admin, from the top level of Google's product taxonomy. Most stores are more than one kind: apply each section that fits.
+What a storefront shows for each kind of store — on the product page, and in the search, the listings and the product cards — built from what the Storefront API already returns. Decide it in stage 1: it decides what each page's query selects. Ask the user which kind the store is, or read it from the catalogue. The merchant chooses the store's kinds in the admin, from the top level of Google's product taxonomy. Most stores are more than one kind: apply each section that fits.
 
 Two rules hold for every kind:
 
@@ -15,6 +15,7 @@ Two rules hold for every kind:
 - Reviews (`reviewSummary`, `reviews`) when the store runs them: both are empty otherwise.
 - Volume prices (`quantityDiscounts`), the minimum quantity (`minimumQuantity`), and consumer credit (`creditOffers`) when the merchant offers them.
 - Stock in the merchant's physical stores (`stockByStore`) when the store has them.
+- **Search, listings and cards.** The search and the listings as `references/design.md` says. A listing's filters are the facets the API returns with its products (`Collection.filters`), in the merchant's order. A card shows the picture, the title, the price (`<ProductPrice>`), a discount in the complementary colour, the merchant's labels (`labels`), "new" (`isNew`) and sold out. Each kind below names what can help to choose in it: options to pick from, not a list to add whole. Every field on a card is selected for every product of every listing, so add the one or two that matter most to that store's buyers.
 
 ## Fashion: apparel, accessories, shoes, bags
 
@@ -22,6 +23,7 @@ Two rules hold for every kind:
 - **The size chart:** `sizeChart` names a content page (`pageHandle`). Open it next to the size option, in a dialog or a link; show nothing when there is none.
 - **The variant's pictures** change with the colour (`mediaIds`).
 - **Fibre composition and care** from `properties`, on the product page, before the buyer adds to the cart.
+- **Listings and cards:** the colour swatches on the card (`options` → `optionValues` → `swatch`), and the size and colour filters first. A second photo on hover only where the device can hover.
 
 ## Electronics, cameras and software
 
@@ -29,29 +31,34 @@ Two rules hold for every kind:
 - **Specifications** from `properties`, as a table, and comparison (`productComparison`) for the same kind of product.
 - **Manuals and downloads** from `files`.
 - **Software and digital goods:** `requiresShipping` is false; after purchase the customer finds the files in their account (`customer.downloads`).
+- **Listings and cards:** the brand (`vendor`) and the energy class next to the price on the card; comparison (`productComparison`) from the card; filters by brand and by the merchant's specification facets.
 
 ## Home, garden, furniture and hardware
 
 - **Dimensions and weight:** `dimensions` (length, width, height, unit) and the variant's `weight` and `weightUnit`.
 - **Made to order:** `customizations` (the buyer's choices beyond the variant, with their prices), and a sold-out item with `statusType` `REQUEST`, which the store takes on request.
 - **Delivery:** large items often have their own couriers and slots. The cart's delivery quote and options come from the API (`cartDeliveryQuote`, `cartDeliverySlots`); never promise a delivery date the API did not give.
+- **Listings and cards:** pictures large enough to judge a piece (two a row on a phone, three on a desktop rather than four); filters by the merchant's material and colour facets.
 
 ## Health and beauty
 
 - **Ingredients** from `properties`, on the product page.
 - **Subscriptions:** `sellingPlanGroups`, the repeat deliveries the merchant offers, when the store has them.
 - **The unit price** when the product is sold by volume or weight (`unitPrice`, below).
+- **Listings and cards:** the brand and the unit price on the card.
 
 ## Food and drink
 
 - **The unit price:** `ProductVariant.unitPrice` with `unitPriceMeasurement` (the price per kg, per litre…). Show it next to the price, wherever the price is shown.
 - **The food information** from `properties` and the description: ingredients, allergens, net quantity, storage, the producer, on the product page, before the purchase.
 - **Delivery slots** (`cartDeliverySlots`) for fresh goods, and the minimum quantity (`minimumQuantity`).
+- **Listings and cards:** the unit price on the card, and an add to cart on the card (`AddToCartButton`) for a product with one variant, for the buyer who orders the same again.
 
 ## Baby, toys and games
 
 - **The age range** and warnings from `properties`, on the product page, before the purchase.
 - **Bundles and sets:** `bundle` lists what a set contains.
+- **Listings and cards:** filters by the merchant's age facet when there is one.
 
 ## Sporting goods
 
@@ -61,15 +68,18 @@ Two rules hold for every kind:
 
 - **Repeat purchases:** subscriptions (`sellingPlanGroups`) and volume prices (`quantityDiscounts`).
 - **The unit price** for food sold by weight.
+- **Listings and cards:** the unit price on the card, and an add to cart on the card for a product with one variant.
 
 ## Vehicles and parts
 
 - **Compatibility and the part number** from `properties` and the variant's `sku` and `barcode`.
+- **Listings and cards:** the part number (`sku`) on the card.
 
 ## Books, media, office and art
 
 - **The ISBN or EAN** from the variant's `barcode`; the publisher or maker as the brand (`vendorDetails`).
 - **Digital editions** as in software.
+- **Listings and cards:** the author or publisher (`vendorDetails`) on the card.
 
 ## A gap in the data
 

@@ -1,42 +1,68 @@
-# The quality checklist
+# The review of the whole site
 
-The industry's good practice for a storefront page, as CloudCart sets it for Nitrogen storefronts. Go through it before you call a change done, for every page the change touches. Say which items you checked and how, and which you could not check (most often: a real phone, or a browser at all).
+Stage 5's checklist: the industry's good practice for a storefront, as CloudCart sets it for Nitrogen storefronts. Go through it before a release, and for every page a change touches. Say which items you checked and how, and which you could not check (most often: a real phone, or a browser at all): an item not checked is reported as not checked, never passed. An item that fails is fixed, or reported to the user with its cause before the release.
+
+How the store should look and be structured is decided in stage 1 (`references/design.md`). This list keeps only what can be checked of it: the widths, the contrast, the tokens and the store's colours.
 
 ## Speed
 
-- [ ] **Within the request budget,** measured in the profiler on a first and a second load (`references/verification.md`).
-- [ ] **Core Web Vitals "good" on a phone:** LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1 for the home, category and product pages. Measure them in a browser with a throttled phone profile when you can; if you cannot, say so.
+- [ ] **A Lighthouse performance score of at least 90 on a phone** (Lighthouse's default mobile profile) for the home, a category and a product page, on what ships, not on the dev server, which serves unbundled, unminified code. How to measure and what to report: `references/verification.md`.
+- [ ] **Core Web Vitals "good" on a phone:** LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1 for the home, category and product pages.
 - [ ] **Every picture from the API through `<Image>`:** it asks the store's image CDN for the widths it needs, with `srcset`. Give a fluid image `sizes`. Never put an API image URL in a raw `<img>`.
 - [ ] **The first screen's largest picture** (a hero, a product's first photo) loads at once: `<Image loading="eager" fetchPriority="high">`. Every other picture keeps `<Image>`'s default, `loading="lazy"`.
 - [ ] **No layout shift:** images have their size or `aspectRatio`, and a loading placeholder takes the size of what replaces it.
 - [ ] **Instant feedback:** a cart change shows at once (`useOptimisticCart`), and a form shows that it is sending.
-- [ ] **Nothing heavy at module load,** because a Worker has 1 s to start; no large client library for a small job; a third-party script through `<Script>`, and only after its consent (below).
+- [ ] **Light JavaScript:** nothing heavy at module load (a Worker has 1 s to start); no large client library for a small job; a third-party script through `<Script>`, and only after its consent (`references/tracking.md`). The merchant's pixels count toward the score: a consent group the merchant set as accepted by default loads its vendors on the first visit.
 
-## Accessibility and devices (WCAG 2.1 AA)
+## Caching
 
-- [ ] **Keyboard:** every link, button and control can be reached with Tab and used with the keyboard, in a sensible order.
-- [ ] **Visible focus** on everything that can take it.
-- [ ] **Dialogs:** use the project's `Dialog` (`app/components/Dialog.tsx` in the starter), a native `<dialog>` opened with `showModal()`: focus moves in, stays inside, and Escape closes it. Without one, use a native `<dialog>` the same way.
-- [ ] **Reduced motion:** animation and transitions respect `prefers-reduced-motion`.
-- [ ] **Semantics:** one `h1` and headings in order; landmarks (`header`, `nav`, `main`, `footer`); a label for every control; a real `<button>` for an action and a link for navigation.
-- [ ] **Text alternatives:** `<Image>` takes the merchant's alt text; a decorative picture has an empty `alt`; an icon-only button has a label from the translations.
-- [ ] **Contrast:** colours from the design tokens only, so text meets 4.5:1 (3:1 for large text and controls).
-- [ ] **Phone and desktop:** the page works at 390 px and 1280 px wide, with no horizontal scroll and touch targets large enough to hit.
-- [ ] **An automated check** (axe, for example) reports no serious or critical violation on the page.
+- [ ] **Each query has the strategy its data needs** (the table in `references/graphql.md`): `CacheLong()` only for menus and static lists, at most a minute for the settings the merchant edits, `CacheShort()` or the default for the catalogue and content, `CacheNone()` for what a visitor must see at once after changing it.
+- [ ] **The cache is used:** on a second load, the profiler (`/__nitrogen/subrequests`) shows the shared calls as `HIT`, or `STALE` while they refresh, and none as `NONE` that is the same for every visitor.
+- [ ] **A buyer's data stays the buyer's:** a query that passes the buyer is cached under that buyer; the customer's own data goes through `customerAccount.query`, which never caches.
+- [ ] **The HTML is rendered for each request,** because it carries the visitor's cart and sign-in. Never give a page a shared `Cache-Control` (`public`, `s-maxage`). Private pages send `Cache-Control: private, no-store` (`privatePageHeaders` in the starter's `app/lib/headers.ts`).
+
+## Queries
+
+- [ ] **Within the request budget,** measured in the profiler on a first and a second load (`references/verification.md`), and compared with the page's "before".
+- [ ] **No N+1:** no operation repeated once per item.
+- [ ] **No field the page does not render,** and each field in the fragment of what renders it.
+- [ ] **No call that waits for no reason:** independent calls start together (at most 6 at a time); below the first screen, data comes from the page's deferred query.
+- [ ] **Where it can be better:** name each call or field that could go, merge or be deferred, even when the page is within its budget.
+
+## Security
+
+- [ ] **No secret in the browser:** neither `PRIVATE_STOREFRONT_API_TOKEN` nor `SESSION_SECRET` is read by a component or a client module, and `build/client/` holds neither their names nor their values (search it by name, and by value without printing it: `grep -rlF`).
+- [ ] **No secret in git:** `.env` is ignored, and no token or password is in the code, the tests or the docs.
+- [ ] **The customer's access token** only in the signed session cookie: never in a URL, browser storage, client code or an `Authorization` header.
+- [ ] **The CSP holds:** every inline script carries the nonce (`<Script>`, `useNonce()`); a new third-party source is named in `app/entry.server.tsx`, and the policy is not widened otherwise; the browser's console shows no CSP violation on the page.
+- [ ] **Forms go through route actions** to the API's mutations, and show their `userErrors`; nothing is trusted from the browser alone.
+- [ ] **Redirects stay in the store:** a target taken from the request (`?redirect=`, a form's `redirectTo`) is followed only through `localRedirectPath` (`app/lib/urls.ts` in the starter), which refuses one that leaves the storefront.
+- [ ] **Dependencies:** `npm audit --omit=dev` reports no high or critical advisory, or each one is reported to the user.
 
 ## SEO
 
-- [ ] **Rendered on the server:** what a search engine should read comes from the loader, not from the browser after the page loads.
-- [ ] **Meta tags** from the route's `meta` export with `seoMeta` (`app/lib/meta.ts`): title, description, and the canonical URL on the platform's address for the page (`app/lib/urls.ts`); `privateMeta` on a private or form page. The details: `references/seo.md`.
-- [ ] **Structured data (JSON-LD)** with Nitrogen's helpers: `generateProductJsonLd`, `generateBreadcrumbJsonLd` (through the starter's `breadcrumbJsonLd` and `crumbsJsonLd`), `generateCollectionJsonLd`, `generateArticleJsonLd` and `generateOrganizationJsonLd`.
-- [ ] **Not found is a 404:** a loader that finds nothing throws `new Response(null, {status: 404})`. `server.ts` passes every 404 through `storefrontRedirect`, which applies the merchant's 301 redirects.
-- [ ] **The platform's addresses** for existing pages. `robots.txt` and `llms.txt` are routes of the starter. The sitemap is the platform's, so the storefront has no sitemap route.
+- [ ] **Every indexable page passes `references/seo.md`'s list:** rendered on the server; title, description, canonical on the store's domain and image; `privateMeta` on private and form pages; a listing's pages each their own canonical; JSON-LD for its kind; one `h1`; alt text on content images; a 404 for a missing record.
+- [ ] **The platform's addresses** for existing pages; `robots.txt` and `llms.txt` are the starter's routes; the sitemap is the platform's, so the storefront has no sitemap route.
+- [ ] **Lighthouse's SEO audits pass** on the home, a category and a product page.
 
 ## Consent and analytics
 
 - [ ] **Each event once per page view:** the page renders Nitrogen's analytics view for its kind (`<Analytics.ProductView>`, `<Analytics.CollectionView>`, …; none for a page of another kind) inside `<Analytics.Provider>`, and nothing else publishes the same event.
-- [ ] **The merchant's consent decides:** the banner (`<PrivacyBanner>`), the visitor's choice (`useCustomerPrivacy`) and Google's signals (`<GoogleConsentMode>`) come from the merchant's GDPR app. A tracking script loads only after the visitor allows its consent group; `getMarketingPixels` gives each of the merchant's pixels with the group it waits for.
-- [ ] **No tracking the merchant did not set up:** pixels and vendors come from the admin, not from the storefront's code. The details: `references/tracking.md`.
+- [ ] **The merchant's consent decides:** the banner (`<PrivacyBanner>`), the visitor's choice (`useCustomerPrivacy`) and Google's signals (`<GoogleConsentMode>`) come from the merchant's GDPR app; a tracking script loads only when its consent group allows it.
+- [ ] **The pixels fire:** checked in the network panel as `references/tracking.md` says, or reported as not checked.
+- [ ] **No tracking the merchant did not set up:** pixels and vendors come from the admin, not from the storefront's code.
+
+## Accessibility and devices (WCAG 2.1 AA)
+
+- [ ] **Phone and desktop:** the page works at 390 px and 1280 px wide, with no horizontal scroll and touch targets large enough to hit.
+- [ ] **Keyboard:** every link, button and control can be reached with Tab and used with the keyboard, in a sensible order.
+- [ ] **Visible focus** on everything that can take it.
+- [ ] **Dialogs:** use the project's `Dialog` (`app/components/Dialog.tsx` in the starter), a native `<dialog>` opened with `showModal()`: focus moves in, stays inside, and Escape closes it.
+- [ ] **Reduced motion:** animation and transitions respect `prefers-reduced-motion`.
+- [ ] **Semantics:** one `h1` and headings in order; landmarks (`header`, `nav`, `main`, `footer`); a label for every control; a real `<button>` for an action and a link for navigation.
+- [ ] **Text alternatives:** `<Image>` takes the merchant's alt text; a decorative picture has an empty `alt`; an icon-only button has a label from the translations.
+- [ ] **Contrast:** colours from the design tokens only, and every pair the store set (the accent, the highlight and the text on them) at least 4.5:1, 3:1 for large text and controls.
+- [ ] **An automated check** (axe, or Lighthouse's accessibility audits) reports no serious or critical violation on the page.
 
 ## Translations
 
@@ -55,4 +81,5 @@ The industry's good practice for a storefront page, as CloudCart sets it for Nit
 ## Design
 
 - [ ] **Colours, spacing, type and breakpoints from the design tokens** in `app/styles/app.css`. The lint fails on a colour, font size or breakpoint outside them.
+- [ ] **The store's colours are set:** `--color-accent` and `--color-highlight` carry the merchant's brand, or the user chose to keep the starter's black and white.
 - [ ] **No dependence on the merchant's theme:** nothing reads theme settings or widget slots, because they change when the merchant changes theme.

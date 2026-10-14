@@ -70,7 +70,7 @@ Auto-update covers this plugin only. `DISABLE_AUTOUPDATER=1` in your environment
 - **Query validation**: Validate GraphQL queries and mutations against the live schema before they run against your store
 - **Store management**: Add products, manage inventory, view orders, customers, and more — through the CloudCart CLI's `app execute` capabilities
 - **Platform knowledge**: Answer "how is this supposed to work / where do I set it / is this by design", grounded in the CloudCart platform wiki instead of guessed from memory
-- **Nitrogen storefronts**: A checklist for building and changing a CloudCart headless storefront made with Nitrogen — reuse its building blocks, write colocated GraphQL within the page's request budget, keep tokens on the server, and measure the result. See [Nitrogen storefronts](#nitrogen-storefronts)
+- **Nitrogen storefronts**: Five stages for building and changing a CloudCart headless storefront made with Nitrogen — a mobile-first design for the store's niche, the build on Nitrogen's building blocks with GraphQL that fetches only what the page renders, SEO and security, analytics and pixels, and a review of the whole site with a mobile speed score of at least 90 — with CloudCart's starter as the reference. See [Nitrogen storefronts](#nitrogen-storefronts)
 - **Project setup**: Interview-driven start of a new software project — a specification built block by block, then `CLAUDE.md`, `TASKS.md`, `BUGS.md`, two project-local skills and a notes layer that lets the agent learn from its own sessions. See [Project setup](#project-setup)
 - **Auto-updates**: The CLI and the two MCP servers track `@latest` and the platform wiki tracks its repository, so new capabilities and new documentation are picked up automatically. The plugin itself is the exception — see [Update](#update)
 
@@ -101,15 +101,15 @@ scripts/sync-wiki.sh --force    # re-clone now
 
 ## Nitrogen storefronts
 
-The `cloudcart-nitrogen` skill is for developers building a CloudCart headless storefront with Nitrogen, the React Router framework on Cloudflare Workers. It applies whenever the project depends on `@cloudcart/nitrogen`: ask for a page, a component or a fix as usual, and the agent works through its checklist before, during and after the change.
+The `cloudcart-nitrogen` skill is for developers building a CloudCart headless storefront with Nitrogen, the React Router framework on Cloudflare Workers. It applies whenever the project depends on `@cloudcart/nitrogen`: ask for a page, a component or a fix as usual, and the agent works through its five stages, with the starter's own pages as the worked example.
 
-| Step | What the agent does |
+| Stage | What the agent does |
 | --- | --- |
-| Before building | Reads the export maps shipped in the installed packages (`node_modules/@cloudcart/nitrogen/EXPORTS.md`, and nitrogen-react's) and the project's own components, and uses them instead of writing new ones |
-| GraphQL | Colocated queries and fragments with only the rendered fields; critical data awaited, the rest deferred; the page's request budget; the cache strategy; every query validated with the Storefront MCP and `npm run codegen` |
-| A missing building block | Built as Nitrogen builds its own, in `app/building-blocks/`: unstyled with class hooks, documented, tested with vitest, ready to move into Nitrogen |
-| Security | Tokens on the server, the customer's token in the session cookie, the CSP nonce, forms validated by the API |
-| Verification | The page's calls in the dev profiler before and after, `npm run check`, and a quality checklist: speed, accessibility, SEO, consent, translations, and the loading, empty and error states |
+| 1. The store and its design | Starts from the store's niche; designs for a phone first; follows a store's UX practice for the search, listings, product cards and product page; sets one accent colour and one or two complementary ones as design tokens |
+| 2. The build | Reads the export maps shipped in the installed packages (`node_modules/@cloudcart/nitrogen/EXPORTS.md`, and nitrogen-react's), the project's components and the starter's nearest page, and uses them; colocated queries with only the rendered fields, critical data awaited and the rest deferred, within the page's request budget and with the right cache strategy, each validated with the Storefront MCP and `npm run codegen`; a missing building block built as Nitrogen builds its own |
+| 3. SEO and security | Meta tags, canonical URLs and structured data; tokens on the server, the customer's token in the session cookie, the CSP nonce, forms validated by the API |
+| 4. Analytics and pixels | The view each page renders, and the merchant's pixels checked in the network panel |
+| 5. The review | Caching, the queries and where they can be better, SEO, a Lighthouse performance score of at least 90 on a phone, `npm run check`, and the whole checklist |
 
 The skill states the Nitrogen version it covers (2.0). On another version it says so, and follows the installed packages' `EXPORTS.md` and README, which always match what is installed.
 

@@ -1,6 +1,6 @@
 # A building block Nitrogen lacks
 
-Step 3 of the checklist. First make sure the piece really is missing: search both packages' `EXPORTS.md`, the project's `app/components/` and `app/building-blocks/`. Then build it the way Nitrogen builds its own components, so that it can move into Nitrogen as it is.
+Stage 2 of the skill, when Nitrogen and the project lack a piece. First make sure the piece really is missing: search both packages' `EXPORTS.md`, the project's `app/components/` and `app/building-blocks/`. Then build it the way Nitrogen builds its own components, so that it can move into Nitrogen as it is.
 
 ## Where it lives
 

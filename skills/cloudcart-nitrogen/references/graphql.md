@@ -1,6 +1,6 @@
 # GraphQL and data in a Nitrogen storefront
 
-The rules of step 2 of the checklist, with the patterns the starter uses. The API is the CloudCart Storefront GraphQL API; `storefront` and `customerAccount` come from the request context that every loader and action receives (`context.storefront`, `context.customerAccount`).
+The rules of stage 2 of the skill, the build, with the patterns the starter uses. The API is the CloudCart Storefront GraphQL API; `storefront` and `customerAccount` come from the request context that every loader and action receives (`context.storefront`, `context.customerAccount`).
 
 ## Colocation
 

@@ -1,7 +1,7 @@
 ---
 name: cloudcart-nitrogen
-description: "Build or change a CloudCart headless storefront made with Nitrogen — a React Router app whose package.json depends on @cloudcart/nitrogen. Use for any change to such a storefront: a new page or route, a component or section, a GraphQL query or mutation, a form, caching, the cart, the customer account, analytics, SEO, or a review of such a change. A checklist to work through before, during and after the change: reuse Nitrogen's building blocks, colocated GraphQL within the page's request budget, security, and measured verification. Covers Nitrogen 2.0. In Bulgarian: витрина с Nitrogen, headless магазин, нова страница, нов компонент, GraphQL заявка, кеширане, количка, профил на клиента. NOT for the Admin API or a store's own data (use cloudcart-product-management), and NOT for how the platform itself behaves (use cloudcart-platform-expert)."
-when_to_use: "Whenever the project in front of you is a Nitrogen storefront (`@cloudcart/nitrogen` in package.json) and you are about to write, change or review code in it — before the first line, not after. Also when asked to add a page, section or feature to a CloudCart storefront, to speed up a storefront page, or to check a storefront change. Transliterated Bulgarian also matches: vitrina, nova stranica, komponent, zayavka, keshirane."
+description: "Build or change a CloudCart headless storefront made with Nitrogen — a React Router app whose package.json depends on @cloudcart/nitrogen. Use for any change to such a storefront: a new page or route, a component or section, the design, a GraphQL query or mutation, a form, caching, the cart, the customer account, analytics, SEO, speed, or a review of such a change. Five stages in order: the store's niche and a mobile-first design; the build on Nitrogen's building blocks with GraphQL that fetches only what the page renders; the SEO and security checks; the analytics and the merchant's pixels; a review of the whole site — caching, queries, SEO, a mobile speed score of at least 90. Covers Nitrogen 2.0. In Bulgarian: витрина с Nitrogen, headless магазин, нова страница, нов компонент, дизайн, мобилна версия, GraphQL заявка, кеширане, бързодействие, количка, профил на клиента. NOT for the Admin API or a store's own data (use cloudcart-product-management), and NOT for how the platform itself behaves (use cloudcart-platform-expert)."
+when_to_use: "Whenever the project in front of you is a Nitrogen storefront (`@cloudcart/nitrogen` in package.json) and you are about to design, write, change or review code in it — before the first line, not after. Also when asked to add a page, section or feature to a CloudCart storefront, to design one for a kind of store, to speed up a storefront page, or to check a storefront change. Transliterated Bulgarian also matches: vitrina, nova stranica, komponent, dizain, mobilna versia, zayavka, keshirane."
 compatibility: Claude Code, Claude Desktop, Cursor, OpenAI Codex, Gemini CLI, VS Code Copilot
 maintainer: CloudCart
 metadata:
@@ -16,7 +16,7 @@ This skill covers **Nitrogen 2.0**: `@cloudcart/nitrogen` and `@cloudcart/nitrog
 
 Nitrogen is CloudCart's framework for headless storefronts. A storefront is a React Router 7 app, created from CloudCart's starter, that runs on Cloudflare Workers and reads the store through the CloudCart Storefront GraphQL API. The checkout is the platform's own: the storefront hands the cart over through `cart.checkoutUrl`.
 
-Work through the five steps for every change: before you build, while you write the GraphQL and the code, and before you call it done. The details are in `references/`; open the one a step points to when you reach it.
+Work in **five stages, in this order**: the store and its design, the build, SEO and security, analytics and pixels, and a review of the whole site. A new storefront goes through all five. A smaller change goes through the stages it touches, in the same order, and always ends with stage 5 for the pages it changed. The details are in `references/`; open the one a stage points to when you reach it.
 
 ## 0. Which Nitrogen
 
@@ -25,55 +25,88 @@ Read `version` in `node_modules/@cloudcart/nitrogen/package.json` (install the d
 - **2.0.x:** this skill applies as written.
 - **Another major or minor version:** tell the user that this skill may lag that release. The installed packages' `EXPORTS.md` and `README.md` always describe the installed version: where they differ from this skill, follow them.
 
-## 1. Before building: look it up, then use it
+## The starter is the reference
 
-1. **Read the export maps of the installed version.**
-   - `node_modules/@cloudcart/nitrogen/EXPORTS.md` — the core: the Storefront API client and its cache strategies, the cart, the customer account, analytics, SEO, the CSP, translations, pagination, routing and the Vite plugin.
-   - `node_modules/@cloudcart/nitrogen-react/EXPORTS.md` — the React components and hooks: `Money`, `Image`, `ProductPrice`, `AddToCartButton`, `RichText`, `Script`, the privacy banner, the subscribe forms and more.
+The project was created from CloudCart's starter (the public template `cloudcart/nitro-starter`), and the starter is how things are done in a Nitrogen storefront: its speed, caching, SEO, security, analytics, forms and design are the standard a change meets. Before you write a page, a section or a form, open the starter's nearest one and do it the same way; where this skill and the starter's code agree, the code is the worked example.
 
-   Each map lists every export with its kind and the first sentence of its documentation, grouped by the path you import it from. The full documentation is on the export itself: hover it in the editor, or read its `.d.ts`. Each package's `README.md` explains the wiring, and lists what Nitrogen leaves out on purpose and why.
-2. **Look at what the project already has.** Read its `AGENTS.md` first: the starter ships one with the project's conventions, and they apply alongside this checklist. Then search `app/routes/` (one file per page), `app/components/` (with the small UI pieces in `app/components/ui/`), `app/lib/` (shared helpers, fragments, and the platform's page addresses in `urls.ts`), `app/building-blocks/` (pieces built in this project that Nitrogen lacks) and `app/locales/` (the translations, one JSON file per language) for what you are about to make.
+| What | Where the starter shows it |
+|---|---|
+| Critical and deferred data | `app/routes/_index.tsx` (`loadDeferredData`), `app/routes/product.$handle.tsx` |
+| Pictures: the first eager, the rest lazy | `app/components/ProductGallery.tsx`, `app/components/Hero.tsx` |
+| Cache strategies | `app/root.tsx` (`CacheLong()` for the menus), `app/routes/product.$handle.tsx` (`CacheCustom`, a minute), `app/lib/headers.ts` (`privatePageHeaders`) |
+| SEO | `app/lib/meta.ts`, each route's `meta`, `app/routes/[robots.txt].tsx` |
+| Security | `server.ts` (Nitrogen's request handler, `storeDomain`), `app/entry.server.tsx` (the CSP), `app/lib/urls.ts` (`localRedirectPath`), `app/lib/headers.ts` |
+| Analytics | `app/root.tsx` (`<Analytics.Provider>`), `app/lib/analytics.ts` (`listedProducts`), each page's view |
+| Listings and cards | `app/routes/category.$handle.tsx`, `app/components/ProductListing.tsx`, `app/components/ProductItem.tsx` |
+| Forms | `app/components/ProductRequestForms.tsx`, the routes under `app/routes/account*` |
+| Design | `app/styles/app.css` (the tokens), `app/components/ui/` |
+
+The starter's pages are held to the same targets as yours: the request budget (`references/graphql.md`) and stage 5's review. When the project's copy has drifted from the starter in a way this skill says is wrong, follow the skill and tell the user.
+
+## Stage 1. The store and its design — `references/design.md`, `references/store-kinds.md`
+
+Decide what the storefront looks like and holds before writing code: the pages, their sections and the data each one shows. That decides the components and the queries of stage 2.
+
+- **The store's niche.** Ask which kind of store it is (fashion, electronics, food, …), or read it from the catalogue. The kind decides the structure of the search, the listings, the product cards and the product page: `references/store-kinds.md`.
+- **Mobile first.** Design every page for a phone first (360–390 px wide), then add what a wider screen allows. A phone's small screen and slower network are the hardest case, and stage 5's speed target is measured on one.
+- **The best practice of UX** for a store: the search, the listings, the cards, the product page, the cart and the feedback on every action, in `references/design.md`.
+- **One accent colour, and one or two complementary ones.** The accent marks what the visitor acts on (the main button, links, focus); a complementary colour marks products (a discount); everything else is neutral. They are design tokens: in the starter, `--color-accent` and `--color-highlight` in `app/styles/app.css`. Set them from the merchant's brand, with enough contrast.
+
+## Stage 2. The build — `references/graphql.md`, `references/building-block.md`
+
+### Look it up, then use it
+
+1. **Read the export maps of the installed version.** `node_modules/@cloudcart/nitrogen/EXPORTS.md` is the core: the Storefront API client and its cache strategies, the cart, the customer account, analytics, SEO, the CSP, translations, pagination, routing and the Vite plugin. `node_modules/@cloudcart/nitrogen-react/EXPORTS.md` has the React components and hooks: `Money`, `Image`, `ProductPrice`, `AddToCartButton`, `RichText`, `PaginatedResourceSection`, the privacy banner, the subscribe forms and more. Each export has its kind and the first sentence of its documentation; the full documentation is on the export itself, and each package's `README.md` explains the wiring.
+2. **Look at what the project already has,** and at the starter's nearest page (above). Read its `AGENTS.md` first: the starter ships one with the project's conventions. Then search `app/routes/` (one file per page), `app/components/` (small UI pieces in `app/components/ui/`), `app/lib/` (helpers, fragments, the platform's page addresses in `urls.ts`, the `meta` helpers in `meta.ts`), `app/building-blocks/` and `app/locales/` (one JSON file per language).
 3. **Use what exists.** Never re-create a piece that Nitrogen or the project already has: a price, an image, a cart form, pagination, SEO tags, a consent banner, a translation helper. If a piece almost fits, use its props or wrap it. If a Nitrogen piece is wrong, report it to the user, and do not fork it.
 4. **Take data from the API; never derive it.** Prices and totals come as `formatted`, the discount from `Product.discount`, the cart's totals from `Cart.totals`. If the API gives a wrong value, report it, and do not compute around it. Pages keep the platform's addresses (`/product/{handle}`, `/category/{handle}`, …), and the checkout stays the platform's.
-5. **The merchant's content** (pages, articles, product and category descriptions) is HTML from the store. Render it with `<RichText>`, which names an untitled embedded frame (`<iframe>`) from its source so that a screen reader can announce it. When a page embeds frames, tell the merchant to give each one a `title`.
-6. **The kind of store.** Ask which kind the store is (fashion, electronics, food, …), or read it from the catalogue, and show what that kind needs from the API: `references/store-kinds.md`.
-7. **Nothing fits?** Build it as section 3 says.
+5. **The merchant's content** (pages, articles, descriptions) is HTML from the store: render it with `<RichText>`.
 
-## 2. GraphQL and data — `references/graphql.md`
+### GraphQL that fetches only what the page renders
 
-- **Colocated.** A query lives in the route module that runs it, as a `#graphql` template literal; one that several routes run lives in one module under `app/lib/`. A fragment lives next to the component that renders its fields, and the query spreads it. Select only the fields the page renders.
-- **One server request per page.** A page's data loads in its route `loader`, on the server. Await only what the first screen needs. Start the rest first, return it as promises, and render it in `<Suspense>` with `<Await>`.
-- **Within the page's request budget.** The page's calls to the API are counted in the profiler (step 5). Independent calls run together with `Promise.all`, never more than 6 at a time: that is the Workers limit on simultaneous outgoing connections.
-- **No client-side fetching of server data.** A component never calls the API with `fetch` or in a `useEffect`. The browser gets data from loaders, and changes it through the app's own actions: `<CartForm>`, or `useFetcher` posting to a route.
-- **Cursor pagination:** `getPaginationVariables(request, {pageBy})` in the loader, `<Pagination>` in the page.
-- **The right cache strategy** for each query: `CacheLong()` only for menus and static lists, a minute at most for settings the merchant edits, and `CacheNone()` for what visitors must see at once after they change it. A query is cached under its variables too, so one that passes the buyer is cached for that buyer alone. The table is in the reference.
-- **The signed-in buyer** goes to the API as the `buyer` variable with `@inContext(buyer: $buyer)`, taken from `customerAccount.getBuyer()`. The customer's own data is read with `customerAccount.query` and changed with `customerAccount.mutate`, which never cache and add the token themselves.
-- **The page's address.** A loader or action reads it from its `url` argument, never from `new URL(request.url)`. With React Router's v8 flags, `request` is the data request (`/product/x.data?_routes=…`), not the page. Nitrogen's helpers that take a `request` (`getSelectedProductOptions`, `getLocaleFromRequest`, `storefrontRedirect`) correct this themselves, and `getPaginationVariables` reads only its own parameters.
-- **Validate every query and mutation.** Use the storefront MCP's `validate_graphql_codeblocks`; in a new session, call its `learn_cloudcart_storefront` first. Then run `npm run codegen`: it types every `#graphql` document from the schema shipped with Nitrogen, and fails on a field the schema lacks. The API refuses a query deeper than 10 levels or with a complexity over 1000.
-- **Mutations** answer with `userErrors` (`customerUserErrors` for the customer's own). Read them, and show them to the buyer next to the field they name; never throw them.
+- **Colocated.** A query lives in the route module that runs it; one that several routes run lives under `app/lib/`. A fragment lives next to what renders its fields, and the query spreads it. **Select only the fields the page renders**: a field "for later" costs every visit.
+- **One server request per page.** Data loads in the route's `loader`. Await only what the first screen needs; start the rest first and render it in `<Suspense>` with `<Await>`. A section below the first screen takes its fields from the page's existing deferred query.
+- **Within the page's request budget.** Independent calls run together, never more than 6 at a time (the Workers limit). No N+1: a list's items come in the list's own query.
+- **No client-side fetching of server data.** The browser gets data from loaders, and changes it through the app's actions: `<CartForm>`, or `useFetcher` posting to a route.
+- **Pagination** with `getPaginationVariables(request, {pageBy})` in the loader, and `PaginatedResourceSection` (or `<Pagination>`) in the page; both directions work.
+- **The right cache strategy** for each query: `CacheLong()` only for menus and static lists, a minute at most for settings the merchant edits, `CacheShort()` or the default for the catalogue and content, `CacheNone()` for what visitors must see at once after they change it. A query that passes the buyer is cached for that buyer alone.
+- **The signed-in buyer** goes to the API as the `buyer` variable with `@inContext(buyer: $buyer)`, from `customerAccount.getBuyer()`. The customer's own data is read with `customerAccount.query` and changed with `customerAccount.mutate`, which never cache.
+- **The page's address.** A loader or action reads it from its `url` argument, never from `new URL(request.url)`: with React Router's v8 flags, `request` is the data request (`/product/x.data?_routes=…`). Nitrogen's helpers that take a `request` correct this themselves.
+- **Validate every query and mutation** with the storefront MCP's `validate_graphql_codeblocks` (call `learn_cloudcart_storefront` first in a new session), then `npm run codegen`. The API refuses a query deeper than 10 levels or with a complexity over 1000.
+- **Mutations** answer with `userErrors` (`customerUserErrors` for the customer's own): show them next to their field; never throw them.
 
-## 3. A missing building block — `references/building-block.md`
+### A missing building block
 
-Build it the way Nitrogen builds its own, so that it can move into Nitrogen as it is:
+Build it the way Nitrogen builds its own, so it can move into Nitrogen as it is: in `app/building-blocks/`, one file per block with its test beside it; unstyled, with `cc-<block>-<part>` class hooks and `classNames`; its data through props, typed from its fragment; links through props; documented; tested with vitest; named to the user as a candidate for Nitrogen. The details are in `references/building-block.md`.
 
-- In `app/building-blocks/`, one file per block named after it (`LowStockNotice.tsx`), with its test beside it (`LowStockNotice.test.tsx`).
-- **Unstyled, with class hooks.** It carries no styles. It takes a `className`, or `classNames` and stable `cc-<block>-<part>` classes on each part if it has several. The project's theme styles it where it is used.
-- **Its data through props,** typed from the fragment that selects it. The block itself never fetches.
-- **Documented:** a doc comment on every export, whose first sentence says what it is.
-- **Tested** with vitest. Add vitest to the project if it has none: the reference shows how.
-- **Kept in one place,** and named to the user as a candidate for Nitrogen.
+## Stage 3. SEO and security — `references/seo.md`
 
-## 4. Security
+**SEO**, for every indexable page:
 
-- **Tokens stay on the server.** `PUBLIC_STOREFRONT_API_TOKEN` may reach the browser. `PRIVATE_STOREFRONT_API_TOKEN` and `SESSION_SECRET` are used only in server code, and never in a component, a client module or anything rendered. Values live in `.env`, which is never committed, and in the storefront's environment in the CloudCart admin (`cloudcart nitrogen env pull` fetches them). Never print them.
-- **The customer's access token** stays in the signed session cookie, and Nitrogen's `customerAccount` sends it. It never goes in a URL, in browser storage, in client code, or in an `Authorization` header.
-- **The CSP nonce.** Every inline script carries the request's nonce: use nitrogen-react's `<Script>`, or `useNonce()`. A third-party source is added to the policy in `app/entry.server.tsx` (`createContentSecurityPolicy`). Never loosen the CSP to make a script run.
-- **Forms are validated by the API.** Submit through a route action to the mutation, and show its `userErrors`. Checks in the browser are only a convenience. The API rate-limits forms per visitor, from the IP that the private token lets it trust.
-- **A customer's data goes only to that customer.** Read it with `customerAccount.query`, which never caches, and never put it in a response that another visitor can receive.
+- Rendered on the server; `meta` with the starter's `seoMeta` (title, description, the canonical on the store's domain, image), `privateMeta` on a private or form page.
+- A listing's pages each their own canonical (`listingUrl`); structured data (Product, Organization, Article, BreadcrumbList) with Nitrogen's helpers; a description on every page; alt text on content images; a 404 for a missing record.
 
-## 5. Verification — `references/verification.md`
+**Security:**
 
-- **Measure the page before and after** in the dev server's profiler, `/__nitrogen/subrequests`, under `npm run dev`. Load the page twice and count its calls to the API. Look for no new calls beyond the budget, and no N+1: the same operation repeated once per item.
-- **`npm run check` passes:** codegen, typecheck, lint and build. The starter's `check` has no tests: add `npm test` to it with the first building block (`references/building-block.md`).
-- **Go through the quality checklist,** `references/quality.md`: speed, accessibility and devices, SEO, consent and analytics, translations, the states between success and failure, and design. A page's meta tags, canonical, `noindex` and structured data are in `references/seo.md`; analytics and the merchant's pixels in `references/tracking.md`.
+- **Tokens stay on the server.** `PUBLIC_STOREFRONT_API_TOKEN` may reach the browser. `PRIVATE_STOREFRONT_API_TOKEN` and `SESSION_SECRET` are used only in server code, never in a component, a client module or anything rendered. Values live in `.env`, which is never committed, and in the storefront's environment in the CloudCart admin (`cloudcart nitrogen env pull`). Never print them.
+- **The customer's access token** stays in the signed session cookie, and Nitrogen's `customerAccount` sends it. Never in a URL, browser storage, client code or an `Authorization` header.
+- **The CSP nonce.** Every inline script carries the request's nonce: nitrogen-react's `<Script>`, or `useNonce()`. A third-party source is added to the policy in `app/entry.server.tsx`. Never loosen the CSP to make a script run.
+- **Forms are validated by the API:** a route action submits to the mutation and shows its `userErrors`. Checks in the browser are a convenience only.
+- **A customer's data goes only to that customer:** read with `customerAccount.query`, on a page whose `headers` keep it out of every cache (`privatePageHeaders` in the starter).
+
+## Stage 4. Analytics and the merchant's pixels — `references/tracking.md`
+
+- **The wiring stays as the starter has it:** `<Analytics.Provider>` in the root, with the shop, the cart, the consent and the merchant's pixels from the admin. Never add a vendor's script by hand.
+- **Each page renders the view for its kind** (`<Analytics.ProductView>`, `<Analytics.CollectionView>`, …), once; a page of another kind renders none.
+- **Check that they fire:** in the browser's network panel, one `analyticsEventPublish` per page view; before the visitor's choice, no request to a vendor of a group that waits for consent; after it, the vendors receive the page's events; an add to cart sends `product_added_to_cart` once. Report what you saw, or that you could not open a browser.
+
+## Stage 5. The review of the whole site — `references/verification.md`, `references/quality.md`
+
+Before a release, and for every page a change touches:
+
+- **Caching:** on a second load the profiler (`/__nitrogen/subrequests`) shows the shared data as `HIT` or `STALE`; each query has the strategy its data needs; private pages are never cached.
+- **The queries:** each page's calls against its budget, no N+1, no field the page does not render, and where a call or a field can go. Report the numbers before and after.
+- **SEO:** every indexable page passes `references/seo.md`'s checklist.
+- **Speed:** a Lighthouse performance score of **at least 90 on a phone** (its default mobile profile) for the home, a category and a product page — PageSpeed Insights on the live site, or Lighthouse on the production build. Report the scores and what holds them back.
+- **`npm run check` passes** (codegen, typecheck, lint, build, and the tests once there are any), and the whole checklist in `references/quality.md` is gone through.
 - **Report what you measured,** with the numbers. "It should be fine" is not a measurement.

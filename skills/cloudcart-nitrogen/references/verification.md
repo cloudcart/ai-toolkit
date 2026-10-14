@@ -1,6 +1,6 @@
 # Verifying a change
 
-Step 5 of the checklist. A change is done when it is measured and checked, not when it compiles.
+Stage 5 of the skill, the review. A change is done when it is measured and checked, not when it compiles.
 
 ## The profiler: the page's calls before and after
 
@@ -34,9 +34,18 @@ npm run check
 
 It runs codegen, typecheck, lint (design tokens, translations, ESLint, Prettier) and build, and the tests once `npm test` is part of it (`references/building-block.md`). In a project created from the starter, the pre-commit hook runs the same, and refuses a commit whose generated types (`storefrontapi.generated.d.ts`) changed but were not staged. All must pass. Fix a failure where it starts, and never silence a rule to get past it.
 
-## The quality checklist
+## Speed: Lighthouse on a phone
 
-Before you call the change done, go through `references/quality.md`: speed, accessibility, SEO, consent, translations, and the states between success and failure.
+The target is a Lighthouse performance score of at least 90 with its default mobile profile, for the home, a category and a product page. Measure what ships, not the dev server:
+
+- **A deployed storefront:** deploy a preview (`cloudcart nitrogen deploy --preview`) and run its pages through PageSpeed Insights (pagespeed.web.dev), which runs Lighthouse's mobile profile.
+- **Locally:** Lighthouse in Chrome's DevTools, or `npx lighthouse <url> --only-categories=performance`, against the production build.
+
+Run each page three times and take the median: one run varies by several points. Report the score with its metrics (FCP, LCP, TBT, CLS) and what holds it back: the largest-contentful-paint element and the opportunities Lighthouse lists. A score under 90 is reported to the user with that cause.
+
+## The review of the whole site
+
+Before you call the change done, go through `references/quality.md`: speed, caching, queries, security, SEO, consent and analytics, accessibility, translations, the states between success and failure, and design.
 
 ## Reporting
 
