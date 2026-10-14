@@ -21,7 +21,7 @@ Each habit below shows in the code, and has a GraphQL way. Look for them when yo
 |---|---|---|
 | A call per resource | A module of helpers such as `getProduct()`, `getCollection()` and `getMenu()`, each running one root field, and a loader that awaits several of them with the same cache | One colocated document with every root field the page needs at that moment |
 | The whole resource everywhere | One large fragment, or the same long selection, spread on pages that render a few of its fields | A fragment for each component, with only the fields it renders, spread by the pages that render that component: a fragment is for colocation, not for reuse |
-| Related data fetched by id | An `id` or `handle` from one answer passed to another `storefront.query` in the same loader; a query inside `.map()` or a loop over `nodes` (an N+1) | Nest it in the same document (`product { vendorDetails { … } }`), and select a list's items through a fragment on its `nodes` |
+| Related data fetched by id | An `id` or `handle` from one answer passed to another `storefront.query` in the same loader; a query inside `.map()` or a loop over `nodes` (an N+1) | Nest it in the same document (`product { vendorDetails { … } }`), and select a list's items through a fragment on its `nodes`. Ids the page already holds (a merchant's hand-picked products) come in one call: `nodes(ids:)`, with a fragment on each type (`... on Product`) |
 | A value written into the document | `${…}` inside a `#graphql` document with anything but a fragment's text (`${PRODUCT_ITEM_FRAGMENT}` is right); a document built with `+`, `.replace()` or `.join()` | Declare a variable (`$handle: String!`) and pass the value in `variables`. A value written in can break the document or change what it asks, and each value makes a new document that the API parses and caches again |
 | A second call for the same field, or for an optional part | Two documents that differ only in their arguments; a call made only when a flag is set | Aliases in one document (the home's `featured: products(…)` and `newest: products(…)`), and `@include(if: $withList)` for a part only some visits need (the product page's reviews) |
 | A query after a mutation | `storefront.mutate(…)` and then `storefront.query(…)` in the same action, to read the new state | Select what the page needs in the mutation's payload: the cart's mutations answer with the `cart` |
@@ -29,24 +29,24 @@ Each habit below shows in the code, and has a GraphQL way. Look for them when yo
 | Calling the endpoint | `fetch()` to `/api/sf` or to the store's API in the app's code | `context.storefront.query` in a loader, and an action for a change: they bring the cache, the profiler, the tokens and the buyer's IP |
 | An anonymous operation | `query {` or `query(` with no name | Name each operation after its purpose (the starter's `query Product(…)`, `query HomeProducts(…)`): the profiler lists the calls by their names, and an anonymous one shows none |
 | An answer taken as all or nothing | Reading a status code, or a `try`/`catch` as the only error handling around `storefront.query` | An answer can carry `data` and `errors` together: a field that failed is `null`, and the rest is there. `storefront.query` throws only when the request itself fails, and returns GraphQL errors as `errors` beside the data. Render without a part that is `null`, and read `errors` where a missing part matters |
-| A list of products inside a list | `products` or `relatedProducts` inside the `nodes` of `collections`, `vendorsConnection`, `products` or `search` | Below |
+| A list of products inside a list, paged or filtered | `products` or `relatedProducts` with `after`, `last` or `filters` inside the `nodes` of `collections`, `vendorsConnection`, `products` or `nodes`; an outer `first` the URL sets | Below |
 
 ### A list inside a list
 
-The API loads some lists inside a list for all the items at once, and others once per item. The same query was measured on a test store with 3 items and with 9:
+The API loads the first page of a list inside a list for all the items at once, so it costs the same whatever the number of items. A page after a cursor, the last items, and a list's `filters` are fetched for each item alone. The same query, measured on a test store with 3 items and with 9:
 
 | Inside each item | 3 items | 9 items |
 |---|---|---|
-| A category's subcategories (`collections` › `children`) | 4 database queries | 4 |
-| A product's pictures (`products` › `images`) | 34 database queries | 34 |
-| A category's products (`collections` › `products`) | 81 database queries, 3 catalogue searches | 213, 9 |
-| A brand's products (`vendorsConnection` › `products`) | 77, 3 | 199, 9 |
-| A product's related products (`products` › `relatedProducts`) | 105, 4 | 246, 10 |
+| A product's pictures, variants, categories, files, linked products or reviews (`products` › `images`, …) | 33 to 36 database queries | the same |
+| A category's products (`collections` › `products(first: 10)`) | 35 database queries, 1 catalogue search | 35, 1 |
+| A brand's products (`vendorsConnection` › `products(first: 10)`) | 37, 1 | 37, 1 |
+| A product's related products (`products` › `relatedProducts(first: 10)`) | 57, 2 | 57, 2 |
+| A category's next page or last items (`products(first: 3, after: …)`, `products(last: 3)`) | 83, 4 | 195, 11 |
+| A category's filters (`products(first: 3) { filters { … } }`) | 57, 4 | 125, 10 |
 
-- **An item's own details:** its pictures, its variants, a category's subcategories. They load for all the items at once, so ask them with a small `first` (the product cards' `images(first: 5)`).
-- **A list of products inside a list:** it runs a catalogue search for each item. Keep the outer list short and fixed in the document (`collections(first: 4)`, not a `first` the URL sets), and the inner `first` small. Never put it inside a paginated list, or one the visitor can lengthen.
-- **An item's other lists:** a product's categories, files, linked products and reviews, and an article's comments. They cost database queries for each item, so ask them on the item's own page, not for each card.
-- **The API does not refuse such a query.** Its complexity counts a list once, whatever its `first`, so the server's work grows with every item and nothing stops it.
+- **Inside a list, ask each item's first page.** `first` without `after`. The next page of one item, its last items and its `filters` belong on that item's own page.
+- **Keep both lists short.** The cost no longer grows with the items, but the answer does: every item brings its `first` products, each with the fields its card asks for. Keep the outer list fixed in the document (`collections(first: 4)`, not a `first` the URL sets) and the inner `first` small (`products(first: 4)`); ask only the lists the page renders.
+- **The API does not refuse such a query.** Its complexity counts a list once, whatever its `first`, so only the document keeps it small.
 
 ## Colocation
 
