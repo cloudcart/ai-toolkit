@@ -70,7 +70,7 @@ Decide what the storefront looks like and holds before writing code: the pages, 
 
 ### GraphQL that fetches only what the page renders
 
-- **Colocated.** A query lives in the route module that runs it; one that several routes run lives under `app/lib/`. A fragment lives next to what renders its fields, and the query spreads it. **Select only the fields the page renders**: a field "for later" costs every visit.
+- **Colocated.** A query lives in the route module that runs it; one that several routes run lives under `app/lib/`. A fragment that one route uses lives in that route; one that several share (a product card's) lives in `app/lib/fragments.ts`, and the query spreads it. **Select only the fields the page renders**: a field "for later" costs every visit.
 - **One server request per page.** Data loads in the route's `loader`. Await only what the first screen needs; start the rest first and render it in `<Suspense>` with `<Await>`. A section below the first screen takes its fields from the page's existing deferred query.
 - **Within the page's request budget.** Independent calls run together, never more than 6 at a time (the Workers limit). No N+1: a list's items come in the list's own query.
 - **No client-side fetching of server data.** The browser gets data from loaders, and changes it through the app's actions: `<CartForm>`, or `useFetcher` posting to a route.
@@ -104,7 +104,7 @@ Build it the way Nitrogen builds its own, so it can move into Nitrogen as it is:
 
 - **The wiring stays as the starter has it:** `<Analytics.Provider>` in the root, with the shop, the cart, the consent and the merchant's pixels from the admin. Never add a vendor's script by hand.
 - **Each page renders the view for its kind** (`<Analytics.ProductView>`, `<Analytics.CollectionView>`, …), once; a page of another kind renders none.
-- **Check that they fire:** in the browser's network panel, one `analyticsEventPublish` per page view; before the visitor's choice, no request to a vendor of a group that waits for consent; after it, the vendors receive the page's events; an add to cart sends `product_added_to_cart` once. Where the merchant reports server-side, these are real events in their ad accounts: ask the user first (`references/tracking.md`). Report what you saw, or that you could not open a browser.
+- **Check that they fire:** in the browser's network panel, one `analyticsEventPublish` with `PAGE_VIEW` per page view, plus the page's own view (`VIEW_CONTENT` on a product, `SEARCH` on a search, `VIEW_CART` on the cart); before the visitor's choice, no request to a vendor of a group that waits for consent; after it, the vendors receive the page's events; an add to cart sends `product_added_to_cart` once. Where the merchant reports server-side, these are real events in their ad accounts: ask the user first (`references/tracking.md`). Report what you saw, or that you could not open a browser.
 
 ## Stage 5. The review of the whole site — `references/verification.md`, `references/quality.md`
 

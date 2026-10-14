@@ -9,7 +9,7 @@ Stage 1: what the storefront looks like and holds, decided before the code. Star
 - **Touch targets** at least 44 × 44 px for the main controls (the size Apple's guidelines give; WCAG 2.2 sets 24 × 24 as the minimum), with space between neighbours.
 - **Nothing only on hover.** What a pointer reveals (a second photo, a quick action) is reachable by a tap and the keyboard too, or is not needed.
 - **Fields a phone can fill:** text at least 16 px (smaller, and Safari on iOS zooms into the field), and the right `type`, `inputMode` and `autoComplete` (`email`, `tel`, `postal-code`, …), so the phone shows the right keyboard and fills what it knows.
-- **Menus and filters in a drawer.** The starter opens the menu, the search, the cart and, below the desktop layout, the filters in a drawer along one side of the page (`Aside`); the filter drawer's button shows how many products the choice leaves ("View 24 products"). Keep that pattern for a new panel.
+- **Menus and filters in a drawer.** The starter opens the menu, the cart and, below the desktop layout, the filters in a drawer along one side of the page (`Aside`), and the search in a panel along the top (`Dialog` with `variant="top"`); the filter drawer's button shows how many products the choice leaves ("View 24 products"). Keep that pattern for a new panel.
 - **Speed is part of the phone's design:** fewer and smaller pictures above the fold, no carousel that loads every slide, nothing that shifts as the page loads (stage 5).
 
 ## UX practice for a store

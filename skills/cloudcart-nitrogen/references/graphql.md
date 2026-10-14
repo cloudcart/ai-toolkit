@@ -5,7 +5,7 @@ The rules of stage 2 of the skill, the build, with the patterns the starter uses
 ## Colocation
 
 - A route's query is a `#graphql` template literal in the route module, below the component, ending in `as const`. A query that several routes run (a category, a vendor and a tag page all list products) lives in one module under `app/lib/`.
-- A component that renders a product card exports the fragment for the card's fields next to itself. The page's query spreads it (`...ProductItem`) and interpolates its text (`${PRODUCT_ITEM_FRAGMENT}`), so the card and its data change together. Fragment names are unique across the app.
+- A fragment that several pages spread — the product card's, `PRODUCT_ITEM_FRAGMENT` — lives in `app/lib/fragments.ts`, the starter's module of shared fragments, and names the fields the card renders. The page's query spreads it (`...ProductItem`) and interpolates its text (`${PRODUCT_ITEM_FRAGMENT}`), so the card and its data change together. Fragment names are unique across the app.
 - Select only what the page renders. A field "for later" costs every visit, and it counts toward the query's complexity.
 - A field goes into the fragment of what renders it. When only one page shows it (a category's product count on `/categories`), it goes into that route's own fragment, not into a shared one (`...CollectionCard`), which would carry it on every page that spreads it.
 - Read each field's type in the schema: `Int` may be null, `Int!` never is. Render nothing for a null, rather than a zero or an empty label.
