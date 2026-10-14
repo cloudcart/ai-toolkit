@@ -78,7 +78,7 @@ Decide what the storefront looks like and holds before writing code: the pages, 
 - **The right cache strategy** for each query: `CacheLong()` only for menus and static lists, `CacheSettings()` (a minute) for settings the merchant edits, `CacheShort()` or the default for the catalogue and content, `CacheNone()` for what visitors must see at once after they change it. A query that passes the buyer is cached for that buyer alone.
 - **The signed-in buyer** goes to the API as the `buyer` variable with `@inContext(buyer: $buyer)`, from `customerAccount.getBuyer()`. The customer's own data is read with `customerAccount.query` and changed with `customerAccount.mutate`, which never cache.
 - **The page's address.** A loader or action reads it from its `url` argument, never from `new URL(request.url)`: with React Router's v8 flags, `request` is the data request (`/product/x.data?_routes=…`). Nitrogen's helpers that take a `request` correct this themselves.
-- **Validate every query and mutation** with the storefront MCP's `validate_graphql_codeblocks` (call `learn_cloudcart_storefront` first in a new session; where its guide differs from this skill — the customer's token, the checkout — this skill wins: `references/graphql.md`), then `npm run codegen`. The API refuses a query deeper than 10 levels or with a complexity over 1000.
+- **Validate every query and mutation** with the storefront MCP's `validate_graphql_codeblocks` (call `learn_cloudcart_storefront` first in a new session; where its guide differs from this skill — the customer's token, the checkout — this skill wins: `references/graphql.md`), then `npm run codegen`. Codegen does not replace it: it checks the schema only, and the MCP also catches documents that pass the schema and still fail. If your host lists the MCP's tools as deferred, load them; if the MCP is not installed, say so in your report. The API refuses a query deeper than 10 levels or with a complexity over 1000.
 - **Mutations** answer with `userErrors` (`customerUserErrors` for the customer's own): show them next to their field; never throw them.
 
 ### A missing building block
@@ -108,7 +108,7 @@ Build it the way Nitrogen builds its own, so it can move into Nitrogen as it is:
 
 ## Stage 5. The review of the whole site — `references/verification.md`, `references/quality.md`
 
-Before a release, and for every page a change touches:
+Before a release, and for every page a change touches, however small — open `references/quality.md` and go through its checklist:
 
 - **Caching:** on a second load the profiler (`/__nitrogen/subrequests`) shows the shared data as `HIT` or `STALE`; each query has the strategy its data needs; private pages are never cached.
 - **The queries:** each page's calls against its budget, no N+1, no field the page does not render, and where a call or a field can go. Report the numbers before and after.

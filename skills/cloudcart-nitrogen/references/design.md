@@ -4,7 +4,7 @@ Stage 1: what the storefront looks like and holds, decided before the code. Star
 
 ## Mobile first
 
-- **Design at 360–390 px first.** Write a component's classes for the phone, then add what a wider screen allows with `md:` and `lg:`: Tailwind's breakpoints are minimum widths, so the unprefixed classes are the phone's. Check every page at 390 px and at 1280 px.
+- **Design at 360–390 px first.** Write a component's classes for the phone, then add what a wider screen allows with `md:` (750 px) and `lg:` (990 px), the starter's only breakpoints (`sm:` and `xl:` do not exist, and its lint refuses them): Tailwind's breakpoints are minimum widths, so the unprefixed classes are the phone's. Check every page at 390 px and at 1280 px.
 - **The main action within the thumb's reach.** On the product page, the starter's sticky add-to-cart bar keeps the purchase at hand while the visitor scrolls; the cart's checkout button is visible without scrolling.
 - **Touch targets** at least 44 × 44 px for the main controls (the size Apple's guidelines give; WCAG 2.2 sets 24 × 24 as the minimum), with space between neighbours.
 - **Nothing only on hover.** What a pointer reveals (a second photo, a quick action) is reachable by a tap and the keyboard too, or is not needed.

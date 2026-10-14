@@ -105,7 +105,7 @@ query Product($handle: String!, $buyer: BuyerInput) @inContext(buyer: $buyer) {
 
 ## The API's names
 
-The Storefront API names some things differently from the admin: a brand is a `Vendor` (`vendorsConnection`, `vendor(handle:)`, `Product.vendorDetails`); a category, and a merchant's selection, is a `Collection`; a product tag is a `ProductTag`; a blog category is a `Blog`; a physical store is a `StoreLocation`. Look a name up with the Storefront MCP's `introspect_graphql_schema`.
+The Storefront API names some things differently from the admin: a brand is a `Vendor` (`vendorsConnection`, `vendor(handle:)`, `Product.vendorDetails`; its page `/vendor/{handle}`, `vendorPath` in `app/lib/urls.ts`); a category, and a merchant's selection, is a `Collection`; a product tag is a `ProductTag`; a blog category is a `Blog`; a physical store is a `StoreLocation`. Look a name up with the Storefront MCP's `introspect_graphql_schema`.
 
 ## Pagination
 
@@ -146,5 +146,5 @@ Two paginated lists on one page each take a `namespace`, in both `getPaginationV
 ## Validation and limits
 
 1. **The storefront MCP.** In a new session call `learn_cloudcart_storefront` first: it maps the whole API and names the operation for each step. Its guide is written for every client of the API; in a Nitrogen storefront this skill wins where they differ: the customer's token stays in the session cookie and never goes in an `Authorization` header (`customerAccount` sends it, and the buyer goes as `@inContext(buyer: $buyer)`); `$country` and `$language`, when a document declares them, are filled by Nitrogen's client; and the checkout is the platform's (`cart.checkoutUrl`), so the guide's delivery, payment and `cartSubmitForCompletion` steps are not the storefront's. Then check every new or changed document with `validate_graphql_codeblocks`. It also catches mistakes that pass schema validation and still fail, such as `amount` without `formatted`. Use `introspect_graphql_schema` to look up a type or field.
-2. **`npm run codegen`** types every `#graphql` document against the schema shipped with Nitrogen (`@cloudcart/nitrogen/storefront.schema.graphql`), and fails on a field or argument the schema lacks.
+2. **`npm run codegen`** types every `#graphql` document against the schema shipped with Nitrogen (`@cloudcart/nitrogen/storefront.schema.graphql`, the file `node_modules/@cloudcart/nitrogen/dist/storefront.schema.graphql`: search it for a field), and fails on a field or argument the schema lacks.
 3. **Limits.** The API refuses a query that is more than 10 levels deep or has a complexity over 1000. A page's queries stay within both.
