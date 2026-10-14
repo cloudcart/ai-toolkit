@@ -16,7 +16,7 @@ How the store should look and be structured is decided in stage 1 (`references/d
 
 ## Caching
 
-- [ ] **Each query has the strategy its data needs** (the table in `references/graphql.md`): `CacheLong()` only for menus and static lists, at most a minute for the settings the merchant edits, `CacheShort()` or the default for the catalogue and content, `CacheNone()` for what a visitor must see at once after changing it.
+- [ ] **Each query has the strategy its data needs** (the table in `references/graphql.md`): `CacheLong()` only for menus and static lists, `CacheSettings()` for the settings the merchant edits, `CacheShort()` or the default for the catalogue and content, `CacheNone()` for what a visitor must see at once after changing it.
 - [ ] **The cache is used:** on a second load, the profiler (`/__nitrogen/subrequests`) shows the shared calls as `HIT`, or `STALE` while they refresh, and none as `NONE` that is the same for every visitor.
 - [ ] **A buyer's data stays the buyer's:** a query that passes the buyer is cached under that buyer; the customer's own data goes through `customerAccount.query`, which never caches.
 - [ ] **The HTML is rendered for each request,** because it carries the visitor's cart and sign-in. Never give a page a shared `Cache-Control` (`public`, `s-maxage`). Private pages send `Cache-Control: private, no-store` (`privatePageHeaders` in the starter's `app/lib/headers.ts`).

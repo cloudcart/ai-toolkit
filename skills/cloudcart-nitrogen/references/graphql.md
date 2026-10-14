@@ -76,8 +76,8 @@ A change that adds a call to one of these pages needs a reason, and you report i
 
 | Data | Strategy |
 |---|---|
-| Menus and static lists (`robots.txt`, a form's country list) | `CacheLong()`: fresh for 1 hour, then stale for 23 more while it refreshes |
-| Settings the merchant edits in the admin | at most a minute fresh: `CacheCustom({mode: 'public', maxAge: 60, staleWhileRevalidate: 86400 - 60})` |
+| Menus and static lists | `CacheLong()`: fresh for 1 hour, then stale for 23 more while it refreshes |
+| Settings the merchant edits in the admin: the shop's name, logo, domain and contacts, policies, `llmsTxt` (read by `robots.txt`), a form's fields and countries | `CacheSettings()`: fresh for 1 minute, then stale for up to a day while it refreshes |
 | Catalogue pages: products, categories, search, content | `CacheShort()` (fresh for 1 second, then stale for 9 more) or the default |
 | What visitors must see at once after they change it (their own comment still awaiting approval, say) | `CacheNone()`, while they are signed in |
 

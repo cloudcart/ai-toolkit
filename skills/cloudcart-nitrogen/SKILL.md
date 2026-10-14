@@ -33,7 +33,7 @@ The project was created from CloudCart's starter (the public template `cloudcart
 |---|---|
 | Critical and deferred data | `app/routes/_index.tsx` (`loadDeferredData`), `app/routes/product.$handle.tsx` |
 | Pictures: the first eager, the rest lazy | `app/components/ProductGallery.tsx`, `app/components/Hero.tsx` |
-| Cache strategies | `app/root.tsx` (`CacheLong()` for the menus), `app/routes/product.$handle.tsx` (`CacheCustom`, a minute), `app/lib/headers.ts` (`privatePageHeaders`) |
+| Cache strategies | `app/root.tsx` and `app/routes/product.$handle.tsx` (`CacheSettings()` for the shop and the merchant's settings), `app/lib/headers.ts` (`privatePageHeaders`) |
 | SEO | `app/lib/meta.ts`, each route's `meta`, `app/routes/[robots.txt].tsx` |
 | Security | `server.ts` (Nitrogen's request handler, `storeDomain`), `app/entry.server.tsx` (the CSP), `app/lib/urls.ts` (`localRedirectPath`), `app/lib/headers.ts` |
 | Analytics | `app/root.tsx` (`<Analytics.Provider>`), `app/lib/analytics.ts` (`listedProducts`), each page's view |
@@ -69,7 +69,7 @@ Decide what the storefront looks like and holds before writing code: the pages, 
 - **Within the page's request budget.** Independent calls run together, never more than 6 at a time (the Workers limit). No N+1: a list's items come in the list's own query.
 - **No client-side fetching of server data.** The browser gets data from loaders, and changes it through the app's actions: `<CartForm>`, or `useFetcher` posting to a route.
 - **Pagination** with `getPaginationVariables(request, {pageBy})` in the loader, and `PaginatedResourceSection` (or `<Pagination>`) in the page; both directions work.
-- **The right cache strategy** for each query: `CacheLong()` only for menus and static lists, a minute at most for settings the merchant edits, `CacheShort()` or the default for the catalogue and content, `CacheNone()` for what visitors must see at once after they change it. A query that passes the buyer is cached for that buyer alone.
+- **The right cache strategy** for each query: `CacheLong()` only for menus and static lists, `CacheSettings()` (a minute) for settings the merchant edits, `CacheShort()` or the default for the catalogue and content, `CacheNone()` for what visitors must see at once after they change it. A query that passes the buyer is cached for that buyer alone.
 - **The signed-in buyer** goes to the API as the `buyer` variable with `@inContext(buyer: $buyer)`, from `customerAccount.getBuyer()`. The customer's own data is read with `customerAccount.query` and changed with `customerAccount.mutate`, which never cache.
 - **The page's address.** A loader or action reads it from its `url` argument, never from `new URL(request.url)`: with React Router's v8 flags, `request` is the data request (`/product/x.data?_routes=…`). Nitrogen's helpers that take a `request` correct this themselves.
 - **Validate every query and mutation** with the storefront MCP's `validate_graphql_codeblocks` (call `learn_cloudcart_storefront` first in a new session), then `npm run codegen`. The API refuses a query deeper than 10 levels or with a complexity over 1000.
