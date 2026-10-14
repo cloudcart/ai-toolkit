@@ -16,7 +16,7 @@ The starter does this in `app/root.tsx`; keep it when you change the root.
 ```tsx
 // The root loader
 shop: getShopAnalytics({storefront}),
-consent: {storefrontAccessToken: env.PUBLIC_STOREFRONT_API_TOKEN, storefrontApiUrl: storefront.getApiUrl()},
+consent: {storefrontAccessToken: env.PUBLIC_STOREFRONT_API_TOKEN}, // the browser posts to the storefront's own /api/sf
 pixels: getMarketingPixels({storefront}).catch(() => null), // never fail the page for it
 customerEmailHash: customerAccount.getEmailHash() ?? null,  // a SHA-256 hash, never the e-mail
 
