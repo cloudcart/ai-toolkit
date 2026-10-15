@@ -15,7 +15,7 @@ Stage 1: what the storefront looks like and holds, decided before the code. Star
 ## UX practice for a store
 
 - **Search** in the header on every page, with results as the visitor types (products, categories, pages: the starter's `PredictiveSearch`) and a results page with the listing's filters. An empty result says so and offers a way on.
-- **Listings:** the number of products, the merchant's filters (the facets the API returns with the products) and sorting; two products a row on a phone, three or four wider; more on demand ("load more"). A filter shows what it applies and how to clear it.
+- **Listings:** the merchant's filters (the facets the API returns with the products) and sorting, light enough to share one row on a phone — the starter's sort is its chosen order's text with an arrow, no box, and the number of products is on the filter drawer's button and read out to screen readers, not in the row; two products a row on a phone, three or four wider; more on demand ("load more"). A filter shows what it applies and how to clear it.
 - **Product cards:** the picture, the title, the price with its discount, and whether it can be bought; the whole card is one link. Add only what helps to choose in that niche (`references/store-kinds.md`), so a card stays light.
 - **The product page:** on a phone's first screen, the gallery, the title, the price, the choice of variant and the add to cart; then the details, delivery and returns, and the reviews. A sold-out or unavailable variant says so where the visitor chooses it.
 - **The cart:** the totals the API gives, a clear way to change a line, and one checkout button to the platform's checkout.
