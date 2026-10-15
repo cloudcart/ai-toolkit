@@ -151,7 +151,7 @@ query Product($handle: String!, $buyer: BuyerInput) @inContext(buyer: $buyer) {
 
 ## The API's names
 
-The Storefront API names some things differently from the admin: a brand is a `Vendor` (`vendorsConnection`, `vendor(handle:)`, `Product.vendorDetails`; its page `/vendor/{handle}`, `vendorPath` in `app/lib/urls.ts`, and the list of them `/vendors`); a category, and a merchant's selection, is a `Collection`; a product tag is a `ProductTag`; a blog category is a `Blog`; a physical store is a `StoreLocation`. Look a name up with the Storefront MCP's `introspect_graphql_schema`. Newest first is `sortKey: CREATED_AT, reverse: true`: `CREATED_AT` alone is oldest first.
+The Storefront API names some things differently from the admin: a brand is a `Vendor` (`vendorsConnection`, `vendor(handle:)`, `Product.vendorDetails`; its page `/vendor/{handle}`, `vendorPath` in `app/lib/urls.ts`, and the list of them `/vendors`); a category, and a merchant's selection, is a `Collection` (`collections` lists the categories, `collections(kind: SMART_COLLECTION)` the selections); a product tag is a `ProductTag`; a blog category is a `Blog`; a physical store is a `StoreLocation`. Look a name up with the Storefront MCP's `introspect_graphql_schema`. A category's, selection's, brand's or tag's products, or `products`, asked without a `sortKey` come in the store's own order, as its pages list them (a search in relevance order); newest first is `sortKey: CREATED_AT, reverse: true`: `CREATED_AT` alone is oldest first.
 
 ## Pagination
 
