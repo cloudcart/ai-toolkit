@@ -9,7 +9,7 @@ Stage 1: what the storefront looks like and holds, decided before the code. Star
 - **Touch targets** at least 44 × 44 px for the main controls (the size Apple's guidelines give; WCAG 2.2 sets 24 × 24 as the minimum), with space between neighbours.
 - **Nothing only on hover.** What a pointer reveals (a second photo, a quick action) is reachable by a tap and the keyboard too, or is not needed.
 - **Fields a phone can fill:** text at least 16 px (smaller, and Safari on iOS zooms into the field), and the right `type`, `inputMode` and `autoComplete` (`email`, `tel`, `postal-code`, …), so the phone shows the right keyboard and fills what it knows.
-- **Menus and filters in a drawer.** The starter opens the menu, the cart and, below the desktop layout, the filters in a drawer along one side of the page (`Aside`), and the search in a panel along the top (`Dialog` with `variant="top"`); the filter drawer's button shows how many products the choice leaves ("View 24 products"). Keep that pattern for a new panel.
+- **Menus and filters in a drawer.** The starter opens the menu, the cart and, below the desktop layout, the filters in a drawer along one side of the page (`Aside`), and the search in a box near the top of the screen, the whole screen on a phone (`Dialog` with `variant="float"`); the filter drawer's button shows how many products the choice leaves ("View 24 products"). Keep that pattern for a new panel.
 - **Speed is part of the phone's design:** fewer and smaller pictures above the fold, no carousel that loads every slide, nothing that shifts as the page loads (stage 5).
 
 ## UX practice for a store
@@ -21,6 +21,18 @@ Stage 1: what the storefront looks like and holds, decided before the code. Star
 - **The cart:** the totals the API gives, a clear way to change a line, and one checkout button to the platform's checkout.
 - **Feedback on every action:** a cart change shows at once (`useOptimisticCart`), a form shows it is sending, and an error says what to do, next to its field.
 - **Trust:** the store's contact, company and policies in the footer (the starter's `StoreContact`), and the merchant's own words for delivery and returns.
+
+## Pictures
+
+- **The store's image CDN resizes every picture it serves,** as Shopify's `image_url` does. A picture's URL from the API (`/cdn/img/…` on the store's domain; file-manager images, `/{site}/files/image/…`, go through the same resizer) takes:
+  - `width` and `height`: the picture fitted inside that box, never enlarged — one of them keeps the other side in proportion;
+  - `crop` (`center`, `top`, `bottom`, `left`, `right`, `top_left`, `top_right`, `bottom_left`, `bottom_right`): the picture fills the `width` × `height` box and loses what overflows, kept from that side;
+  - `pad_color` (a hex colour): the picture extended to the box's proportions in that colour instead of cut;
+  - `format` (`webp`, `avif`, `jpg`, `png`) and `quality` (1–100).
+  On a store's CDN (checked 2026-10-15): `width=200` gave 200 × 200 px and 8 KB, `width=1200` 1200 × 1200 px and 126 KB, `width=300&height=300&crop=center` 300 × 300, `width=300&height=375&pad_color=ffffff` 300 × 375, `format=webp` a WebP.
+- **Never let the browser shrink a picture the CDN can shrink.** A 1200-px copy in a 150-px card downloads fifteen times more and looks jagged. `<Image>` (`@cloudcart/nitrogen-react`) asks the CDN for the widths a layout needs, through `cloudcartLoader`, in a `srcset`; give a fluid picture `sizes`, the width it shows at, so the browser takes the smallest that fills it.
+- **A small picture offers only small widths:** a thumbnail, a search result, a cart line. Cap its `srcset` with `srcSetOptions` — `{intervals: 3, startingWidth: 200, incrementSize: 200, placeholderWidth: 100}` offers 200, 400 and 600 px, 1× to 3× of a picture up to about 200 px wide — or give it a fixed `width` (`<Image width={96}>` offers 96, 192 and 288 px).
+- **Keep a product's proportions:** in a card's frame, fit the picture whole with `object-contain`, by its width or its height, as the starter's cards do; fill and crop (`object-cover`, or `aspectRatio` with `crop`) only a picture made to fill, such as a banner.
 
 ## The colours
 
