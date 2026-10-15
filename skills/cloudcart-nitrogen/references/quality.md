@@ -70,7 +70,7 @@ How the store should look and be structured is decided in stage 1 (`references/d
 
 ## Translations
 
-- [ ] **Every word a visitor reads comes from `app/locales/`** through `t()`. The lint fails on literal text in JSX, and on `alt`, `aria-label`, `title` and `placeholder` written as literals.
+- [ ] **Every word a visitor reads comes from `app/locales/`** through `t()` (`const {t} = useTranslation()`, from `@cloudcart/nitrogen`). The lint fails on literal text in JSX, and on `alt`, `aria-label`, `title` and `placeholder` written as literals.
 - [ ] **Every language file has every key,** with the same `{placeholders}` as `en.json`, and a text that depends on a count has the plural forms its language needs. `npm run lint` checks all three.
 - [ ] **Values in the store's format:** money with `<Money>` from `formatted`, dates with `formatDateTime`.
 

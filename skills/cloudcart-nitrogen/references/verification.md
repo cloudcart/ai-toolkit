@@ -32,7 +32,7 @@ The profiler's data is also at `/__nitrogen/subrequests.json`, for a script.
 npm run check
 ```
 
-It runs codegen, typecheck, lint (design tokens, translations, ESLint, Prettier) and build, and the tests once `npm test` is part of it (`references/building-block.md`). In a project created from the starter, the pre-commit hook runs the same, and refuses a commit whose generated types (`storefrontapi.generated.d.ts`) changed but were not staged. All must pass. Fix a failure where it starts, and never silence a rule to get past it.
+It runs codegen, typecheck, lint (design tokens, translations, ESLint, Prettier; `npm run format` fixes the formatting) and build, and the tests once `npm test` is part of it (`references/building-block.md`). In a project created from the starter, the pre-commit hook runs the same, and refuses a commit whose generated types (`storefrontapi.generated.d.ts`) changed but were not staged. All must pass. Fix a failure where it starts, and never silence a rule to get past it.
 
 ## Speed: Lighthouse on a phone
 
