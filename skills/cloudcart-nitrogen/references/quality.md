@@ -26,7 +26,7 @@ How the store should look and be structured is decided in stage 1 (`references/d
 - [ ] **Within the request budget,** measured in the profiler on a first and a second load (`references/verification.md`), and compared with the page's "before".
 - [ ] **No N+1:** no operation repeated once per item.
 - [ ] **No REST habit** from the table in `references/graphql.md` ("GraphQL, not REST"): no call per resource, no data fetched by id in a second call, no value written into a document, no query after a mutation, no filtering, sorting or paging in code, no `fetch()` to the API, no anonymous operation.
-- [ ] **A list of products inside a list asks only each item's first page** (no `after`, `last` or `filters`, each fetched per item), for an outer list fixed in the document.
+- [ ] **A list of products inside a list asks only each item's first page** (no `after`, `last` or `filters`, each fetched per item), for an outer list fixed in the document; one item's next page is asked for that item alone (its own page, or a resource route through `useFetcher().load()`).
 - [ ] **No field the page does not render,** and each field in the fragment of what renders it.
 - [ ] **No call that waits for no reason:** independent calls start together (at most 6 at a time); below the first screen, data comes from the page's deferred query.
 - [ ] **Where it can be better:** name each call or field that could go, merge or be deferred, even when the page is within its budget.

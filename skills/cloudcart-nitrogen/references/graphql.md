@@ -44,7 +44,7 @@ The API loads the first page of a list inside a list for all the items at once, 
 | A category's next page or last items (`products(first: 3, after: …)`, `products(last: 3)`) | 83, 4 | 195, 11 |
 | A category's filters (`products(first: 3) { filters { … } }`) | 57, 4 | 125, 10 |
 
-- **Inside a list, ask each item's first page.** `first` without `after`. The next page of one item, its last items and its `filters` belong on that item's own page.
+- **Inside a list, ask each item's first page.** `first` without `after`. The next page of one item, its last items and its `filters` are asked for that item alone: on its own page, or, to page it in place (a carousel's "next"), from a resource route the page loads with `useFetcher().load()`, as the starter's `app/routes/related-products.tsx` pages one product's related products.
 - **Keep both lists short.** The cost no longer grows with the items, but the answer does: every item brings its `first` products, each with the fields its card asks for. Keep the outer list fixed in the document (`collections(first: 4)`, not a `first` the URL sets) and the inner `first` small (`products(first: 4)`); ask only the lists the page renders.
 - **The API does not refuse such a query.** Its complexity counts a list once, whatever its `first`, so only the document keeps it small.
 
