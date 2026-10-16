@@ -28,7 +28,7 @@ Each habit below shows in the code, and has a GraphQL way. Look for them when yo
 | Filtering, sorting or paging in code | `.filter()`, `.sort()` or `.slice()` on `nodes`; `first: 100` on a catalogue list (`products`, `search`) "to get everything". One item's own lists, such as a product's variants or a customer's addresses, are rightly asked whole | The API's arguments: `filters`, `query`, `sortKey` with `reverse`, and `first` with `after`. A page holds at most 100 items: a larger `first` is cut to 100 |
 | Calling the endpoint | `fetch()` to `/api/sf` or to the store's API in the app's code | `context.storefront.query` in a loader, and an action for a change: they bring the cache, the profiler, the tokens and the buyer's IP |
 | An anonymous operation | `query {` or `query(` with no name | Name each operation after its purpose (the starter's `query Product(…)`, `query HomeProducts(…)`): the profiler lists the calls by their names, and an anonymous one shows none |
-| An answer taken as all or nothing | Reading a status code, or a `try`/`catch` as the only error handling around `storefront.query` | An answer can carry `data` and `errors` together: a field that failed is `null`, and the rest is there. `storefront.query` throws only when the request itself fails, and returns GraphQL errors as `errors` beside the data. Render without a part that is `null`, and read `errors` where a missing part matters |
+| An answer taken as all or nothing | Reading a status code, or a `try`/`catch` as the only error handling around `storefront.query` | An answer can carry `data` and `errors` together: a field that failed is `null`, and the rest is there. `storefront.query` throws only when the request itself fails, and returns GraphQL errors as `errors` beside the data. Render without a part that is `null`, and read `errors` where a missing part matters: a page's own resource null with errors is the error page, not a 404 (`missingResource`) |
 | A list of products inside a list, paged or filtered | `products` or `relatedProducts` with `after`, `last` or `filters` inside the `nodes` of `collections`, `vendorsConnection`, `products` or `nodes`; an outer `first` the URL sets | Below |
 
 ### A list inside a list
@@ -72,9 +72,9 @@ export async function loader(args: Route.LoaderArgs) {
 
 async function loadCriticalData({context, params}: Route.LoaderArgs) {
   const {product, errors} = await context.storefront.query(PRODUCT_QUERY, {variables: {handle: params.handle}});
-  // A field that failed is null too: only an answer without errors says the product is not there.
-  if (errors?.length) throw new Error(errors.map((error) => error.message).join('\n'));
-  if (!product) throw new Response(null, {status: 404});
+  // A field that failed is null too: a null product with errors is a failure (the error page), and only an answer
+  // without errors says it is not there (a 404). The starter's `missingResource` (`app/lib/missing.ts`) does both.
+  if (!product) throw missingResource(errors, null);
   return {product};
 }
 
