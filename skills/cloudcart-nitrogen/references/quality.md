@@ -84,6 +84,6 @@ How the store should look and be structured is decided in stage 1 (`references/d
 
 ## Design
 
-- [ ] **Colours, spacing, type and breakpoints from the design tokens** in `app/styles/app.css`. The lint fails on a colour, font size or breakpoint outside them.
+- [ ] **Colours, spacing, type, widths and breakpoints from the design tokens** in `app/styles/app.css`. The lint fails on a colour, font size or breakpoint outside them, on a width, letter spacing or blur of Tailwind's own scale (`max-w-md`: name its role in `app.css`, `max-w-reading`), and on a media query written in the code (`matchMedia` takes `app/lib/breakpoints.ts`).
 - [ ] **The store's colours are set:** `--color-accent` and `--color-highlight` carry the merchant's brand, or the user chose to keep the starter's black and white.
 - [ ] **No dependence on the merchant's theme:** nothing reads theme settings or widget slots, because they change when the merchant changes theme.
