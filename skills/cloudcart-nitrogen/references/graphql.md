@@ -13,7 +13,7 @@ A page splits its data into several calls for these reasons only:
 - **A real dependence:** a call that needs another's answer. The product page's reviews wait for the settings that say whether the store shows them.
 - **A Nitrogen helper that runs its own query:** `getCookieConsent()` and `getMarketingPixels()` share one call, and the cart has its own (`context.cart`). Use the helper; do not copy its fields into your document.
 
-Never split a page's data one call per resource. The starter's product page makes four calls, each for one of these reasons (`app/routes/product.$handle.tsx`).
+Never split a page's data one call per resource. The starter's product page makes four calls, each for one of these reasons (`app/routes/product.$handle.tsx` and its parent `app/routes/product.tsx`).
 
 Each habit below shows in the code, and has a GraphQL way. Look for them when you write a query, and when you review one:
 
@@ -101,6 +101,7 @@ The page renders a deferred value in `<Suspense>` with React Router's `<Await>`.
 - **A section below the first screen** (a strip of brands under the home's categories) takes its fields from the page's existing deferred query when the page has one (the home's `HomeProducts`). It then neither holds up the first byte, as a field in the critical query would, nor adds a call, as its own query would.
 - Calls that do not depend on each other run together (`Promise.all`), never more than 6 at a time: a Worker has at most 6 simultaneous outgoing connections per request.
 - A query that needs another's answer waits for it. Chain such queries only when the data really depends on the first answer: each link adds a round trip.
+- **A part that does not follow the address.** A route's loader runs again whenever its address changes, the whole of it: a product page's runs for each variant chosen (`?Color=Red`). Put a part that does not follow that change in a parent route whose `shouldRevalidate` reloads it only for what it follows. The starter's `app/routes/product.tsx` holds a product's reviews, which reload for another product or another page or star filter of the reviews, not for a variant; the page (`app/routes/product.$handle.tsx`) does not reload for the reviews' own page or filter. Two routes that need the same query (the store's settings) send the identical document: Nitrogen sends an identical query in flight once.
 
 ## The request budget
 

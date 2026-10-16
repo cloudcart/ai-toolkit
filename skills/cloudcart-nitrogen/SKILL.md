@@ -31,9 +31,9 @@ The project was created from CloudCart's starter (the public template `cloudcart
 
 | What | Where the starter shows it |
 |---|---|
-| Critical and deferred data | `app/routes/_index.tsx` (`loadDeferredData`), `app/routes/product.$handle.tsx` |
+| Critical and deferred data | `app/routes/_index.tsx` (`loadDeferredData`), `app/routes/product.$handle.tsx` and its parent `app/routes/product.tsx` (the reviews, which a variant change does not reload) |
 | Pictures: the first eager, the rest lazy | `app/components/ProductGallery.tsx`, `app/components/Hero.tsx` |
-| Cache strategies | `app/root.tsx` and `app/routes/product.$handle.tsx` (`CacheSettings()` for the shop and the merchant's settings), `app/lib/headers.ts` (`privatePageHeaders`) |
+| Cache strategies | `app/root.tsx` and `app/lib/product-page.ts` (`CacheSettings()` for the shop and the merchant's settings), `app/lib/headers.ts` (`privatePageHeaders`) |
 | SEO | `app/lib/meta.ts`, each route's `meta`, `app/routes/[robots.txt].tsx` |
 | Security | `server.ts` (Nitrogen's request handler, `storeDomain`), `app/entry.server.tsx` (the CSP), `app/lib/urls.ts` (`localRedirectPath`), `app/lib/headers.ts` |
 | Analytics | `app/root.tsx` (`<Analytics.Provider>`), `app/lib/analytics.ts` (`listedProducts`), each page's view |
