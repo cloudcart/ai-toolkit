@@ -5,7 +5,7 @@ Stage 1: what the storefront looks like and holds, decided before the code. Star
 ## Mobile first
 
 - **Design at 360–390 px first.** Write a component's classes for the phone, then add what a wider screen allows with `md:` (750 px) and `lg:` (990 px), the starter's only breakpoints (`sm:` and `xl:` do not exist, and its lint refuses them): Tailwind's breakpoints are minimum widths, so the unprefixed classes are the phone's. Check every page at 390 px and at 1280 px.
-- **The main action within the thumb's reach.** On the product page, the starter's sticky add-to-cart bar keeps the purchase at hand while the visitor scrolls; the cart's checkout button is visible without scrolling.
+- **The main action within the thumb's reach.** On the product page, the starter's sticky add-to-cart bar keeps the purchase at hand while the visitor scrolls; on the cart page below 990 px a bar with the subtotal and the checkout comes up once the summary's own button is off the screen. Both bars are the starter's `app/components/ui/StickyBar.tsx`: a new page's main action uses it too.
 - **Touch targets** at least 44 × 44 px for the main controls (the size Apple's guidelines give; WCAG 2.2 sets 24 × 24 as the minimum), with space between neighbours.
 - **Nothing only on hover.** What a pointer reveals (a second photo, a quick action) is reachable by a tap and the keyboard too, or is not needed.
 - **Fields a phone can fill:** text at least 16 px (smaller, and Safari on iOS zooms into the field), and the right `type`, `inputMode` and `autoComplete` (`email`, `tel`, `postal-code`, …), so the phone shows the right keyboard and fills what it knows.
@@ -36,7 +36,7 @@ Stage 1: what the storefront looks like and holds, decided before the code. Star
 
 ## The colours
 
-- **One accent colour** for what the visitor acts on: the main button, links in text, the focus ring, the chosen option.
+- **One accent colour** for what the visitor acts on: the main button, links in text, the focus ring, the chosen option. In the starter a link in running text takes the `inline-link` utility (the accent, underlined); a link that stands alone as an action keeps the text's colour.
 - **One or two complementary colours** that mark products: a discount's percentage on a card, "new", a highlight band. A saving in money (a quantity tier's, the cart's discounts) is in the success colour, a meaning colour.
 - **Everything else neutral:** the background, the text, borders and quiet surfaces.
 - **The meaning colours stay as they are:** error, success and warning are not the brand's.

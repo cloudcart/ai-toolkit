@@ -76,7 +76,7 @@ How the store should look and be structured is decided in stage 1 (`references/d
 
 ## The states between success and failure
 
-- [ ] **Loading:** each deferred section has a `<Suspense>` fallback the size of its content.
+- [ ] **Loading:** each deferred section has a `<Suspense>` fallback the size of its content: in the starter `ProductGridPlaceholder` for a row of cards, `TextPlaceholder` for a few lines, and for a section whose most common answer is empty, its `EmptyState` with `*:invisible` (the product's reviews).
 - [ ] **Empty:** a list with nothing in it says so and offers a way on (the project's `EmptyState`), never an empty box.
 - [ ] **Failed:** a deferred section that fails renders its `errorElement` or nothing, and the page still works. A route's error boundary (`RouteErrorBoundary` in the starter) catches what is left. A mutation's `userErrors` show next to their field.
 - [ ] **Signed out:** a customer page sends a signed-out visitor to sign in; `customerAccount` does this when the token is missing or refused.
