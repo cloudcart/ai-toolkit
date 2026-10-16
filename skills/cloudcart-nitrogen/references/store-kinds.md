@@ -27,7 +27,7 @@ Two rules hold for every kind:
 
 ## Electronics, cameras and software
 
-- **The energy class:** `energyClass` gives the `label`, the label's picture (`imageUrl`), and links to the label (`documentUrl`) and the product information sheet (`productSheetUrl`). Show the class next to the price, linking to the label, and link the sheet, on the product page and wherever the product is listed with a price.
+- **The energy class:** `energyClass` gives the `label`, the label's picture (`imageUrl`), and links to the label (`documentUrl`) and the product information sheet (`productSheetUrl`). Show the class next to the price, linking to the label, and link the sheet, on the product page and wherever the product is listed with a price. The platform fills it only for some stores (from an integration's product data); the starter shows it under the price on the product page (`app/components/EnergyClass.tsx`), and its cards do not ask it: for such a store, add `energyClass` to the card's fragment and the component beside the card's price.
 - **Specifications** from `properties`, as a table, and comparison (`productComparison`) for the same kind of product.
 - **Manuals and downloads** from `files`.
 - **Software and digital goods:** `requiresShipping` is false; after purchase the customer finds the files in their account (`customer.downloads`).

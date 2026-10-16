@@ -71,7 +71,9 @@ export async function loader(args: Route.LoaderArgs) {
 }
 
 async function loadCriticalData({context, params}: Route.LoaderArgs) {
-  const {product} = await context.storefront.query(PRODUCT_QUERY, {variables: {handle: params.handle}});
+  const {product, errors} = await context.storefront.query(PRODUCT_QUERY, {variables: {handle: params.handle}});
+  // A field that failed is null too: only an answer without errors says the product is not there.
+  if (errors?.length) throw new Error(errors.map((error) => error.message).join('\n'));
   if (!product) throw new Response(null, {status: 404});
   return {product};
 }
@@ -100,7 +102,7 @@ The page renders a deferred value in `<Suspense>` with React Router's `<Await>`.
 
 - **A section below the first screen** (a strip of brands under the home's categories) takes its fields from the page's existing deferred query when the page has one (the home's `HomeProducts`). It then neither holds up the first byte, as a field in the critical query would, nor adds a call, as its own query would.
 - **A list the visitor may never reach** — a product's related products, its linked ones, the recently viewed — is asked for only as the visitor nears it, so a visit that stops at the first screen costs nothing for it. A resource route gives its pages, and the section loads the first with Nitrogen's `useAutoLoad(ref, {load, limit: 1})` on its own element: card placeholders hold its room (two rows of them for the related products), so nothing below moves when the products come; a section most products lack (the linked products) shows nothing until the answer, rather than a placeholder that comes and goes. The starter's `RelatedProducts`, `LinkedProducts` and `RecentlyViewed` do so; such a route is measured on its own, not in the page's budget.
-- Calls that do not depend on each other run together (`Promise.all`), never more than 6 at a time: a Worker has at most 6 simultaneous outgoing connections per request.
+- Calls that do not depend on each other run together (`Promise.all`), never more than 6 at a time: a Worker has at most 6 simultaneous outgoing connections per request, and Nitrogen's client queues a seventh until one ends.
 - A query that needs another's answer waits for it. Chain such queries only when the data really depends on the first answer: each link adds a round trip.
 - **A part that does not follow the address.** A route's loader runs again whenever its address changes, the whole of it: a product page's runs for each variant chosen (`?Color=Red`). Put a part that does not follow that change in a parent route whose `shouldRevalidate` reloads it only for what it follows. The starter's `app/routes/product.tsx` holds a product's reviews, which reload for another product or another page or star filter of the reviews, not for a variant; the page (`app/routes/product.$handle.tsx`) does not reload for the reviews' own page or filter. Two routes that need the same query (the store's settings) send the identical document: Nitrogen sends an identical query in flight once.
 
@@ -124,8 +126,8 @@ These are counted as `references/verification.md` says, on the page's first load
 
 | Data | Strategy |
 |---|---|
-| Menus and static lists | `CacheLong()`: fresh for 1 hour, then stale for 23 more while it refreshes |
-| Settings the merchant edits in the admin: the shop's name, logo, domain and contacts, policies, `llmsTxt` (read by `robots.txt`), a form's fields and countries | `CacheSettings()`: fresh for 1 minute, then stale for up to a day while it refreshes |
+| Static lists that change only with a release | `CacheLong()`: fresh for 1 hour, then stale for 23 more while it refreshes |
+| Settings the merchant edits in the admin: the shop's name, logo, domain and contacts, the menus (the starter reads them with the header and footer), policies, `llmsTxt` (read by `robots.txt` and `llms.txt`), a form's fields and countries | `CacheSettings()`: fresh for 1 minute, then stale for up to a day while it refreshes |
 | Catalogue pages: products, categories, search, content | `CacheShort()` (fresh for 1 second, then stale for 9 more) or the default |
 | What visitors must see at once after they change it (their own comment still awaiting approval, say) | `CacheNone()`, while they are signed in |
 
@@ -157,7 +159,7 @@ The Storefront API names some things differently from the admin: a brand is a `V
 
 ## Pagination
 
-Lists are connections (`nodes`, `pageInfo`) that take `first`/`after` and `last`/`before`, both directions working. The loader reads the page from the URL; the page renders `<Pagination>`. For a list of products or cards, reuse the starter's: `PaginatedResourceSection` (from `@cloudcart/nitrogen-react`, a "load more" list built on `<Pagination>`) for a list in a fixed order, and `ProductListing` (`app/components/`) only where the visitor filters and sorts, since it brings that toolbar. A fixed-order grid of product cards takes the listing's columns (`LISTING_GRID_CLASSES`) and, with no filters beside it, `FULL_WIDTH_CARD_SIZES` for the cards' `sizes` (both in `app/components/ListingToolbar.tsx`; `LISTING_CARD_SIZES` is for the grid beside the filters).
+Lists are connections (`nodes`, `pageInfo`) that take `first`/`after` and `last`/`before`, both directions working. The loader reads the page from the URL; the page renders `<Pagination>`. For a list of products or cards, reuse the starter's: `PaginatedResourceSection` (from `@cloudcart/nitrogen-react`, a "load more" list built on `<Pagination>`) for a list in a fixed order, and `ProductListing` (`app/components/`) only where the visitor filters and sorts, since it brings that toolbar. A fixed-order grid of product cards across the page is the starter's `ProductGrid` (`app/components/ProductGrid.tsx`: `PRODUCT_GRID_CLASSES`, two, three and four a row, and the cards' own `sizes`); `LISTING_GRID_CLASSES` and `LISTING_CARD_SIZES` (`app/components/ListingToolbar.tsx`) are for the listing's grid beside the filters.
 
 ```ts
 const variables = getPaginationVariables(request, {pageBy: 24});
@@ -189,8 +191,9 @@ Two paginated lists on one page each take a `namespace`, in both `getPaginationV
 
 ## Money and other values
 
-- Select `formatted` with every `amount` (`price { amount currencyCode formatted }`) and render it with `<Money>`: some markets require a dual-currency display that only the store's own formatting gives.
-- `DateTime` values are UTC without a zone. Read them with `parseDateTime` and `formatDateTime`, not `new Date()`.
+- Select `formatted` with every `amount` you show (`price { amount currencyCode formatted }`) and render it with `<Money>` — an amount for a pixel's event needs no `formatted`: some markets require a dual-currency display that only the store's own formatting gives.
+- `DateTime` values are UTC without a zone. Read them with `parseDateTime` and `formatDateTime`, never a native parse (`new Date()`, `Date.parse`), which takes them for the visitor's local time.
+- An amount the storefront adds up itself (the tier cards' sums, `SKILL.md`'s one exception) or one the API gives without `formatted` (a filter's price bounds): `moneyWithFormat(amount, currencyCode, shop.currencyFormat)`, as the store writes money. `formatMoney` gives a `MoneyV2`'s text where no element can be rendered.
 
 ## Validation and limits
 

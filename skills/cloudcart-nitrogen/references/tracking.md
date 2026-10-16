@@ -59,6 +59,7 @@ Never publish these yourself: they would be counted twice.
 ## What a page publishes
 
 - **The fast order:** `publish('fast_order_started', …)` when the form opens and `publish('fast_order_completed', …)` once the order is placed, with the event names the merchant chose (`FastOrderSettings.trackingEvents`). The server side of the purchase comes from the API: the action passes `analyticsInputFromRequest(request, {pixels, customerEmailHash})` to `fastOrderSubmit` as `analytics`, and the browser's event reuses the `analyticsEventId` the API answers with. The starter's product page (`app/routes/product.$handle.tsx`) and `app/components/ProductRequestForms.tsx` do this; copy their pattern.
+- **The cart drawer:** opening it publishes `cart_viewed` with the cart (`publish('cart_viewed', {cart, prevCart, shop, url})`, as the starter's `app/components/Header.tsx` does on the cart icon): a cart shown without a page of its own is a cart view, not a page view.
 - **Your own events:** `publish('custom_<name>', payload)` from `useAnalytics()`, or `<Analytics.CustomView type="custom_<name>" data={…} />`. They reach only the subscribers you add (`useAnalytics().subscribe`): CloudCart Analytics and the pixels do not receive them.
 
 ## Never
@@ -72,7 +73,7 @@ Never publish these yourself: they would be counted twice.
 
 In the dev server, open the browser's network panel. The dev server works on the live store: where the merchant turned on server-side reporting (`analyticsSettings { pixels { serverSide } }`), each page view below goes on to the merchant's Meta, TikTok and Google Analytics accounts, and accepting a group in the banner sends the browser's events there too. Tell the user and ask before you do either.
 
-1. Each page sends `analyticsEventPublish` to `/api/sf` once for its page view (`PAGE_VIEW`, with the page's kind); a product page also sends a product view (`VIEW_CONTENT`), a search page a search (`SEARCH`), and the cart page a cart view (`VIEW_CART`).
+1. Each page sends `analyticsEventPublish` to `/api/sf` once for its page view (`PAGE_VIEW`, with the page's kind); a product page also sends a product view (`VIEW_CONTENT`), a search page a search (`SEARCH`); the cart page's view is its `PAGE_VIEW` (of the kind `CART`), and opening the cart drawer sends a cart view (`VIEW_CART`).
 2. Before the visitor chooses in the banner, no request goes to the vendors (`google-analytics.com`, `googletagmanager.com`, `facebook.com/tr`, `analytics.tiktok.com`). After they accept a group, the vendors of that group load and receive the page's events (with the user's word, above).
 3. An add to cart sends `product_added_to_cart` once.
 

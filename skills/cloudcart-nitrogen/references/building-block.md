@@ -19,7 +19,7 @@ app/building-blocks/
 - **Unstyled, with class hooks.** The block renders plain markup with stable classes: `cc-<block>` on its root, and `cc-<block>-<part>` on each part (`cc-low-stock-notice-count`). It takes `classNames`, one class per part, which it adds after its own; a block with only a root may take a plain `className` instead. No Tailwind classes, colours or sizes inside the block: the page passes them in.
 - **Data through props,** typed from its fragment: the generated `<FragmentName>Fragment` type in `storefrontapi.generated`. The page's query spreads the fragment. The block never fetches, and never calls the API.
 - **Links through props.** A block that links takes the address as a prop (`href: (item) => string`, the page passing `vendorPath`), so it imports nothing from the project (React Router's `Link` is a package, and a block may render it); its test renders it inside a `MemoryRouter`.
-- **Pictures through `<Image>`,** which sets an inline `width: 100%`: give the picture a box of fixed size and size it with `size-full object-contain`, so a logo or a photo of any shape fits without shifting the layout.
+- **Pictures through `<Image>`:** a fluid one (no `width`) sets an inline `width: 100%` and fills the box the page gives it; a fixed one (`width`, or `width="auto"` with a `height`) keeps its size. The block takes the box's classes through `classNames` (`object-contain` for a logo or a photo of any shape), so it fits without shifting the layout.
 - **Text through props.** The block shows no words of its own: the page passes them from its translations (a render function or `children`). The starter's lint fails on literal text in JSX.
 - **Documented.** A doc comment on every export, with its first sentence saying what it is. A prop whose meaning is not obvious from its name gets its own comment.
 - **Accessible.** Real elements for their roles (a `<button>` for an action, a list for a list), a label for every control, and keyboard use. Motion respects `prefers-reduced-motion`.
@@ -93,7 +93,8 @@ describe('LowStockNotice', () => {
 
   it('shows nothing above the threshold, when sold out, or when the store does not say', () => {
     for (const quantityAvailable of [6, 0, null]) {
-      expect(renderToStaticMarkup(<LowStockNotice variant={{quantityAvailable}}>{() => 'left'}</LowStockNotice>)).toBe('');
+      const notice = <LowStockNotice variant={{quantityAvailable}}>{() => 'left'}</LowStockNotice>;
+      expect(renderToStaticMarkup(notice)).toBe('');
     }
   });
 });
@@ -115,7 +116,7 @@ import {LowStockNotice, LOW_STOCK_NOTICE_FRAGMENT} from '~/building-blocks/LowSt
 
 Whether shoppers see how many are left is the merchant's choice: the platform's own storefront shows a quantity only when the merchant's theme setting says so, and the storefront cannot read that setting. Ask the user; without a yes, the text names no number ("Only a few left"), as above. With it: `{(count) => t('product.lowStock', {count})}`.
 
-The page's query spreads `...LowStockNotice` on the variant and interpolates `${LOW_STOCK_NOTICE_FRAGMENT}`. The text's key (`product.fewLeft`) goes into every file in `app/locales/` first: the keys are typed, so a missing one fails the typecheck. The classes come from the project's design tokens, as the rest of the page's do.
+The page's query spreads `...LowStockNotice` on the variant and interpolates `${LOW_STOCK_NOTICE_FRAGMENT}`. The text's key (`product.fewLeft`) goes into every file in `app/locales/` first: a key missing from a language file fails `npm run lint` (`scripts/check-translations.mjs`), and the typecheck knows the keys of `en.json`. The classes come from the project's design tokens, as the rest of the page's do.
 
 ## Ready to move into Nitrogen
 
