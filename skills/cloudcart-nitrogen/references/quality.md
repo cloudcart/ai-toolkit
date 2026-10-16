@@ -59,7 +59,7 @@ How the store should look and be structured is decided in stage 1 (`references/d
 
 - [ ] **Phone and desktop:** the page works at 390 px and 1280 px wide, with no horizontal scroll and touch targets large enough to hit.
 - [ ] **Keyboard:** every link, button and control can be reached with Tab and used with the keyboard, in a sensible order.
-- [ ] **Visible focus** on everything that can take it.
+- [ ] **Visible focus** on everything that can take it. A frame (a map, a video, one in the merchant's HTML) gets no `:focus-visible` in Chrome while its content holds the focus: call `useFrameFocusVisible()` from `@cloudcart/nitrogen-react` once in the root layout and give `iframe[data-focus-visible]` the same ring.
 - [ ] **Dialogs:** use the project's `Dialog` (`app/components/Dialog.tsx` in the starter), a native `<dialog>` opened with `showModal()`: focus moves in, stays inside, and Escape closes it.
 - [ ] **Reduced motion:** animation and transitions respect `prefers-reduced-motion`.
 - [ ] **Semantics:** one `h1` and headings in order; landmarks (`header`, `nav`, `main`, `footer`); a label for every control; a real `<button>` for an action and a link for navigation.
