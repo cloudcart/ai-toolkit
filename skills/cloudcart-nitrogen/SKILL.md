@@ -35,7 +35,7 @@ The project was created from CloudCart's starter (the public template `cloudcart
 | Pictures: the first eager, the rest lazy | `app/components/ProductGallery.tsx`, `app/components/Hero.tsx` |
 | Cache strategies | `app/root.tsx` and `app/lib/product-page.ts` (`CacheSettings()` for the shop and the merchant's settings), `app/lib/headers.ts` (`privatePageHeaders`) |
 | SEO | `app/lib/meta.ts`, each route's `meta`, `app/routes/[robots.txt].tsx` |
-| Security | `server.ts` (Nitrogen's request handler, `storeDomain`), `app/entry.server.tsx` (the CSP), `app/lib/urls.ts` (`localRedirectPath`), `app/lib/headers.ts` |
+| Security | `server.ts` (Nitrogen's request handler, `storeDomain`), `app/entry.server.tsx` (the CSP), Nitrogen's `localRedirectPath` (a redirect target from the request), `app/lib/headers.ts` |
 | Analytics | `app/root.tsx` (`<Analytics.Provider>`), `app/lib/analytics.ts` (`listedProducts`), each page's view |
 | Listings and cards | `app/routes/category.$handle.tsx`, `app/components/ProductListing.tsx`, `app/components/ProductItem.tsx` |
 | Forms | `app/components/ProductRequestForms.tsx`, `app/components/ui/Field.tsx` (16 px text on a phone), the routes under `app/routes/account*` |

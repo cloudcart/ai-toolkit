@@ -38,7 +38,7 @@ How the store should look and be structured is decided in stage 1 (`references/d
 - [ ] **The customer's access token** only in the signed session cookie: never in a URL, browser storage, client code or an `Authorization` header.
 - [ ] **The CSP holds:** every inline script carries the nonce (`<Script>`, `useNonce()`); a new third-party source is named in `app/entry.server.tsx`, and the policy is not widened otherwise; the browser's console shows no CSP violation on the page.
 - [ ] **Forms go through route actions** to the API's mutations, and show their `userErrors`; nothing is trusted from the browser alone.
-- [ ] **Redirects stay in the store:** a target taken from the request (`?redirect=`, a form's `redirectTo`) is followed only through `localRedirectPath` (`app/lib/urls.ts` in the starter), which refuses one that leaves the storefront.
+- [ ] **Redirects stay in the store:** a target taken from the request (`?redirect=`, a form's `redirectTo`) is followed only through Nitrogen's `localRedirectPath`, which refuses one that leaves the storefront — `//host`, `/\host`, a tab, and dot segments that collapse into `//` (`/..//host`). Nitrogen's `storefrontRedirect` follows a 404's `?redirect=` through it too.
 - [ ] **Dependencies:** `npm audit --omit=dev` reports no high or critical advisory, or each one is reported to the user.
 
 ## SEO
