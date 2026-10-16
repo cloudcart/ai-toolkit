@@ -185,6 +185,7 @@ Two paginated lists on one page each take a `namespace`, in both `getPaginationV
 - A form posts to a route `action`. The action calls the mutation, and returns its `userErrors` (`field`, `message`, `code`; `customerUserErrors` for the customer's own mutations) for the form to show next to the field they name. Never throw them.
 - When the API refuses the whole operation (it answers with `errors` and no payload, a variable it could not take, say), the action returns a general form error that the page shows in the store's words, and logs the details on the server; they are a developer's, never shown to the buyer. The starter's `app/lib/action.ts` has `payloadOf` and `API_ERROR` for this.
 - The cart has its own: `<CartForm>` posts a cart action to the cart route, and `<AddToCartButton>` is built on it. `useOptimisticCart` shows the change before the answer arrives.
+- Never `fetcher.reset()` a fetcher that may still be working, a shared key's above all: after its action answers, the router reloads the page's data under it, and a reset then aborts that reload — the cart stays old — and leaves the router expecting a fetcher it has dropped, so the next link throws "Expected fetcher" and goes nowhere (React Router 7). To stop showing an answer, remember the one shown and compare, as the starter's cart panel does (`CartAddRefusal` in `app/components/CartMain.tsx`).
 
 ## Money and other values
 
