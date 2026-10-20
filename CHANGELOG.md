@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.5
+
+- `project-setup` Step 5 adapts the copied `project-manager` and `stage-review` skills to the project's git and ids before the hand-over: where the code's repository is (possibly another repository on a branch shared with other projects), whether the project folder has git, id prefixes that do not collide with another project's in the same log, how a stage's commits are found, the session-start `git status` and the commit step. A project set up with its code in another repository, on a shared branch, with `M-`/`MB-` ids, needed these edits by hand in its first sessions.
+
 ## 0.3.4
 
 - Rewrote `docs/project-setup.bg.md` as a pitch rather than a manual: the problem it solves (sessions that start from zero, decisions re-made, lessons lost at compaction), what you get, and why the learning loop matters, with the same install and start instructions.
