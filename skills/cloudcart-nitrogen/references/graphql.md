@@ -137,6 +137,8 @@ These are counted as `references/verification.md` says, on the page's first load
 cache: buyer ? storefront.CacheNone() : storefront.CacheShort(),
 ```
 
+The page cache is another layer, in front of the worker: a page the same for every visitor who is not signed in is served whole from Cloudflare's cache (`createPageCache` in the starter's `server.ts`, a route's `handle = SHARED_PAGE`), and the strategies above still decide what its render asks of the API. What it may hold, and how to check it: `references/speed.md`, "The page cache".
+
 ## The signed-in buyer
 
 ```ts
@@ -179,6 +181,8 @@ products(first: $first, last: $last, before: $startCursor, after: $endCursor) {
   {({nodes, NextLink, PreviousLink, isLoading}) => (…)}
 </Pagination>
 ```
+
+A next page runs the route's whole loader again, so a listing's loader asks only what every page of it needs, and "Load more" starts the next page before the visitor reaches it (`PaginatedResourceSection`'s `autoLoad` and `autoLoadMargin`; `references/speed.md`, "Next pages and lists").
 
 Two paginated lists on one page each take a `namespace`, in both `getPaginationVariables` and `<Pagination>`. Never load a whole catalogue to page through it in the browser: a store can have millions of products.
 

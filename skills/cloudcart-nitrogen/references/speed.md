@@ -1,0 +1,58 @@
+# Speed: measured, and a page that opens at once
+
+Stage 2 builds by this file and stage 5 checks by it. A fast page is measured, not assumed: the calls it makes to the API (`references/verification.md`) and the time a visitor waits for it. The starter's pages do everything below; a new page does the same.
+
+## Measure the times, not only the calls
+
+Before you change a page and after, record:
+
+| What | How |
+|---|---|
+| The page's calls to the API | The profiler, as `references/verification.md` says. |
+| The page's data on a click | The browser's network panel: the `.data` request a click on a link sends (`/product/x.data`; the home page's is `/_.data`), its time to the first byte and its total. |
+| Cached or not | On the deployed storefront, the response's `cf-cache-status`: `MISS`, then `HIT` on the next load (the page cache, below). The dev server renders the same pages uncached. |
+| What the visitor sees after a click | The time to the first change on the screen (the waiting page, below) and to the page's own content, and no layout shift after the click (the Performance panel, or a `PerformanceObserver` for `layout-shift` entries without recent input). |
+| A slow answer | The same click with the network throttled (DevTools, "Slow 4G"), so the waiting state shows, at a phone's width (390 px) as well as a desktop's. |
+
+- **A first visit apart from a repeated one.** The storefront caches the API's answers (the strategies in `references/graphql.md`) and Cloudflare caches whole pages, so a second identical request is cheaper. To measure a first visit again, change the input: another product, another search term.
+- **A time counts only with its data in it.** Before you trust a fast answer, check that it holds what the page shows: the term, the products. A wrong parameter answers fast with an empty page; the search's is `query` (`/search?query=…`).
+- **Report a table**, before and after, with what was measured and how. "Faster" without numbers is not a measurement.
+
+## The page cache
+
+The starter serves the pages that are the same for every visitor whole from Cloudflare's cache, in front of the storefront's worker: `createPageCache` in `server.ts` (Nitrogen 2.1).
+
+- **Which pages:** the routes whose `handle` is `SHARED_PAGE` (`app/lib/page-cache.ts`, `{pageCache: true}`): the home, the listings (a category, a selection, a vendor, a tag, all products, the lists of categories and vendors), a product, the blog and an article, a merchant's page, the store locations and the contacts, and the resource routes these pages load (the related and linked products, a menu's products, a quantity tier's pieces). Not the cart, the search, the account or any page that shows one customer's data.
+- **What happens to a request:** a GET or HEAD of such a route, from a visitor who is not signed in, reaches the cached entrypoint without the visitor's cookies, so the page is rendered as for a visitor with nothing, whatever a loader reads. Cloudflare keeps the answer 60 seconds and serves it for a day longer while it renders it again, so a merchant's edit shows within about a minute. The browser is told `Cache-Control: private, no-cache`. A signed-in customer's request (`isPersonal` in `server.ts`, through `hasSignedInCustomer`) reaches the app as it came, uncached: their customer group can have its own prices. A form's post always reaches the app.
+- **The visitor's own parts come from the browser.** The root leaves them out of a shared page (`isSharedPage(request)`); `<VisitorDataScript>` in `<head>` starts the request to `/visitor` (`app/routes/visitor.tsx`: the cart, whether they are signed in, the subscribe forms that ask them) while the page's scripts load, and `useVisitorData` lays the answer over the root's data (`AppShell` in `app/root.tsx`). `<PrivacyBannerScript>` hides the cookie bar before it paints for a visitor who has already chosen. A new part that belongs to the visitor goes into `loadVisitorData` (`app/lib/visitor.server.ts`), never into a shared page's loader.
+- **A new page:** give it `handle = SHARED_PAGE` only when it is the same for every visitor who is not signed in. A page with one customer's data sends `privatePageHeaders` and is never shared. Never set a shared `Cache-Control` (`public`, `s-maxage`) yourself: the platform turns Cloudflare's cache on for the cached entrypoint when it uploads the storefront.
+- **Check it** on the deployed storefront: load a shared page twice — `cf-cache-status: MISS`, then `HIT`, which answers in tens of milliseconds. A new deploy starts with an empty cache. On the dev server the same pages are rendered as shared, uncached, so `/visitor` and the visitor's parts can be checked locally.
+
+## A page opens at once
+
+React Router keeps the old page on the screen until the next page's loaders have answered, and an uncached product can take half a second. The starter shows the page being opened at once (React Router's pending UI):
+
+- `app/components/PageTransition.tsx` renders the waiting view of the address being opened (`useNavigation().location`) in place of the old page; the page's data replaces it in place when it comes.
+- **After 100 ms** (`PENDING_AFTER_MS` in `app/lib/opening.ts`), so a page from the cache simply replaces the old one and nothing flashes.
+- **Only for a click on a link, or a GET form, to another path:** not for a filter or an order on the same page, a step back or forward (the page returns at its scroll), a swipe between products, or a form's post.
+- **The views** (`app/components/PendingPage.tsx`): a product, the listings, the search, a merchant's page and an article. Any other page keeps the old one and the progress bar until it comes. Each view is built from the page's own layout — `ProductColumns` and the gallery's sizes (`app/components/ProductLayout.tsx`), `ListingHeaderPlaceholder`, `LISTING_COLUMNS` and `LISTING_TOOLBAR`, `ProductItemPlaceholder` — and is at least a screen high, so nothing moves when the content comes. It is `aria-busy`, and its shapes are hidden from assistive technology.
+- **A new kind of page** gets its view the same way: the layout both use lives in shared constants or components, never in a copy that drifts from the page.
+
+## What the visitor already saw shows at once
+
+- **What a link showed is shown again on the page it opens,** before the data: a product card hands over its title, vendor, price and picture (`noteProduct` in `app/components/ProductItem.tsx`), any other link its name and picture (`app/lib/opening.ts`). The product page keeps the clicked picture under its first photograph until that photograph loads (`openedPicture`).
+- **The search panel's answer opens the search page.** "View all", and Enter on the term the panel answered, show its products as the page's own cards, its pages and articles above them and the term in the search box (`rememberSearch` and `rememberedSearch` in `app/lib/search.ts`). For that the panel asks for the cards' fields (`...ProductItem`) as well as its own: data shown in two places is asked for in the shape of the larger one, and a number both show comes from one constant (`OTHER_RESULTS`). The page's own request still runs — it brings the filters, the total and the rest of the products — and its answer replaces the view.
+- **A gallery's slide is never an empty frame:** until its photograph loads, it shows its thumbnail's picture, already loaded, stretched to the slide (`app/components/ProductGallery.tsx`).
+- **The page's data always replaces what was shown.** What the browser kept is a preview, never the page: it is not cached, sent or relied on for anything but the wait.
+
+## Next pages and lists
+
+- **A route's loader runs whole whenever its address changes,** a next page (`?cursor=…`) included: everything else the loader asks — a listing's filters, say — is asked again. Keep a listing's loader to what every page of it needs, and a part that does not follow the address in a parent route (`references/graphql.md`, "A part that does not follow the address").
+- **"Load more" starts early.** `PaginatedResourceSection` loads the next page by itself when "Load more" comes within `autoLoadMargin` of the screen; the starter's listings use two screens (`AUTO_LOAD_MARGIN = '200% 0px'` in `app/components/ProductListing.tsx`), so the next page is there before the visitor reaches the end. Three pages a run (`AUTO_LOAD_PAGES`), then it waits for a click, so the footer can be reached.
+- **A list the visitor may never reach** is asked for only as they near it (`references/graphql.md`, "The loader").
+- **A search can be a store's most expensive query:** on one store, uncached, a search's page answered in 1.9 s and a category's in 0.2 s. One search per page; the search panel asks only when typing pauses (`DEBOUNCE_MS` and `MIN_TERM` in `app/components/PredictiveSearch.tsx`: 200 ms, two characters).
+
+## Traps
+
+- **A page's `clientLoader` turns off its data prefetching:** React Router does not prefetch, for `<Link prefetch>`, the data of a page whose route has one. A waiting page needs none: it is pending UI. (A route that a fetcher loads in the background may still wrap `serverLoader()` in one, so a failure stays in its section: `references/graphql.md`. When that route is also a page — the starter's search, whose route answers the search panel too — the page's data is not prefetched; the starter accepts that and shows the panel's answer on it at once instead, below.)
+- **An effect's arrow value is its cleanup.** `useLayoutEffect(() => window.scrollTo(0, 0), [])` returns what `scrollTo` returns, which in Chrome 155 is a promise; React calls it when the component leaves and the page fails. Write a statement: `useLayoutEffect(() => { window.scrollTo(0, 0); }, [])`.

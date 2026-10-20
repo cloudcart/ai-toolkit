@@ -22,6 +22,8 @@ Look for:
 
 The profiler's data is also at `/__nitrogen/subrequests.json`, for a script.
 
+The calls are half of it: the times a visitor waits — a page's data on a click, cached and not, and the time to the waiting view and to the content — are measured as `references/speed.md` says.
+
 ## GraphiQL
 
 `/graphiql` explores the API with the schema shipped with Nitrogen, against the store in `.env`, and can run a query as the signed-in buyer. Use it to try a query before you put it in a loader, and open a profiled call in it to see its answer.
@@ -54,5 +56,7 @@ Tell the user:
 
 - what changed, and which pages it touches;
 - each page's calls before and after, on the first and the second load;
+- each page's times before and after: its data on a click, cached and not, and the time to the waiting view and to the content;
+- the reuse map (what was used as it is, what was extended, what was built) and the page's elements checked in each state;
 - the checks you ran and their result;
 - what you did not check, and why: a check in a real browser, a phone, a store with other data.

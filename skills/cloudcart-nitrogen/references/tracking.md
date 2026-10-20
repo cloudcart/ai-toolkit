@@ -65,7 +65,7 @@ Never publish these yourself: they would be counted twice.
 ## Never
 
 - Never load a vendor's script or call `gtag`, `fbq` or `ttq` yourself. The pixels the merchant set up run through the provider, after consent, with the shared event id. A script added by hand runs without consent, and counts every event twice.
-- Never add a vendor the merchant has not set up in the admin. Glami, Skroutz, Profitshare and Retargeting, which the platform's own storefront runs, are not in Nitrogen 2.0 yet: tell the user, and do not add them by hand.
+- Never add a vendor the merchant has not set up in the admin. Glami, Skroutz, Profitshare and Retargeting, which the platform's own storefront runs, are not in Nitrogen 2.1 yet: tell the user, and do not add them by hand.
 - Never send personal data to a vendor or into an event: no e-mail, phone or name. The customer is matched by `customerEmailHash` only.
 - **A page whose address is a key to someone's data** — a return's status page, opened by its reference with no sign-in — marks itself private: `export const handle = {analytics: {private: true}} satisfies AnalyticsRouteHandle` (as the starter's `app/routes/withdrawal_.$reference.tsx`). Its events then carry the address with each route parameter masked and no title, and the pixels get nothing from it. Link to it with `reloadDocument`, so no vendor's library is running on it; Nitrogen warns when one is. An event the storefront publishes itself passes `analyticsPageUrl()` as the page's address, never `window.location.href`.
 - Never render a view twice, or in a component that renders more than once on a page.

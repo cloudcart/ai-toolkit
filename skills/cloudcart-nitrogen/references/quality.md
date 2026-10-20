@@ -12,6 +12,9 @@ How the store should look and be structured is decided in stage 1 (`references/d
 - [ ] **The first screen's largest picture** (a hero, a product's first photo) loads at once: `<Image loading="eager" fetchPriority="high">`. What else the first screen shows loads eagerly too (a listing's first eight cards, the header's logo); a picture below it keeps `<Image>`'s default, `loading="lazy"`.
 - [ ] **No layout shift:** images have their size or `aspectRatio`, and a loading placeholder takes the size of what replaces it.
 - [ ] **Instant feedback:** a cart change shows at once (`useOptimisticCart`), and a form shows that it is sending.
+- [ ] **A page opens at once:** a click on a link to a product, a listing, the search, a merchant's page or an article shows that page's waiting view within a moment, with what the link already showed, and the page's data replaces it in place with no layout shift; a new kind of page has its own view, built from the page's own layout (`references/speed.md`).
+- [ ] **The times are measured:** each changed page's data on a click, cached and not, and the time to the waiting view and to the page's content, before and after, reported in a table (`references/speed.md`).
+- [ ] **A next page is there before the visitor:** a listing's "Load more" starts loading ahead of the screen (`autoLoadMargin`), and its loader asks only what every page of it needs.
 - [ ] **Light JavaScript:** nothing heavy at module load (a Worker has 1 s to start); no large client library for a small job; a third-party script through `<Script>`, and only after its consent (`references/tracking.md`). The merchant's pixels count toward the score: a consent group the merchant set as accepted by default loads its vendors on the first visit.
 
 ## Caching
@@ -19,7 +22,8 @@ How the store should look and be structured is decided in stage 1 (`references/d
 - [ ] **Each query has the strategy its data needs** (the table in `references/graphql.md`): `CacheLong()` only for menus and static lists, `CacheSettings()` for the settings the merchant edits, `CacheShort()` or the default for the catalogue and content, `CacheNone()` for what a visitor must see at once after changing it.
 - [ ] **The cache is used:** on a second load, the profiler (`/__nitrogen/subrequests`) shows the shared calls as `HIT`, or `STALE` while they refresh, and none as `NONE` that is the same for every visitor.
 - [ ] **A buyer's data stays the buyer's:** a query that passes the buyer is cached under that buyer; the customer's own data goes through `customerAccount.query`, which never caches.
-- [ ] **The HTML is rendered for each request,** because it carries the visitor's cart and sign-in. Never give a page a shared `Cache-Control` (`public`, `s-maxage`). Private pages send `Cache-Control: private, no-store` (`privatePageHeaders` in the starter's `app/lib/headers.ts`).
+- [ ] **The page cache holds only what is the same for everyone:** a page in it (`handle = SHARED_PAGE`) reads nothing of the visitor's in its loader; their cart, sign-in and forms come from `/visitor` in the browser; on the deployed storefront it answers `MISS`, then `HIT` (`references/speed.md`). Never set a shared `Cache-Control` (`public`, `s-maxage`) yourself.
+- [ ] **Private pages are never shared:** a page with one customer's data sends `Cache-Control: private, no-store` (`privatePageHeaders` in the starter's `app/lib/headers.ts`) and has no `SHARED_PAGE`.
 
 ## Queries
 
@@ -54,6 +58,8 @@ How the store should look and be structured is decided in stage 1 (`references/d
 - [ ] **The merchant's consent decides:** the banner (`<PrivacyBanner>`), the visitor's choice (`useCustomerPrivacy`) and Google's signals (`<GoogleConsentMode>`) come from the merchant's GDPR app; a tracking script loads only when its consent group allows it.
 - [ ] **The pixels fire:** checked in the network panel as `references/tracking.md` says, or reported as not checked.
 - [ ] **No tracking the merchant did not set up:** pixels and vendors come from the admin, not from the storefront's code.
+- [ ] **A script from outside waits for its consent:** loaded with `<Script>` or `useLoadScript` only once `useCustomerPrivacy` allows its group, its host alone added to the CSP (`references/storefront-foundations.md`).
+- [ ] **Nothing of the frame rebuilt:** the cookie banner, the pop-up and embedded subscribe forms, the announcement bar, the drawers, the error page and the data requests are the starter's (`references/storefront-foundations.md`), not a page's own copies.
 
 ## Accessibility and devices (WCAG 2.1 AA)
 
@@ -77,6 +83,7 @@ How the store should look and be structured is decided in stage 1 (`references/d
 
 ## The states between success and failure
 
+- [ ] **Every element in every state:** the page's elements, listed before you wrote code (SKILL.md, "Before you write code"), each present and right on a phone and a desktop, in each state below that applies; the waiting view has the same elements in the same places, so nothing appears or leaves when the content comes.
 - [ ] **Loading:** each deferred section has a `<Suspense>` fallback the size of its content: in the starter `ProductGridPlaceholder` for a row of cards, `TextPlaceholder` for a few lines, and for a section whose most common answer is empty, its `EmptyState` with `*:invisible` (the product's reviews).
 - [ ] **Empty:** a list with nothing in it says so and offers a way on (the project's `EmptyState`), never an empty box.
 - [ ] **Failed:** a deferred section that fails renders its `errorElement` or nothing, and the page still works. A route's error boundary (`RouteErrorBoundary` in the starter) catches what is left. A mutation's `userErrors` show next to their field.
@@ -88,3 +95,4 @@ How the store should look and be structured is decided in stage 1 (`references/d
 - [ ] **Colours, spacing, type, widths and breakpoints from the design tokens** in `app/styles/app.css`. The lint fails on a colour, font size or breakpoint outside them, on a width, letter spacing or blur of Tailwind's own scale (`max-w-md`: name its role in `app.css`, `max-w-reading`), and on a media query written in the code (`matchMedia` takes `app/lib/breakpoints.ts`).
 - [ ] **The store's colours are set:** `--color-accent` and `--color-highlight` carry the merchant's brand, or the user chose to keep the starter's black and white.
 - [ ] **No dependence on the merchant's theme:** nothing reads theme settings or widget slots, because they change when the merchant changes theme.
+- [ ] **Built on the starter, not over it:** no second component that does an existing one's job, no CSS that overrides a component's own, no copy of a starter file changed beside the original; what a component lacked was added to it.
