@@ -111,9 +111,9 @@ The `cloudcart-nitrogen` skill is for developers building a CloudCart headless s
 | 4. Analytics and pixels | The view each page renders, and the merchant's pixels checked in the network panel |
 | 5. The review | Caching, the queries and where they can be better, SEO, a Lighthouse performance score of at least 90 on a phone, `npm run check`, and the whole checklist |
 
-The skill states the Nitrogen version it covers (2.0). On another version it says so, and follows the installed packages' `EXPORTS.md` and README, which always match what is installed.
+The skill states the Nitrogen version it covers (2.1). On another version it says so, and follows the installed packages' `EXPORTS.md` and README, which always match what is installed.
 
-The plugin also registers the **Storefront MCP** (`@cloudcart/storefront-mcp`), which the skill uses to check every query against the Storefront API's schema. It runs locally, reads only the schema, and needs no token.
+The plugin also registers the **Storefront MCP** (`@cloudcart/storefront-mcp`), which the skill uses to learn the Storefront API before a task and to check every query against its schema. It runs locally, reads only the schema, and needs no token.
 
 ## Project setup
 
