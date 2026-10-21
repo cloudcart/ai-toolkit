@@ -48,12 +48,12 @@ The project was created from CloudCart's starter (the public template `cloudcart
 |---|---|
 | Critical and deferred data | `app/routes/_index.tsx` (`loadDeferredData`), `app/routes/product.$handle.tsx` and its parent `app/routes/product.tsx` (the reviews, which a variant change does not reload) |
 | Pictures: the first eager, the rest lazy | `app/components/ProductGallery.tsx`, `app/components/Hero.tsx` |
-| Cache strategies | `app/root.tsx` and `app/lib/product-page.ts` (`CacheSettings()` for the shop and the merchant's settings), `app/lib/headers.ts` (`privatePageHeaders`) |
+| Cache strategies | `app/root.tsx` and `app/lib/product-page.ts` (`CacheSettings()` for the shop and the merchant's settings), a visitor's own answer kept from every cache by Nitrogen's request handler (`context.personal.mark()` for what it cannot see) |
 | The page cache and the visitor's own data | `server.ts` (`createPageCache`), `app/lib/page-cache.ts` (`SHARED_PAGE`), `app/routes/visitor.tsx`, `app/lib/visitor.server.ts` |
 | A page that opens at once | `app/components/PageTransition.tsx`, `app/components/PendingPage.tsx`, `app/lib/opening.ts` |
 | What is around every page | `AppShell` in `app/root.tsx`, `app/components/PageLayout.tsx` (`references/storefront-foundations.md`) |
 | SEO | `app/lib/meta.ts`, each route's `meta`, `app/routes/[robots.txt].tsx` |
-| Security | `server.ts` (Nitrogen's request handler, `storeDomain`), `app/entry.server.tsx` (the CSP), Nitrogen's `localRedirectPath` (a redirect target from the request), `app/lib/headers.ts` |
+| Security | `server.ts` (Nitrogen's request handler, `storeDomain`), `app/entry.server.tsx` (the CSP), Nitrogen's `localRedirectPath` (a redirect target from the request), a visitor's own answer `private, no-store` (Nitrogen's request handler; `context.personal.mark()`) |
 | Analytics | `app/root.tsx` (`<Analytics.Provider>`), `app/lib/analytics.ts` (`listedProducts`), each page's view |
 | Listings and cards | `app/routes/category.$handle.tsx`, `app/components/ProductListing.tsx`, `app/components/ProductItem.tsx` |
 | Forms | `app/components/ProductRequestForms.tsx`, `app/components/ui/Field.tsx` (16 px text on a phone), the routes under `app/routes/account*` |
@@ -120,7 +120,7 @@ Build it the way Nitrogen builds its own, so it can move into Nitrogen as it is:
 - **The customer's access token** stays in the signed session cookie, and Nitrogen's `customerAccount` sends it. Never in a URL, browser storage, client code or an `Authorization` header.
 - **The CSP nonce.** Every inline script carries the request's nonce: nitrogen-react's `<Script>`, or `useNonce()`. A third-party source is added to the policy in `app/entry.server.tsx`. Never loosen the CSP to make a script run.
 - **Forms are validated by the API:** a route action submits to the mutation and shows its `userErrors`. Checks in the browser are a convenience only.
-- **A customer's data goes only to that customer:** read with `customerAccount.query`; a page of it (the account, a return) sends `privatePageHeaders` (`Cache-Control: private, no-store`) and is never in the page cache. A page is shared only through the page cache, which renders it without the visitor's cookies and leaves their own parts to the browser (`references/speed.md`); never set a shared `Cache-Control` yourself.
+- **A customer's data goes only to that customer:** read with `customerAccount.query`. Nitrogen's request handler answers a visitor's own page `private, no-store` by itself — a signed-in customer's, one that reads or changes the cart, a form's, one that sets a cookie — whatever a route's `headers` said; a loader that reads a record by a reference the visitor holds (a return by its reference) says so with `context.personal.mark(reason)`. Such a page is never in the page cache. A page is shared only through the page cache, which renders it without the visitor's cookies and leaves their own parts to the browser (`references/speed.md`); never set a shared `Cache-Control` yourself.
 
 ## Stage 4. Analytics and the merchant's pixels — `references/tracking.md`
 

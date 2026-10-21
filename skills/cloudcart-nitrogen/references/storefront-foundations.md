@@ -45,7 +45,7 @@ The wiring, not the law: what the store asks and says is the merchant's, set in 
 
 - **The pages:** `/gdpr` (what a visitor can do about the data the store keeps), `/gdpr/request/{type}` (a question, a copy, its deletion, an end to marketing: the types the store takes, `gdprRequestTypes`), `/gdpr/download/{kind}` (a signed-in customer's copy of their personal information, addresses or orders), and in the account the policies they accepted (`/account/gdpr`, each at `/account/gdpr/{id}`) and the requests they sent (`/account/gdpr-requests`). A store without the GDPR app answers 404 on them.
 - **After sign-in,** the store's request to accept its policies: `<PolicyConsentRequest>` in the root, shown when the API has one (`Customer.policyConsentRequest`).
-- A page filled with a customer's data (a request's form for a signed-in customer) sends `privatePageHeaders`.
+- A page filled with a customer's data (a request's form for a signed-in customer) is kept from every cache by Nitrogen's request handler: nothing to add.
 
 ## Scripts from outside
 
@@ -63,7 +63,7 @@ The wiring, not the law: what the store asks and says is the merchant's, set in 
 
 - **Shared pages** come from the page cache, and the visitor's own parts from `/visitor` in the browser (`references/speed.md`, "The page cache").
 - **A signed-in customer's** wishlist and policy consent request come with the root's deferred data, in one query (`SIGNED_IN_CUSTOMER_QUERY`); their pages are never cached.
-- **Private pages** send `privatePageHeaders` (`Cache-Control: private, no-store`): the account, the cart, a data request's form, the return pages.
+- **Private pages** are answered `private, no-store` by Nitrogen's request handler: a signed-in customer's (the account, a data request's form), one that reads or changes the cart, a form's answer, one that sets a cookie. A loader that reads a record by a reference the visitor holds (a return's page) marks it: `context.personal.mark('a return by its reference')`.
 - **Lists kept in the browser:** the recently viewed products and the comparison (`app/lib/product-lists.ts`, in `localStorage`), sent to the store only when a page asks for those products. The comparison is off by default (`COMPARE_ENABLED` in `app/lib/features.ts`): turn it on only for a store whose products have properties to compare. The wishlist is the signed-in customer's, kept by the store.
 
 ## SEO and security underneath
