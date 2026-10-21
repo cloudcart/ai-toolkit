@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2
+
+`references/metafields.md` links the platform wiki's two new pages on metafields: **Value formats** (the exact string each type stores: a list's items, the units, the rich text tree's parts, a reference's global ID) and **Writing through the Admin API**. A query that reads a value with `parseMetafield` asks `key type value`.
+
 ## 0.4.1
 
 `cloudcart-nitrogen` covers Nitrogen 2.2 and the merchant's metafields and metaobjects.

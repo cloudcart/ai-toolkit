@@ -7,8 +7,10 @@ The merchant's own data model. **Metafields** are typed fields the store adds to
 The CloudCart platform wiki documents them, with a data model for the common needs. This plugin keeps a copy at `~/.cloudcart-ai-toolkit/wiki` (`$CLOUDCART_WIKI_HOME` overrides the folder). Each link below opens the page on GitHub; the same path, under that folder, is the local copy.
 
 - **The chapter, Metafields and metaobjects — [`metafields-metaobjects`](https://github.com/cloudcart/platform-wiki/blob/master/wiki/concepts/metafields-metaobjects.md):** what they are, the two layers (a definition, then its values), how they differ from category properties, customer custom fields and CMS pages, and where they live in the admin. Its pages:
-  - [On a Nitrogen storefront](https://github.com/cloudcart/platform-wiki/blob/master/wiki/concepts/metafields-metaobjects/metafields-nitrogen.md): the queries, what references resolve to, what a storefront can rely on;
-  - [Types and validations](https://github.com/cloudcart/platform-wiki/blob/master/wiki/concepts/metafields-metaobjects/metafields-types.md): every type, its value's format and its `list.` form;
+  - [On a Nitrogen storefront](https://github.com/cloudcart/platform-wiki/blob/master/wiki/concepts/metafields-metaobjects/metafields-nitrogen.md): the queries, what references resolve to, Nitrogen 2.2's `parseMetafield` and `<MetafieldRichText>`, what a storefront can rely on;
+  - [Value formats](https://github.com/cloudcart/platform-wiki/blob/master/wiki/concepts/metafields-metaobjects/metafields-value-formats.md): the exact string each type stores — a list's items, the units, the rich text tree's parts, a reference's global ID;
+  - [Types and validations](https://github.com/cloudcart/platform-wiki/blob/master/wiki/concepts/metafields-metaobjects/metafields-types.md): every type and the validations a definition can set;
+  - [Writing through the Admin API](https://github.com/cloudcart/platform-wiki/blob/master/wiki/concepts/metafields-metaobjects/metafields-admin-api.md): how values and entries are written through the Admin GraphQL API (`metafieldsSet`, the entry mutations), with the admin's checks;
   - [Metafield definitions](https://github.com/cloudcart/platform-wiki/blob/master/wiki/concepts/metafields-metaobjects/metafields-definitions.md), [Metaobject definitions and entries](https://github.com/cloudcart/platform-wiki/blob/master/wiki/concepts/metafields-metaobjects/metaobjects-definitions.md), [Capabilities](https://github.com/cloudcart/platform-wiki/blob/master/wiki/concepts/metafields-metaobjects/metafields-capabilities.md) (the admin filter, smart collections), [Limits](https://github.com/cloudcart/platform-wiki/blob/master/wiki/concepts/metafields-metaobjects/metafields-limits.md), [Permissions](https://github.com/cloudcart/platform-wiki/blob/master/wiki/concepts/metafields-metaobjects/metafields-permissions.md) (what the storefront and a signed-in customer may read).
 - **The use cases (case studies) — [`metafields-use-cases`](https://github.com/cloudcart/platform-wiki/blob/master/wiki/concepts/metafields-metaobjects/metafields-use-cases.md):** 22 data models. Each gives the metaobject definition, the metafields and their types, the native feature it builds beside, and how a storefront reads it. Find the one for a task by a few words:
 
@@ -74,7 +76,7 @@ The merchant makes the definitions and fills the values in the admin (Settings �
 
 - **Get each definition's `namespace.key` and type** from the merchant, or read them through the Admin API (`metafieldDefinitions`, `metaobjectDefinitions`, with the Dev MCP and `cloudcart app execute`). Never guess a key. Definitions made in the admin are in `custom`, and the admin makes a key from the name (`Размерна таблица` → `razmerna_tablica`).
 - **The storefront sees only what is open to it:** a definition with storefront access `PUBLIC_READ` (the default), and only the **Active** entries of a metaobject. Anything else answers `null` or an empty list, not an error: when a value does not show, check this first.
-- **A model the store does not have yet:** propose it from the wiki's use case — the definitions, their types, which fields are required — for the merchant to create in the admin, or through the Admin API (the Dev MCP's guide shows how to make them as the admin does).
+- **A model the store does not have yet:** propose it from the wiki's use case — the definitions, their types, which fields are required — for the merchant to create in the admin, or through the Admin API (the wiki's [Writing through the Admin API](https://github.com/cloudcart/platform-wiki/blob/master/wiki/concepts/metafields-metaobjects/metafields-admin-api.md), and the Dev MCP's guide, show how to make them as the admin does).
 
 ## Reading them
 
@@ -88,7 +90,7 @@ The merchant makes the definitions and fills the values in the admin (Settings �
 
 ## Showing them
 
-`value` is always a string. Read it with `parseMetafield(metafield)` from `@cloudcart/nitrogen-react`, which gives the value its type names, and render it with Nitrogen's components:
+`value` is always a string, in the formats of the wiki's [Value formats](https://github.com/cloudcart/platform-wiki/blob/master/wiki/concepts/metafields-metaobjects/metafields-value-formats.md). Read it with `parseMetafield(metafield)` from `@cloudcart/nitrogen-react`, which gives the value its type names — so ask `key type value` for each metafield or field it reads — and render it with Nitrogen's components:
 
 | Type | `parseMetafield` gives | Render it with |
 |---|---|---|
