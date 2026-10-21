@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.1
+
+`cloudcart-nitrogen` covers Nitrogen 2.2 and the merchant's metafields and metaobjects.
+
+- **`references/metafields.md`:** what metafields and metaobjects are for and which need each one serves (the native feature first; a category property for listing filters); links to the platform wiki's chapter on them and to its 22 use cases, each found by a few words in English and Bulgarian; what the merchant sets up (`PUBLIC_READ`, Active entries, the keys); how a storefront reads them in the page's own query, caches them and validates them; and how it shows each type with Nitrogen's `parseMetafield` and `<MetafieldRichText>`.
+- The skill opens it when a page shows the merchant's own data: a step before code, the design stage (what the merchant edits without code), the build, the kinds of store, a gap in the data, and the review's checklist.
+- Nitrogen 2.1 and 2.0 ship a schema without metafields, so their codegen refuses those fields: the skill says to move to `^2.2.0`, never to add a schema of the project's own.
+- The list of Shopify names the Storefront API lacks no longer names `metafields`.
+
 ## 0.4.0
 
 New skill: `cloudcart-nitrogen`, for building and changing CloudCart headless storefronts made with Nitrogen. It covers Nitrogen 2.1.

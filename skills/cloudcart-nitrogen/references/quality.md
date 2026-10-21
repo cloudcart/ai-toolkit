@@ -32,6 +32,7 @@ How the store should look and be structured is decided in stage 1 (`references/d
 - [ ] **No REST habit** from the table in `references/graphql.md` ("GraphQL, not REST"): no call per resource, no data fetched by id in a second call, no value written into a document, no query after a mutation, no filtering, sorting or paging in code, no `fetch()` to the API, no anonymous operation.
 - [ ] **A list of products inside a list asks only each item's first page** (no `after`, `last` or `filters`, each fetched per item), for an outer list fixed in the document; one item's next page is asked for that item alone (its own page, or a resource route through `useFetcher().load()`).
 - [ ] **No field the page does not render,** and each field in the fragment of what renders it.
+- [ ] **Metafields and metaobjects** (`references/metafields.md`): in the page's own query with their `namespace`, each value read with `parseMetafield` and rendered by its type (a rich text with `<MetafieldRichText>`), nothing shown for an empty one, and no schema of the project's own beside Nitrogen's.
 - [ ] **No call that waits for no reason:** independent calls start together (at most 6 at a time); below the first screen, data comes from the page's deferred query, and a list of products the visitor may never reach is asked for only as they near it.
 - [ ] **Where it can be better:** name each call or field that could go, merge or be deferred, even when the page is within its budget.
 

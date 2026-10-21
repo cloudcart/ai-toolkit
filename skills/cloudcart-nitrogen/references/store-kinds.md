@@ -5,7 +5,7 @@ What a storefront shows for each kind of store — on the product page, and in t
 Two rules hold for every kind:
 
 - **The data is the merchant's.** Show what the API returns, and show nothing when a field is empty. Never invent a value, a default or a placeholder that looks like data: no made-up size chart, energy class or composition.
-- **What has no field of its own lives in `properties`.** `Product.properties` (`name`, `values`) holds the merchant's product properties: fibre composition, ingredients, allergens, specifications, warranty, age range, compatibility. Render them as the product's specification table, in the merchant's order. Do not parse them for meaning; a property the merchant named is shown under that name.
+- **What has no field of its own lives in `properties`.** `Product.properties` (`name`, `values`) holds the merchant's product properties: fibre composition, ingredients, allergens, specifications, warranty, age range, compatibility. Render them as the product's specification table, in the merchant's order. Do not parse them for meaning; a property the merchant named is shown under that name. What the merchant needs beyond them — a size chart as data, specifications with units, ingredients many products share, a designer's profile — they model as metafields and metaobjects: `references/metafields.md` names the wiki's use case for each.
 
 ## Every kind
 
@@ -83,4 +83,4 @@ Two rules hold for every kind:
 
 ## A gap in the data
 
-If a kind needs something the API does not return (a field, not a property the merchant could fill), do not work around it in the storefront: tell the user what is missing and why it matters, so it can be added to the API.
+If a kind needs something the API does not return (a field, not a property or a metafield the merchant could fill, `references/metafields.md`), do not work around it in the storefront: tell the user what is missing and why it matters, so it can be added to the API.

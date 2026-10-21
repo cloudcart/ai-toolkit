@@ -1,18 +1,18 @@
 ---
 name: cloudcart-nitrogen
-description: "Build or change a CloudCart headless storefront made with Nitrogen — a React Router app whose package.json depends on @cloudcart/nitrogen. Use for any change to such a storefront: a new page or route, a component or section, the design, a GraphQL query or mutation, a form, caching, the cart, the customer account, analytics, SEO, speed, or a review of such a change. Five stages in order: the store's niche and a mobile-first design; the build on Nitrogen's building blocks with GraphQL that fetches only what the page renders; SEO and security; the analytics and the merchant's pixels; a whole-site review — caching, queries, SEO, a mobile speed score of 90 or more. Covers Nitrogen 2.1. In Bulgarian: витрина с Nitrogen, headless магазин, нова страница, нов компонент, дизайн, мобилна версия, GraphQL заявка, кеширане, бързодействие, количка, профил на клиента. NOT for the Admin API or a store's own data (use cloudcart-product-management), and NOT for how the platform itself behaves (use cloudcart-platform-expert)."
-when_to_use: "Whenever the project in front of you is a Nitrogen storefront (`@cloudcart/nitrogen` in package.json) and you are about to design, write, change or review code in it — before the first line, not after. Also when asked to add a page, section or feature to a CloudCart storefront, to design one for a kind of store, to speed up a storefront page, or to check a storefront change. Transliterated Bulgarian also matches: vitrina, nova stranica, komponent, dizain, mobilna versia, zayavka, keshirane."
+description: "Build or change a CloudCart headless storefront made with Nitrogen — a React Router app whose package.json depends on @cloudcart/nitrogen. Use for any change to such a storefront: a new page or route, a component or section, the design, a GraphQL query or mutation, a form, caching, the cart, the customer account, analytics, SEO, speed, or a review of such a change. Five stages in order: the store's niche and a mobile-first design; the build on Nitrogen's building blocks with GraphQL that fetches only what the page renders; SEO and security; the analytics and the merchant's pixels; a whole-site review — caching, queries, SEO, a mobile speed score of 90 or more. Covers Nitrogen 2.2. In Bulgarian: витрина с Nitrogen, headless магазин, нова страница, нов компонент, дизайн, мобилна версия, GraphQL заявка, кеширане, бързодействие, количка, профил на клиента. NOT for the Admin API or a store's own data (use cloudcart-product-management), and NOT for how the platform itself behaves (use cloudcart-platform-expert)."
+when_to_use: "Whenever the project in front of you is a Nitrogen storefront (`@cloudcart/nitrogen` in package.json) and you are about to design, write, change or review code in it — before the first line, not after. Also when asked to add a page, section or feature to a CloudCart storefront, to design one for a kind of store, to speed up a storefront page, or to check a storefront change, and to show the merchant's metafields or metaobjects (their own fields and content types) on a storefront. Transliterated Bulgarian also matches: vitrina, nova stranica, komponent, dizain, mobilna versia, zayavka, keshirane, metapoleta, metaobekti."
 compatibility: Claude Code, Claude Desktop, Cursor, OpenAI Codex, Gemini CLI, VS Code Copilot
 maintainer: CloudCart
 metadata:
   author: CloudCart
-  version: "0.4.0"
-  nitrogen: "2.1"
+  version: "0.4.1"
+  nitrogen: "2.2"
 ---
 
 # Building a Nitrogen storefront
 
-This skill covers **Nitrogen 2.1**: `@cloudcart/nitrogen` and `@cloudcart/nitrogen-react` 2.1.x.
+This skill covers **Nitrogen 2.2**: `@cloudcart/nitrogen` and `@cloudcart/nitrogen-react` 2.2.x.
 
 Nitrogen is CloudCart's framework for headless storefronts. A storefront is a React Router 7 app, created from CloudCart's starter, that runs on Cloudflare Workers and reads the store through the CloudCart Storefront GraphQL API. The checkout is the platform's own: the storefront hands the cart over through `cart.checkoutUrl`.
 
@@ -22,8 +22,9 @@ Work in **five stages, in this order**: the store and its design, the build, SEO
 
 Read `version` in `node_modules/@cloudcart/nitrogen/package.json` (install the dependencies first if `node_modules` is missing).
 
-- **2.1.x:** this skill applies as written.
-- **2.0.x:** all of it but the page cache (`createPageCache`, and the visitor's own data from `/visitor`), which came with 2.1: on 2.0 every page is rendered for each request. Moving to `^2.1.0` changes nothing else (2.1 adds exports and removes none), but the page cache itself is the project's code too — the starter's `server.ts`, `app/lib/page-cache.ts`, `app/routes/visitor.tsx`, `app/lib/visitor.server.ts` and the root's visitor parts: propose it to the user, and until then skip what this skill says of the page cache: no route gets `handle = SHARED_PAGE`, and stage 5's `MISS`-then-`HIT` check is not made.
+- **2.2.x:** this skill applies as written.
+- **2.1.x:** all of it but the metafields and metaobjects (`references/metafields.md`): 2.1 ships a schema without them, so `npm run codegen` refuses their fields, and it has no `<MetafieldRichText>` and fewer of `parseMetafield`'s types. Moving to `^2.2.0` changes nothing else (2.2 adds exports and removes none): propose it to the user before such a task.
+- **2.0.x:** as 2.1.x, and without the page cache (`createPageCache`, and the visitor's own data from `/visitor`), which came with 2.1: on 2.0 every page is rendered for each request. Moving to `^2.2.0` changes nothing else (2.1 and 2.2 add exports and remove none), but the page cache itself is the project's code too — the starter's `server.ts`, `app/lib/page-cache.ts`, `app/routes/visitor.tsx`, `app/lib/visitor.server.ts` and the root's visitor parts: propose it to the user, and until then skip what this skill says of the page cache: no route gets `handle = SHARED_PAGE`, and stage 5's `MISS`-then-`HIT` check is not made.
 - **Another major or minor version:** tell the user that this skill may lag that release. The installed packages' `EXPORTS.md` and `README.md` always describe the installed version: where they differ from this skill, follow them.
 
 ## Before you write code
@@ -32,9 +33,10 @@ Every task starts here, before the first line, however small:
 
 1. **The API, from the storefront MCP.** Call `learn_cloudcart_storefront` once in a session; it answers with the `conversationId` the other tools take, and names the operation for what you want to do when you do not know its name. Then look up each type, query or mutation the task touches by name with `introspect_graphql_schema` (`Product`, `Cart`, `predictiveSearch`). What they already give — a price as `formatted`, a discount, a count, a field you were about to compute — decides what the page asks for, and what it must never compute itself. The MCP is `@cloudcart/storefront-mcp`, which the CloudCart plugin registers; if your host lists its tools as deferred, load them; if it is not installed, say so in your report.
 2. **The starter's way.** Open the starter's nearest page and components (the table below), and `references/storefront-foundations.md`: what the starter already gives every storefront — the frame around the pages, analytics and its events, cookie consent and the data requests, scripts from outside, the pop-ups and forms.
-3. **A reuse map.** Before a new page or section, write it down and show it to the user: what exists and is used as it is (a component, a fragment, a helper, a Nitrogen export), what is extended (a prop or a variant of a component that exists), and what is missing and becomes a building block (stage 2). For a small fix, it goes into your report.
-4. **The page's elements.** List every element the page shows — from the design, or from the starter's page — and every state it can be in: loading, empty, failed, signed in or out, sold out, one picture or many. Stage 5 checks each of them.
-5. **The "before".** Measure the page as it is: its calls and its times (`references/speed.md`). A new page has no "before": measure the nearest page of its kind, and the new one after.
+3. **The merchant's own data.** When the page shows something the platform has no field for — a size chart, specifications, a designer, a section the merchant edits — open `references/metafields.md`: the wiki's use case for it, what the merchant sets up, and how to read and show it.
+4. **A reuse map.** Before a new page or section, write it down and show it to the user: what exists and is used as it is (a component, a fragment, a helper, a Nitrogen export), what is extended (a prop or a variant of a component that exists), and what is missing and becomes a building block (stage 2). For a small fix, it goes into your report.
+5. **The page's elements.** List every element the page shows — from the design, or from the starter's page — and every state it can be in: loading, empty, failed, signed in or out, sold out, one picture or many. Stage 5 checks each of them.
+6. **The "before".** Measure the page as it is: its calls and its times (`references/speed.md`). A new page has no "before": measure the nearest page of its kind, and the new one after.
 
 **Build on the starter, never over it.** The storefront's look is the project's own code — the merchant's theme in the admin plays no part in it (stage 5). A change goes through the design tokens (`app/styles/app.css`) and the props of the components that exist. Never a second component beside one that does the same job (another product card, another price), never CSS that overrides a component's own, never a copy of a starter file to change it there. When a component lacks something, extend it where it is, so every page that uses it gets it.
 
@@ -72,9 +74,10 @@ Decide what the storefront looks like and holds before writing code: the pages, 
 - **The store's niche.** Ask which kind of store it is (fashion, electronics, food, …), or read it from the catalogue. The kind decides the structure of the search, the listings, the product cards and the product page: `references/store-kinds.md`.
 - **Mobile first.** Design every page for a phone first (360–390 px wide), then add what a wider screen allows. A phone's small screen and slower network are the hardest case, and stage 5's speed target is measured on one.
 - **The best practice of UX** for a store: the search, the listings, the cards, the product page, the cart and the feedback on every action, in `references/design.md`.
+- **What the merchant edits without code.** Sections, banners, a size chart, a designer's profile: model them with metaobjects and metafields, from the wiki's use cases (`references/metafields.md`), and agree the model with the merchant before the pages.
 - **One accent colour, and one or two complementary ones.** The accent marks what the visitor acts on (the main button, links, focus); a complementary colour marks products (a discount); everything else is neutral. They are design tokens: in the starter, `--color-accent` and `--color-highlight` in `app/styles/app.css`. Set them from the merchant's brand, with enough contrast.
 
-## Stage 2. The build — `references/graphql.md`, `references/speed.md`, `references/building-block.md`
+## Stage 2. The build — `references/graphql.md`, `references/speed.md`, `references/building-block.md`, `references/metafields.md`
 
 ### Look it up, then use it
 
