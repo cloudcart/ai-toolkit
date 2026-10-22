@@ -55,6 +55,7 @@ The provider publishes `page_viewed` once per page by itself. A page adds the on
 
 - **The cart:** `cart_updated`, `product_added_to_cart` and `product_removed_from_cart`, from the difference between two states of the provider's `cart`. Change the cart through `<CartForm>` or `<AddToCartButton>`, and the events follow.
 - **The wishlist:** `product_added_to_wishlist` and `product_removed_from_wishlist`, from the provider's `wishlist` (the product ids).
+- **Speed:** one page load in ten sends its LCP, INP and CLS, as the visitor's browser measured them, to CloudCart Analytics when the page is hidden. Do not add a speed script of your own.
 - **The sign-in:** `customerAccount` links the visitor to the customer when they sign in; its report reaches the browser through the root (`takeCloudCartAnalytics()`, above). After the customer adds or edits an address, the action awaits `customerAccount.identifyVisitor()`.
 
 Never publish these yourself: they would be counted twice.
