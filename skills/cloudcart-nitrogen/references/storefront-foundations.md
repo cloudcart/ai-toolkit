@@ -29,7 +29,7 @@ Nitrogen reports what visitors do; a page only says what it is. In short (all of
 - `page_viewed` once per page by itself; each page renders the one view for its kind (`<Analytics.ProductView>`, `<Analytics.CollectionView>`, `<Analytics.SearchView>`, …), a page of another kind none.
 - The cart, the wishlist and the sign-in report by themselves; the cart drawer publishes `cart_viewed`, the fast order its two events.
 - A page whose address is a key to someone's data (the return pages, `app/routes/withdrawal.tsx` and `withdrawal_.$reference.tsx`) marks itself private: `handle = {analytics: {private: true}}`.
-- Every event goes to the Storefront API, which records it in CloudCart Analytics without waiting for consent and forwards it server side where the merchant set that up; the merchant's pixels in the browser wait for consent.
+- Every event goes to the Storefront API, which builds CloudCart Analytics' request for the browser to send — without waiting for consent, and never from a dev server or `localhost` — and forwards the event server side where the merchant set that up; the merchant's pixels in the browser wait for consent.
 
 ## Cookie consent (the merchant's GDPR app)
 

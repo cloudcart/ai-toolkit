@@ -4,9 +4,10 @@ How a Nitrogen storefront reports what visitors do, and what a page must add. Ni
 
 ## How it works
 
-- **Every event goes to the Storefront API** (`analyticsEventPublish`). The API records it in CloudCart Analytics, the merchant's reports. Where the merchant set up the server side, the API also forwards it to Meta's Conversions API, TikTok's Events API and Google Analytics 4. The forwarding runs after the response, so it never slows the page.
+- **Every event goes to the Storefront API** (`analyticsEventPublish`), which builds CloudCart Analytics' request from the platform's own formatters; the browser then sends it straight to CloudCart Analytics, the merchant's reports, as the platform's own storefront does. Where the merchant set up the server side, the API also forwards the event to Meta's Conversions API, TikTok's Events API and Google Analytics 4. The forwarding runs after the response, so it never slows the page.
 - **In the browser, `Analytics.Provider` runs the merchant's pixels:** Google Analytics 4, Google Ads, Google Tag Manager, Meta and TikTok. Each one loads only when its consent group is accepted. A group the merchant set as accepted by default counts as accepted until the visitor declines it, so its vendors load on the first visit. Nitrogen adds their scripts once the page has loaded and is idle, with the events waiting in each vendor's queue until then. Every event goes to them under the same event id as the server's report, so a vendor counts it once.
 - **CloudCart Analytics does not wait for consent,** as on the platform's own storefront; the vendors' pixels do.
+- **A dev server and a build on `localhost` report nothing to CloudCart Analytics** (`cloudcart nitrogen dev`, `cloudcart nitrogen preview`): a developer's visits are not the store's. The browser's console shows each event instead (`[nitrogen] CloudCart Analytics: PAGE_VIEW (HOME) — not sent from a dev server or localhost`). Never set `cloudCartAnalyticsUrl` (or `PUBLIC_CLOUDCART_ANALYTICS_URL`) to get around it: it is for the platform's own tests.
 - **Everything comes from the admin:** the pixels and their ids, the server-side tokens, the consent banner and its groups. The storefront's code adds no vendor and holds no vendor secret.
 
 ## The wiring (the root)
@@ -19,10 +20,12 @@ shop: shopAnalyticsFrom(header), // the header's query asks shop { id } and the 
 consent: {storefrontAccessToken: env.PUBLIC_STOREFRONT_API_TOKEN}, // the browser posts to the storefront's own /api/sf
 pixels: getMarketingPixels({storefront}).catch(() => null), // never fail the page for it
 customerEmailHash: customerAccount.getEmailHash() ?? null,  // a SHA-256 hash, never the e-mail
+cloudCartAnalytics: customerAccount.takeCloudCartAnalytics(), // the sign-in's report, for the browser to send
 
 // The layout
 <Analytics.Provider cart={data.cart} shop={data.shop} consent={data.consent} wishlist={data.wishlist}
-                    pixels={data.pixels} customerEmailHash={data.customerEmailHash}>
+                    pixels={data.pixels} customerEmailHash={data.customerEmailHash}
+                    cloudCartAnalytics={data.cloudCartAnalytics}>
   …the page…
   <PrivacyBanner consent={data.cookieConsent} storedChoice={data.consentChoice} />
 </Analytics.Provider>
@@ -52,13 +55,13 @@ The provider publishes `page_viewed` once per page by itself. A page adds the on
 
 - **The cart:** `cart_updated`, `product_added_to_cart` and `product_removed_from_cart`, from the difference between two states of the provider's `cart`. Change the cart through `<CartForm>` or `<AddToCartButton>`, and the events follow.
 - **The wishlist:** `product_added_to_wishlist` and `product_removed_from_wishlist`, from the provider's `wishlist` (the product ids).
-- **The sign-in:** `customerAccount` links the visitor to the customer when they sign in.
+- **The sign-in:** `customerAccount` links the visitor to the customer when they sign in; its report reaches the browser through the root (`takeCloudCartAnalytics()`, above). After the customer adds or edits an address, the action awaits `customerAccount.identifyVisitor()`.
 
 Never publish these yourself: they would be counted twice.
 
 ## What a page publishes
 
-- **The fast order:** `publish('fast_order_started', …)` when the form opens and `publish('fast_order_completed', …)` once the order is placed, with the event names the merchant chose (`FastOrderSettings.trackingEvents`). The server side of the purchase comes from the API: the action passes `analyticsInputFromRequest(request, {pixels, customerEmailHash})` to `fastOrderSubmit` as `analytics`, and the browser's event reuses the `analyticsEventId` the API answers with. The starter's product page (`app/routes/product.$handle.tsx`) and `app/components/ProductRequestForms.tsx` do this; copy their pattern.
+- **The fast order:** `publish('fast_order_started', …)` when the form opens and `publish('fast_order_completed', …)` once the order is placed, with the event names the merchant chose (`FastOrderSettings.trackingEvents`). The server side of the purchase comes from the API: the action passes `analyticsInputFromRequest(request, {pixels, customerEmailHash})` to `fastOrderSubmit` as `analytics`, and the browser's event reuses the `analyticsEventId` the API answers with; `fast_order_completed` also takes the answer's `cloudCartAnalytics` (the order's report, which the browser sends). The starter's product page (`app/routes/product.$handle.tsx`) and `app/components/ProductRequestForms.tsx` do this; copy their pattern.
 - **The cart drawer:** opening it publishes `cart_viewed` with the cart (`publish('cart_viewed', {cart, prevCart, shop, url})`, as the starter's `app/components/Header.tsx` does on the cart icon): a cart shown without a page of its own is a cart view, not a page view.
 - **Your own events:** `publish('custom_<name>', payload)` from `useAnalytics()`, or `<Analytics.CustomView type="custom_<name>" data={…} />`. They reach only the subscribers you add (`useAnalytics().subscribe`): CloudCart Analytics and the pixels do not receive them.
 
@@ -72,10 +75,10 @@ Never publish these yourself: they would be counted twice.
 
 ## How to check it
 
-In the dev server, open the browser's network panel. The dev server works on the live store: where the merchant turned on server-side reporting (`analyticsSettings { pixels { serverSide } }`), each page view below goes on to the merchant's Meta, TikTok and Google Analytics accounts, and accepting a group in the banner sends the browser's events there too. Tell the user and ask before you do either.
+In the dev server, open the browser's console and network panel. A dev server reports nothing to CloudCart Analytics or to the API's server-side reporting: the console shows each event Nitrogen would report. The browser's pixels do run, on the live store's accounts: accepting a group in the banner sends the browser's events to the merchant's Meta, TikTok and Google Analytics. Tell the user and ask before you do it.
 
-1. Each page sends `analyticsEventPublish` to `/api/sf` once for its page view (`PAGE_VIEW`, with the page's kind); a product page also sends a product view (`VIEW_CONTENT`), a search page a search (`SEARCH`); the cart page's view is its `PAGE_VIEW` (of the kind `CART`), and opening the cart drawer sends a cart view (`VIEW_CART`).
+1. The console shows one `[nitrogen] CloudCart Analytics: PAGE_VIEW (…)` per page view, with the page's kind; a product page also a product view (`VIEW_CONTENT`), a search page a search (`SEARCH`); the cart page's view is its `PAGE_VIEW (CART)`, and opening the cart drawer shows a cart view (`VIEW_CART`).
 2. Before the visitor chooses in the banner, no request goes to the vendors (`google-analytics.com`, `googletagmanager.com`, `facebook.com/tr`, `analytics.tiktok.com`). After they accept a group, the vendors of that group load and receive the page's events (with the user's word, above).
-3. An add to cart sends `product_added_to_cart` once.
+3. An add to cart shows `ADD_TO_CART` once.
 
 Report what you saw. If you could not open a browser, say so: the reporting is then not verified.
