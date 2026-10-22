@@ -91,12 +91,12 @@ Use `mode: "compact"` for fat types (`Product`, `CreateProductInput`, `UpdatePro
 
 Apply these CloudCart-specific GraphQL rules — they're easy to miss and break queries:
 
-- **Output fields are camelCase**: `urlHandle`, `seoTitle`, `dateAdded`, `sortOrder`.
-- **Input-object fields are snake_case**: `url_handle`, `price_from`, `date_added`, `category_id`, `image_data`.
-- **Query args are mostly snake_case** (`category_id`, `vendor_id`, `price_min`, `date_added`, `order_by`, `order_direction`).
-- **Mutation top-level args use camelCase for compound names**: `productId`, `categoryId`, `categoryIds`, `statusId`. This is an exception — fields *inside* an Input object stay snake_case.
+- **Output fields are camelCase**: `urlHandle`, `shortDescription`, `sortOrder`, `inStockStatus`.
+- **Input-object fields are snake_case** for products and variants: `url_handle`, `seo_title`, `category_id`, `image_data`, `price` (some other inputs, such as the metafields', are camelCase — introspect before writing).
+- **`products`' arguments are snake_case** (`category_id`, `vendor_id`, `price_min`, `date_added`, `order_by`, `order_direction`); other lists differ (`categories(orderBy:, orderDirection:)`), so read a list's arguments in the schema.
+- **Mutation top-level args are camelCase**: `productId`, `categoryId`, `categoryIds`, `statusId` — while the fields *inside* a product's or variant's Input object are snake_case.
 - **IDs are numeric**, not GIDs.
-- **DateTime** uses `Y-m-d H:i:s`. **Date** uses `Y-m-d`.
+- **DateTime** uses `Y-m-d H:i:s`, in the store's own time zone with no offset. **Date** uses `Y-m-d`.
 - **`Product.flags` uses the `YesNo` enum** (`yes`/`no`) on output for: `active`, `digital`, `sale`, `new`, `draft`, `hidden`, `shipping`, `continueSelling`.
 - **`featured` is asymmetric**: output `ProductFlags.featured: Int` (1=yes, 0=no); input `CreateProductInput.featured: Boolean`. Write Boolean, read Int.
 - **Grouped sub-types on `Product`**: `pricing`, `seo`, `flags`, `inventory`, `parameters`, `timestamps`. `Product.price_from` doesn't exist — use `pricing { from to }`. Pricing fields are `from`, `to`, `type`, `percent`, `individualPrice` — there is **no** `priceFrom` field.
@@ -304,7 +304,7 @@ If a single bulk primitive matches the goal, use it directly. If the merchant's 
 
 > "Hide everything from vendor Acme that's out of stock."
 
-1. **Filter:** `products(vendor_id: <acme_id>, stock: { operator: eq, value: 0 }, first: 100)` — paginate via `pageInfo.endCursor` if `total > 100`.
+1. **Filter:** `products(vendor_id: <acme_id>, stock: { operator: is, value: 0 }, first: 100)` — paginate via `pageInfo.endCursor` if `total > 100`.
 2. **Preview:** "Found **47 products** from Acme that are out of stock. First 5: Summer Tee, Winter Hoodie, Cap, Mug, Sticker … and 42 more. Hide them all? Reply **yes** to continue."
 3. **Apply:** `productsBulkSetHidden(ids: [...], hidden: true)`.
 4. **Report:** "Hidden 47 products. 0 errors."
@@ -332,13 +332,20 @@ If a single bulk primitive matches the goal, use it directly. If the merchant's 
    ```graphql
    mutation Bulk($pid: ID!, $vs: [ProductVariantsBulkInput!]!) {
      productVariantsBulkUpdate(productId: $pid, variants: $vs) {
-       productVariants { id price }
-       userErrors { field message }
+       jobId
+       queuedCount
+       message
      }
    }
    ```
-   `$vs` is `[{ id: 1001, price: 228.85 }, { id: 1002, price: 232.30 }, …]`.
-5. **Report:** "Updated 62 products / 187 variants. 2 variants skipped (manual price overrides). 0 errors." Progress every 10 products.
+   `$vs` is `[{ id: 1001, price: 228.85 }, { id: 1002, price: 232.30 }, …]`. The variant mutations are queued: the answer is a job, not the variants.
+5. **Wait for the jobs:** poll each `jobId` until its status is `COMPLETED`, `FAILED` or `CANCELLED`:
+   ```graphql
+   query Job($id: ID!) {
+     bulkOperationStatus(jobId: $id) { status processedCount affectedCount skippedIds error }
+   }
+   ```
+6. **Report:** "Updated 62 products / 187 variants. 2 variants skipped (manual price overrides). 0 errors." Progress every 10 products.
 
 > The transform pattern handles ANY formula: percent change, fixed delta, tier rules, "set everything below X to X", currency rounding. Only the Compute step changes.
 
@@ -352,12 +359,13 @@ If a single bulk primitive matches the goal, use it directly. If the merchant's 
    ```graphql
    mutation BulkPrice($input: BulkPriceUpdateInput!) {
      productVariantsBulkUpdatePrice(input: $input) {
-       __typename
+       jobId
+       queuedCount
      }
    }
    ```
    `input: { ids: [<all variant ids>], price: 19.99 }`.
-4. **Report.**
+4. **Wait for the job** with `bulkOperationStatus(jobId:)` as in B, then **report**.
 
 > Use the cross-product price shortcut whenever the **target value is the same** for all variants. Switch to `productVariantsBulkUpdate` (per-product loop) the moment values differ per row.
 
@@ -422,9 +430,20 @@ def list_products(cursor=None):
 
 def bulk_update(product_id, variants):
     return gql(
-        'mutation($pid:ID!,$vs:[ProductVariantsBulkInput!]!){productVariantsBulkUpdate(productId:$pid,variants:$vs){productVariants{id price}userErrors{field message}}}',
+        'mutation($pid:ID!,$vs:[ProductVariantsBulkInput!]!){productVariantsBulkUpdate(productId:$pid,variants:$vs){jobId queuedCount message}}',
         {"pid": product_id, "vs": variants},
     )
+
+def wait_for(job_id):
+    """The queued job's last status: COMPLETED, FAILED or CANCELLED."""
+    while True:
+        job = gql(
+            'query($id:ID!){bulkOperationStatus(jobId:$id){status processedCount affectedCount skippedIds error}}',
+            {"id": job_id},
+        )["data"]["bulkOperationStatus"]
+        if job["status"] in ("COMPLETED", "FAILED", "CANCELLED"):
+            return job
+        time.sleep(2)
 
 def main(apply: bool):
     SNAPSHOT.parent.mkdir(parents=True, exist_ok=True)
@@ -432,7 +451,7 @@ def main(apply: bool):
     snap_w = csv.writer(snap); snap_w.writerow(["product_id","variant_id","old_price","new_price"])
     log = LOG.open("w")
 
-    cursor, processed, errors, skipped = None, 0, 0, 0
+    cursor, processed, errors, skipped, jobs = None, 0, 0, 0, []
     while True:
         page = list_products(cursor)["data"]["products"]
         for edge in page["edges"]:
@@ -450,15 +469,19 @@ def main(apply: bool):
                 continue
             if apply:
                 res = bulk_update(p["id"], new_variants)
-                ue = res["data"]["productVariantsBulkUpdate"]["userErrors"]
-                if ue:
-                    errors += len(ue)
-                    log.write(json.dumps({"product_id": p["id"], "errors": ue}) + "\n")
+                jobs.append((p["id"], res["data"]["productVariantsBulkUpdate"]["jobId"]))
             processed += 1
             if processed % 10 == 0:
                 print(f"{'APPLIED' if apply else 'PREVIEW'} {processed}/{page['pageInfo']['total']}…")
         if not page["pageInfo"]["hasNextPage"]: break
         cursor = page["pageInfo"]["endCursor"]
+
+    for product_id, job_id in jobs:
+        job = wait_for(job_id)
+        skipped += len(job["skippedIds"])
+        if job["status"] != "COMPLETED" or job["error"]:
+            errors += 1
+            log.write(json.dumps({"product_id": product_id, "job": job}) + "\n")
 
     snap.close(); log.close()
     print(f"\n{'Applied' if apply else 'Dry-run'}: {processed} products, {skipped} variants skipped, {errors} errors")
@@ -560,11 +583,12 @@ query ListProducts {
 
 | Rule | Example |
 |------|---------|
-| Output fields: camelCase | `urlHandle`, `seoTitle`, `dateAdded`, `sortOrder` |
-| Input-object fields: snake_case | `url_handle`, `price_from`, `date_added`, `category_id`, `image_data` |
-| Query args: mostly snake_case | `category_id`, `vendor_id`, `price_min`, `date_added`, `order_by`, `order_direction` |
-| **Mutation top-level args: camelCase for compound names** | `productId`, `categoryId`, `categoryIds`, `statusId` (exception to the snake_case rule) |
-| DateTime format | `Y-m-d H:i:s` (NOT ISO 8601) |
+| Output fields: camelCase | `urlHandle`, `shortDescription`, `sortOrder`, `inStockStatus` |
+| Product and variant input fields: snake_case | `url_handle`, `seo_title`, `category_id`, `image_data`, `price` |
+| `products`' arguments: snake_case | `category_id`, `vendor_id`, `price_min`, `date_added`, `order_by`, `order_direction` (other lists differ: `categories(orderBy:)`) |
+| **Mutation top-level args: camelCase** | `productId`, `categoryId`, `categoryIds`, `statusId` |
+| DateTime format | `Y-m-d H:i:s` (NOT ISO 8601), in the store's own time zone |
+| Numeric filter operators | `is`, `is_not`, `lt`, `lte`, `gt`, `gte` (no `eq`) |
 | Date format | `Y-m-d` |
 | `Product.flags` (output) | `YesNo` for `active`, `digital`, `sale`, `new`, `draft`, `hidden`, `shipping`, `continueSelling` |
 | `featured` is asymmetric | Output: `ProductFlags.featured: Int` (1/0). Input: `CreateProductInput.featured: Boolean`. |
@@ -573,7 +597,7 @@ query ListProducts {
 | Image fields | `image { path alt sortOrder width height active }` — `path` is the URL identifier; **no** `src` field |
 | Numeric IDs | Plain integers; never GIDs |
 | Pagination | `ProductConnection` and `Product.variants` (`VariantConnection`) are edges-only — `nodes`/`totalCount` fail |
-| Variant options | `v1`, `v2`, `v3` (string values) plus `v1_id`, `v2_id`, `v3_id` (option ids) |
+| Variant options | `v1`, `v2`, `v3` (string values) plus the option ids: `v1_id`, `v2_id`, `v3_id` in inputs, `v1Id`, `v2Id`, `v3Id` on output |
 
 ---
 
