@@ -1,18 +1,18 @@
 ---
 name: cloudcart-nitrogen
-description: "Build or change a CloudCart headless storefront made with Nitrogen — a React Router app whose package.json depends on @cloudcart/nitrogen. Use for any change to such a storefront: a new page or route, a component or section, the design, a GraphQL query or mutation, a form, caching, the cart, the customer account, analytics, SEO, speed, or a review of such a change. Five stages in order: the store's niche and a mobile-first design; the build on Nitrogen's building blocks with GraphQL that fetches only what the page renders; SEO and security; the analytics and the merchant's pixels; a whole-site review — caching, queries, SEO, a mobile speed score of 90 or more. Covers Nitrogen 2.2. In Bulgarian: витрина с Nitrogen, headless магазин, нова страница, нов компонент, дизайн, мобилна версия, GraphQL заявка, кеширане, бързодействие, количка, профил на клиента. NOT for the Admin API or a store's own data (use cloudcart-product-management), and NOT for how the platform itself behaves (use cloudcart-platform-expert)."
+description: "Build or change a CloudCart headless storefront made with Nitrogen — a React Router app whose package.json depends on @cloudcart/nitrogen. Use for any change to such a storefront: a new page or route, a component or section, the design, a GraphQL query or mutation, a form, caching, the cart, the customer account, analytics, SEO, speed, or a review of such a change. Five stages in order: the store's niche and a mobile-first design; the build on Nitrogen's building blocks with GraphQL that fetches only what the page renders; SEO and security; the analytics and the merchant's pixels; a whole-site review — caching, queries, SEO, a mobile speed score of 90 or more. Covers Nitrogen 2.3. In Bulgarian: витрина с Nitrogen, headless магазин, нова страница, нов компонент, дизайн, мобилна версия, GraphQL заявка, кеширане, бързодействие, количка, профил на клиента. NOT for the Admin API or a store's own data (use cloudcart-product-management), and NOT for how the platform itself behaves (use cloudcart-platform-expert)."
 when_to_use: "Whenever the project in front of you is a Nitrogen storefront (`@cloudcart/nitrogen` in package.json) and you are about to design, write, change or review code in it — before the first line, not after. Also when asked to add a page, section or feature to a CloudCart storefront, to design one for a kind of store, to speed up a storefront page, or to check a storefront change, and to show the merchant's metafields or metaobjects (their own fields and content types) on a storefront. Transliterated Bulgarian also matches: vitrina, nova stranica, komponent, dizain, mobilna versia, zayavka, keshirane, metapoleta, metaobekti."
 compatibility: Claude Code, Claude Desktop, Cursor, OpenAI Codex, Gemini CLI, VS Code Copilot
 maintainer: CloudCart
 metadata:
   author: CloudCart
-  version: "0.4.2"
-  nitrogen: "2.2"
+  version: "0.4.3"
+  nitrogen: "2.3"
 ---
 
 # Building a Nitrogen storefront
 
-This skill covers **Nitrogen 2.2**: `@cloudcart/nitrogen` and `@cloudcart/nitrogen-react` 2.2.x.
+This skill covers **Nitrogen 2.3**: `@cloudcart/nitrogen` and `@cloudcart/nitrogen-react` 2.3.x.
 
 Nitrogen is CloudCart's framework for headless storefronts. A storefront is a React Router 7 app, created from CloudCart's starter, that runs on Cloudflare Workers and reads the store through the CloudCart Storefront GraphQL API. The checkout is the platform's own: the storefront hands the cart over through `cart.checkoutUrl`.
 
@@ -22,9 +22,10 @@ Work in **five stages, in this order**: the store and its design, the build, SEO
 
 Read `version` in `node_modules/@cloudcart/nitrogen/package.json` (install the dependencies first if `node_modules` is missing).
 
-- **2.2.x:** this skill applies as written.
-- **2.1.x:** all of it but the metafields and metaobjects (`references/metafields.md`): 2.1 ships a schema without them, so `npm run codegen` refuses their fields, and it has no `<MetafieldRichText>` and fewer of `parseMetafield`'s types. Moving to `^2.2.0` changes nothing else (2.2 adds exports and removes none): propose it to the user before such a task.
-- **2.0.x:** as 2.1.x, and without the page cache (`createPageCache`, and the visitor's own data from `/visitor`), which came with 2.1: on 2.0 every page is rendered for each request. Moving to `^2.2.0` changes nothing else (2.1 and 2.2 add exports and remove none), but the page cache itself is the project's code too — the starter's `server.ts`, `app/lib/page-cache.ts`, `app/routes/visitor.tsx`, `app/lib/visitor.server.ts` and the root's visitor parts: propose it to the user, and until then skip what this skill says of the page cache: no route gets `handle = SHARED_PAGE`, and stage 5's `MISS`-then-`HIT` check is not made.
+- **2.3.x:** this skill applies as written.
+- **2.2.x:** all of it but what 2.3 added: the kept pages (`KeptLink`, `keptPageLoader`, `useKeptPages`, `keptSectionLoader` in `references/speed.md`), a variant opened by its id in the address (`loadAddressVariantOptions`, `references/design.md`), and CloudCart Analytics' events and the real visitors' speed sent from the browser (`references/tracking.md`); on 2.2 a step back loads the page again and the API sends the events itself. Moving to `^2.3.0` removes no export, but the kept pages are the project's code too — each shared route's `clientLoader`, the root's `useKeptPages` and the links — and over HTTPS the session cookie becomes `__Host-session`, so a signed-in customer signs in once more: propose it to the user, and until then skip what this skill says of the kept pages.
+- **2.1.x:** as 2.2.x, and without the metafields and metaobjects (`references/metafields.md`): 2.1 ships a schema without them, so `npm run codegen` refuses their fields, and it has no `<MetafieldRichText>` and fewer of `parseMetafield`'s types.
+- **2.0.x:** as 2.1.x, and without the page cache (`createPageCache`, and the visitor's own data from `/visitor`), which came with 2.1: on 2.0 every page is rendered for each request. The page cache is the project's code too — the starter's `server.ts`, `app/lib/page-cache.ts`, `app/routes/visitor.tsx`, `app/lib/visitor.server.ts` and the root's visitor parts: until it is there, skip what this skill says of the page cache: no route gets `handle = SHARED_PAGE`, and stage 5's `MISS`-then-`HIT` check is not made.
 - **Another major or minor version:** tell the user that this skill may lag that release. The installed packages' `EXPORTS.md` and `README.md` always describe the installed version: where they differ from this skill, follow them.
 
 ## Before you write code

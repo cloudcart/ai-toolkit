@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.3
+
+`cloudcart-nitrogen` covers Nitrogen 2.3.
+
+- **A page shown at once (`references/speed.md`):** a step back or forward, a link the visitor points at and a swipe open a shared page from the data it already had — `keptPageLoader` with `useKeptPages` in the root, `KeptLink` for the links, `keptRouteData` and `keptSectionLoader` for a parent route and a page's sections; a hover loads only the page's own data (`isRouteDataRequest`).
+- **Private pages:** Nitrogen's request handler keeps a visitor's own answer from every cache by itself; a loader that reads a record by a reference the visitor holds marks it with `context.personal.mark(reason)`.
+- **Listings:** the filters and the sort are GET forms that work without JavaScript, with one history entry.
+- **Product page:** the variant a feed or campaign link names by its id (`?cv=`) opens with `loadAddressVariantOptions`, with no redirect.
+- **Tracking (`references/tracking.md`):** CloudCart Analytics' events go from the browser, nothing from a dev server or `localhost`; one page load in ten reports its LCP, INP and CLS.
+- **Which Nitrogen:** what 2.2 lacks, and that the session cookie becomes `__Host-session` over HTTPS with 2.3.
+
 ## 0.4.2
 
 `references/metafields.md` links the platform wiki's two new pages on metafields: **Value formats** (the exact string each type stores: a list's items, the units, the rich text tree's parts, a reference's global ID) and **Writing through the Admin API**. A query that reads a value with `parseMetafield` asks `key type value`.
