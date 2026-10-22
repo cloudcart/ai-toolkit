@@ -65,7 +65,7 @@ The starter's pages are held to the same targets as yours: the request budget (`
 ## What reaches the live store
 
 - **A push deploys.** The platform's workflow in the repository (`.github/workflows/nova-deploy.yml`) deploys a push to the default branch to the merchant's live storefront, and an older copy of it deploys a pull request too: read it. Push, open a pull request or run `cloudcart nitrogen deploy` only when the user says so. `deploy` needs the storefront's deployment token in `CLOUDCART_NOVA_TOKEN` (`.env`), made in the admin on the storefront's Deployments tab, under Deployment tokens; `cloudcart llms-context` describes every CLI command.
-- **The dev server and GraphiQL work on the live store.** A fast order, a contact or inquiry form, a review, a newsletter sign-up, a subscription or a back-in-stock request sent from them is real: an order, a mail, a subscriber. Send one only with the user's word, and tell them what it made.
+- **The dev server and GraphiQL work on the live store.** A fast order, a payment with CloudCart Pay's Apple Pay or Google Pay buttons, a contact or inquiry form, a review, a newsletter sign-up, a subscription or a back-in-stock request sent from them is real: an order, a charge, a mail, a subscriber. Send one only with the user's word, and tell them what it made.
 - **Test visits** can reach the merchant's ad accounts: stages 4 and 5 say when to ask.
 
 ## Stage 1. The store and its design — `references/design.md`, `references/store-kinds.md`
