@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.4
+
+`cloudcart-nitrogen` covers Nitrogen 2.3.1.
+
+- **CloudCart Pay's Apple Pay and Google Pay buttons (`references/storefront-foundations.md`):** under the add to cart, and under the cart's checkout button on the cart page and in the drawer, on nitrogen-react's `<CloudCartPayExpress>`, as the store's own pages show them. The merchant's CloudCart Pay settings decide whether they show and which wallets; the store prices the wallet sheet and places the order through `handleCloudCartPayExpressRequest`. A payment with them from the dev server is a real charge.
+- **Which Nitrogen:** what 2.3.0 lacks — the buttons came with 2.3.1.
+
 ## 0.4.3
 
 `cloudcart-nitrogen` covers Nitrogen 2.3.

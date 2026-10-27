@@ -6,7 +6,7 @@ compatibility: Claude Code, Claude Desktop, Cursor, OpenAI Codex, Gemini CLI, VS
 maintainer: CloudCart
 metadata:
   author: CloudCart
-  version: "0.4.3"
+  version: "0.4.4"
   nitrogen: "2.3"
 ---
 
@@ -22,7 +22,8 @@ Work in **five stages, in this order**: the store and its design, the build, SEO
 
 Read `version` in `node_modules/@cloudcart/nitrogen/package.json` (install the dependencies first if `node_modules` is missing).
 
-- **2.3.x:** this skill applies as written.
+- **2.3.1 and later 2.3.x:** this skill applies as written.
+- **2.3.0:** all of it but CloudCart Pay's Apple Pay and Google Pay buttons (`<CloudCartPayExpress>`, `handleCloudCartPayExpressRequest`, `getCloudCartPayExpressSettings` in `references/storefront-foundations.md`), which came with 2.3.1. Move to `^2.3.1` before adding them; the buttons are the project's code too — the starter's `app/components/WalletButtons.tsx` and `app/routes/api.cloudcart-pay-express.tsx`.
 - **2.2.x:** all of it but what 2.3 added: the kept pages (`KeptLink`, `keptPageLoader`, `useKeptPages`, `keptSectionLoader` in `references/speed.md`), a variant opened by its id in the address (`loadAddressVariantOptions`, `references/design.md`), and CloudCart Analytics' events and the real visitors' speed sent from the browser (`references/tracking.md`); on 2.2 a step back loads the page again and the API sends the events itself. Moving to `^2.3.0` removes no export, but the kept pages are the project's code too — each shared route's `clientLoader`, the root's `useKeptPages` and the links — and over HTTPS the session cookie becomes `__Host-session`, so a signed-in customer signs in once more: propose it to the user, and until then skip what this skill says of the kept pages.
 - **2.1.x:** as 2.2.x, and without the metafields and metaobjects (`references/metafields.md`): 2.1 ships a schema without them, so `npm run codegen` refuses their fields, and it has no `<MetafieldRichText>` and fewer of `parseMetafield`'s types.
 - **2.0.x:** as 2.1.x, and without the page cache (`createPageCache`, and the visitor's own data from `/visitor`), which came with 2.1: on 2.0 every page is rendered for each request. The page cache is the project's code too — the starter's `server.ts`, `app/lib/page-cache.ts`, `app/routes/visitor.tsx`, `app/lib/visitor.server.ts` and the root's visitor parts: until it is there, skip what this skill says of the page cache: no route gets `handle = SHARED_PAGE`, and stage 5's `MISS`-then-`HIT` check is not made.
