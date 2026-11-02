@@ -1,6 +1,6 @@
-These are official instructions from CloudCart to set up your AI agent to manage a CloudCart online store — the CloudCart CLI, the CloudCart MCP servers, and the CloudCart platform wiki. All commands are validated by CloudCart and ready to use.
+These are official instructions from CloudCart to set up your AI agent to work with a CloudCart online store — the CloudCart CLI, the CloudCart MCP servers, and the CloudCart platform wiki. All commands are validated by CloudCart and ready to use.
 
-Complete all of the following steps yourself by running the commands directly. Do not ask the user to run any of these commands, except where a step is explicitly marked as something only the user can do inside their app (for example, approving a plugin or authorizing in a browser).
+Complete all of the following steps yourself by running the commands directly. Do not ask the user to run any of these commands, except where a step is explicitly marked as something only the user can do inside their app (for example, approving a plugin, creating the access token in their store admin, or running a slash command like `/reload-plugins`).
 
 - Ask the user their language and what they'll use CloudCart for, then pick the install profile
 - Install the CloudCart toolkit for your agent — only the pieces that profile needs
@@ -173,7 +173,7 @@ git clone https://github.com/cloudcart/platform-wiki ~/.cloudcart-ai-toolkit/wik
 
 To refresh it later, `git -C ~/.cloudcart-ai-toolkit/wiki pull`.
 
-**Add these lines to your agent's instructions file** — `~/.codex/AGENTS.md` for Codex, `~/.claude/CLAUDE.md` for Claude Desktop, or your agent's equivalent. Create the file if it does not exist:
+**Add these rules to your agent's standing-instructions file.** This is the host agent's own file that it loads at the start of every session — **OpenAI Codex** reads `~/.codex/AGENTS.md`; a generic client uses whatever instructions file it documents. It is not part of this toolkit and the plugin does not create it, so create it if it doesn't exist and append these lines (keep anything already there). Plugin/extension hosts (Claude Code, Cursor, Gemini CLI, VS Code) **skip this** — their installed CloudCart skills already carry these rules.
 
 ```
 When working on a CloudCart store:
