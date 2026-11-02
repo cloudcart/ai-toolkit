@@ -204,17 +204,36 @@ Verify with `cloudcart version` (it needs Node 20+). If it already prints a vers
 
 **Log in to the store with a Personal Access Token (PAT).** The token lives in the user's CloudCart admin panel — only they can create it:
 
-1. Tell the user to open their CloudCart admin panel, click the **user menu in the bottom-left corner**, and open **PAT tokens** (shown as **PAT токени** in a Bulgarian admin). There they create or copy a Personal Access Token — it starts with `cc_pat_`.
-2. Ask them for that token and their store URL (e.g. `mystore.cloudcart.com`).
+1. Tell the user to open their CloudCart admin panel, click the **user menu in the bottom-left corner**, and open **PAT tokens** (shown as **PAT токени** in a Bulgarian admin). There they create or copy a Personal Access Token — it starts with `cc_pat_`. They choose an **access level** when creating it — see **Personal Access Token options** below and pick the one that matches what they want you to do.
+2. Ask them for that token and their **store domain** — the address their store answers on. It can be a CloudCart service domain (e.g. `tre4.cloudcart.net`) or the store's own custom domain (e.g. `mystore.com`); both are valid. Use exactly the domain they give you — strip any `https://` and trailing slash, and pass the bare host.
 3. Sign in:
 
    ```
-   cloudcart auth login --store <store>.cloudcart.com --token cc_pat_…
+   cloudcart auth login --store <your-store-domain> --token cc_pat_…
    ```
 
    Or run `cloudcart auth login` with no flags and let it prompt for the store and token interactively.
 
 Treat the token as a secret: use it only in this command — never print it back, log it, commit it, or write it into any instructions or config file. Confirm the connection with `cloudcart auth status`. After it succeeds, you can read and write the store. (`cloudcart auth logout` clears the stored credentials.)
+
+### Personal Access Token options
+
+When the user creates the token, CloudCart asks for an **access level** and some optional **advanced settings**. Use this to answer their questions and to pick the right option for the job.
+
+**Access level** — what the token is allowed to do:
+
+- **Read Only** (marked *Recommended* in the admin for safety) — view-only access to all resources; no changes allowed. Safe for monitoring and reporting. With this token you can read products, orders, customers and stock, but you **cannot** add, edit or delete anything.
+- **Full Access** — complete read **and write** access to all store resources. This is what **store management needs** (adding and editing products, prices, inventory, and other changes) and what suits full automation or CI/CD. Choose this if the user wants you to change the store.
+- **Custom Permissions** — pick specific resources and permissions. Best when the user wants to grant only part of the access — for example, write to products but nothing else.
+
+Rule of thumb: if the user wants you to **change** the store, they need **Full Access** (or a **Custom** token with write permission on the resources in question). If they only want you to **read and report**, **Read Only** is enough and safest.
+
+**Advanced settings** (optional):
+
+- **Token Validity** — set a start and end date for the token, or tick **No expiration** to keep it valid indefinitely. A shorter lifetime is safer; a non-expiring token is convenient for always-on automation but should be guarded like a password.
+- **IP Restrictions** — limit the token to specific IP addresses or CIDR ranges (for example `192.168.1.100` for one address, `192.168.1.0/24` for a 256-address range, or `10.0.0.0/8` for a large network). Leave it empty to allow all IPs. Use it to lock the token to a known server.
+
+A token can be revoked at any time from the same **PAT tokens** screen; revoke one the user no longer needs. Prefer the least access that does the job.
 
 ---
 
