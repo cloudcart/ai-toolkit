@@ -237,26 +237,36 @@ A token can be revoked at any time from the same **PAT tokens** screen; revoke o
 
 ---
 
-Once done, tell the user:
+## When the store is connected — celebrate, then show what's possible
 
-```
-┌─ CloudCart Agent Setup Complete ─────────────────────┐
-│  ✓ CLI        cloudcart <version>                    │
-│  ✓ Dev MCP    schema search + GraphQL validation     │
-│  ✓ Wiki       ~/.cloudcart-ai-toolkit/wiki           │
-│  ✓ Store      connected with a PAT (cc_pat_…)        │
-│                                                      │
-│  ⚡ Restart your agent to load the MCP servers       │
-└──────────────────────────────────────────────────────┘
+The moment `cloudcart auth status` confirms the store is connected, mark it. This is the payoff — speak to the user, not about the setup. Keep it short, warm and plain; no versions, paths or tool names unless they ask.
 
-You can now ask me to:
-  • add / edit / hide / delete products and variants
-  • bulk-update prices and inventory, or import from a file
-  • look up orders, customers and stock
-  • explain how any CloudCart setting or rule works
-```
+First, a quick check: if this host had its MCP servers registered just now (Claude Desktop, ChatGPT / Codex, a generic client) and the CloudCart tools aren't active yet, ask the user to restart the agent once so the tools load. Then, in the user's language, do two things:
 
-If you installed the Storefront MCP, add a line that you can also build and change the Nitrogen headless storefront.
+1. **Celebrate the connection** in one or two lines. Name their store. Make clear that their whole store is now within reach — anything they'd do in the admin, they can now just ask for in plain words.
+
+2. **Offer a few concrete things you can do**, so they see the breadth. Pick 4–6 short, inviting examples across these areas, and tailor them to the store's niche or real products when you already know them:
+   - **Manage the catalog** — add a product, change a price, swap a photo, hide or delete items.
+   - **Bulk operations** — change prices or stock for many products at once (e.g. "20% off everything in the Summer collection", "hide everything that's out of stock").
+   - **Know your store** — ask about orders, best-sellers, low stock, customers.
+   - **Use the store as context** — turn real products into ad copy, social posts, email campaigns or better product descriptions.
+   - **Tidy up** — fix descriptions, organise categories, clean up the catalog.
+   - **Understand CloudCart** — ask how any setting or feature works.
+
+Close with one inviting line that puts the next move in their hands, e.g. "What would you like to start with?" Keep the whole thing scannable: a celebratory opener, a short list they can skim, one question at the end. If you installed the Storefront MCP (Profile B), add one line that you can also build and change their storefront.
+
+A delivered example (adapt the wording and language to the user):
+
+> 🎉 You're connected to **<store>** — your store and your agent now speak the same language.
+>
+> From now on, anything you'd do in your store admin you can just ask me. For example:
+> • "Add a new product called Summer Dress for 29.90"
+> • "Lower the price of everything in 'Winter' by 15%"
+> • "Which products are low on stock?"
+> • "Write a Facebook ad for my three best-sellers"
+> • "Hide all out-of-stock products"
+>
+> What would you like to start with?
 
 ---
 
