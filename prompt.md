@@ -171,7 +171,7 @@ Register a stdio server that runs `npx -y @cloudcart/dev-mcp@latest`. It speaks 
 git clone https://github.com/cloudcart/platform-wiki ~/.cloudcart-ai-toolkit/wiki
 ```
 
-To refresh it later, `git -C ~/.cloudcart-ai-toolkit/wiki pull`.
+To refresh it later, `git -C ~/.cloudcart-ai-toolkit/wiki fetch origin master && git -C ~/.cloudcart-ai-toolkit/wiki reset --hard origin/master`. This copy is read-only, so there is nothing of yours to lose.
 
 **Add these rules to your agent's standing-instructions file.** This is the host agent's own file that it loads at the start of every session — **OpenAI Codex** reads `~/.codex/AGENTS.md`; a generic client uses whatever instructions file it documents. It is not part of this toolkit and the plugin does not create it, so create it if it doesn't exist and append these lines (keep anything already there). Plugin/extension hosts (Claude Code, Cursor, Gemini CLI, VS Code) **skip this** — their installed CloudCart skills already carry these rules.
 
