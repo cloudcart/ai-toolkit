@@ -165,7 +165,7 @@ Register a stdio server that runs `npx -y @cloudcart/dev-mcp@latest`. It speaks 
 
 ### Then, on every one of these hosts
 
-**Clone the platform wiki** (these hosts have no wiki hook or skill to fetch it for you):
+**Clone the platform wiki** (these hosts have no wiki hook or skill to fetch it for you). If `~/.cloudcart-ai-toolkit/wiki/index.md` already exists, the CloudCart plugin on another host installed that copy and keeps it current: use it as it is, and skip the two commands below.
 
 ```
 git clone https://github.com/cloudcart/platform-wiki ~/.cloudcart-ai-toolkit/wiki
