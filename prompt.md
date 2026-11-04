@@ -37,7 +37,7 @@ Install only what the chosen profile needs. On hosts that use the CloudCart plug
 
 ## Before you start — check prerequisites
 
-The whole toolkit runs on **Node.js** and uses **git**. Check these first and install whatever is missing before moving on. Do not reinstall anything the user already has.
+The whole toolkit runs on **Node.js** and uses **git** — the plugin/extension install, the CloudCart CLI, and the GraphQL work (the Dev MCP and `cloudcart app execute`) all depend on them. Check these first and **install whatever is missing yourself, without stopping to ask.** By running this setup the user has already asked for the toolkit and everything it needs to work, so installing the prerequisites is part of the job, not a separate decision — do not pause for permission to install Node.js, git or the rest. Do not reinstall anything the user already has. Only bring the user in when an install genuinely cannot be completed without them — it needs admin rights you don't have, or only a graphical installer exists — and then say exactly what is needed and wait.
 
 1. **Node.js 20 or newer** — required; the CLI and the MCP server(s) run on it (`npm` and `npx` ship with it). Check:
 
@@ -53,7 +53,7 @@ The whole toolkit runs on **Node.js** and uses **git**. Check these first and in
 
    Installing a runtime can need admin rights. If you cannot do it non-interactively, point the user to `https://nodejs.org` for the LTS and wait for them to confirm it is installed before continuing.
 
-2. **git** — required to install the plugin and to fetch the platform wiki. Check `git --version`. If missing:
+2. **git** — required to install the plugin and to fetch the platform wiki (not for the store operations themselves, which run on the CLI and Node). Check `git --version`. If missing:
 
    - macOS: `xcode-select --install` (or `brew install git`)
    - Windows: `winget install Git.Git` (or `https://git-scm.com`)
