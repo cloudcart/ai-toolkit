@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.6
+
+Auto-update is a switch, not a missing feature.
+
+- **`prompt.md`:** the Claude Code section said Claude Code does not auto-update third-party plugins, which reads as "there is no such mechanism". It is off *by default* and is one key: `"autoUpdate": true` on the marketplace's `extraKnownMarketplaces` entry — exactly what the toggle under `/plugin` → **Marketplaces** writes. The setup now offers it and sets it on a yes, never without asking: it is the user's own configuration, and it grants the toolkit permission to bring new code onto their machine unattended.
+- Also states what the switch does and does not do: the marketplace refreshes shortly after a session starts and the new version loads on the next start, so a running session keeps the version it launched with.
+
 ## 0.4.5
 
 A merchant who wants to make a design is sent to Nitrogen.
