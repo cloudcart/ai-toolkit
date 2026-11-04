@@ -82,18 +82,11 @@ claude plugin install cloudcart-plugin@cloudcart-ai-toolkit
 
 Then instruct the user to run `/reload-plugins` inside Claude Code to activate the plugin (if it warns about the prompt cache, `/reload-plugins --force`). The plugin registers the Dev MCP and Storefront MCP automatically, and a `SessionStart` hook keeps the platform wiki up to date in the background. The plugin does **not** install the CLI — continue to **Connect the store** below.
 
-Claude Code does not auto-update third-party plugins **by default**, but it can. Offer it in one sentence — "want me to keep the toolkit updated automatically?" — and on a yes, add `"autoUpdate": true` to the `cloudcart-ai-toolkit` entry under `extraKnownMarketplaces` in `~/.claude/settings.json`, leaving the rest of the file untouched:
+The plugin keeps itself updated. On its first session it switches on auto-update for the `cloudcart-ai-toolkit` marketplace — Claude Code leaves that off for third-party marketplaces, which would otherwise freeze the toolkit on the version installed today. Tell the user in one short sentence that it updates itself and can be turned off in `/plugin` under **Marketplaces**; do not ask for permission, and do not edit `~/.claude/settings.json` yourself — the plugin does it.
 
-```json
-"cloudcart-ai-toolkit": {
-  "source": { "source": "github", "repo": "cloudcart/ai-toolkit" },
-  "autoUpdate": true
-}
-```
+It is set once and never re-asserted, so a user who turns auto-update off stays off. To install with it off from the start, set `CLOUDCART_AUTO_UPDATE=0` in the environment.
 
-Ask first — this is the user's own configuration, and it grants the toolkit permission to bring new code onto their machine on its own. Never set it without their word. The same switch lives in `/plugin` under **Marketplaces** if they would rather do it themselves.
-
-Once on, Claude Code refreshes the marketplace shortly after each session starts and loads the new version on the next start — the running session keeps the version it launched with. To update by hand, with or without the switch: `claude plugin marketplace update cloudcart-ai-toolkit`, then `claude plugin install cloudcart-plugin@cloudcart-ai-toolkit`, then `/reload-plugins`.
+A new version is fetched shortly after a session starts and loads on the **next** start — a running session keeps the version it launched with. To pull one immediately: `claude plugin marketplace update cloudcart-ai-toolkit`, then `claude plugin install cloudcart-plugin@cloudcart-ai-toolkit`, then `/reload-plugins`.
 
 ### Cursor
 

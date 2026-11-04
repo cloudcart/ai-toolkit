@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.7
+
+The toolkit keeps itself updated.
+
+- **`scripts/enable-auto-update.sh`** (new, `SessionStart`): switches on auto-update for the `cloudcart-ai-toolkit` marketplace on the first session. Claude Code leaves it off for third-party marketplaces, which froze every install on the version it was set up with.
+- **Written once, never re-asserted.** A stamp in the plugin's data directory records that the switch was thrown, so a user who later turns auto-update off stays off — a hook that re-applied the value each start would be overruling the owner of the file every session. Opt out before first run with `CLOUDCART_AUTO_UPDATE=0`.
+- Settings are replaced atomically through a temp file in the same directory; unreadable or half-written settings, or an entry installed in another scope, are left untouched. The hook always exits 0.
+- **`prompt.md`:** setup now states the plugin updates itself and where to turn that off, rather than asking permission or editing settings itself.
+
 ## 0.4.6
 
 Auto-update is a switch, not a missing feature.
