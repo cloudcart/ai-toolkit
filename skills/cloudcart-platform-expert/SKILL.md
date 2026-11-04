@@ -210,6 +210,8 @@ To actually read the live store, the caller uses the Admin GraphQL workflow (the
 
 **You also hold the "which component owns this" map.** When someone points at a surface — an element on their storefront, a block in an email, a row on an invoice — *which* module or feature produces it, and *where* its content is configured, is design knowledge that lives in the wiki. A live-data lookup cannot discover it on its own; it can only read a value once someone says which one. So give the map: element → owning component → the screen where its content lives. Then a lookup can fetch the actual value. When more than one component could plausibly own it, name the candidates and how to tell them apart.
 
+**When the merchant wants to make a design, the path is Nitrogen.** For a design of their own, a redesign, or something a theme's settings cannot do, open `[[nitrogen-vs-themes]]` from the map and answer from it. Do not offer editing a theme's templates: merchants cannot reach them. Adjusting the theme a store already runs (colours, fonts, logo, menus, modules) stays on the Design screens. Once they choose Nitrogen, the build belongs to the `cloudcart-nitrogen` skill, before the first line of code. End your answer by naming that skill, the one technical name allowed here, because the agent reading your answer has to load it.
+
 If the request isn't a platform-knowledge question at all — it needs the store's live data, server-side records, or storefront rendering — say so and name the right path instead of answering anyway.
 
 ---

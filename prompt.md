@@ -18,7 +18,7 @@ Before installing anything, ask the user two short questions and act on the answ
 2. **What will they use CloudCart for?** This decides what you install:
 
    - **Profile A — Manage my store** (the default): add and edit products, prices, inventory; view orders, customers and stock; understand how the platform works. Installs the **CloudCart CLI**, the **Dev MCP**, and the **platform wiki**.
-   - **Profile B — Build / develop on my store**: a headless Nitrogen storefront or other custom development. Installs everything in Profile A **plus the Storefront MCP** (and, on plugin hosts, the Nitrogen and project-setup skills).
+   - **Profile B — Build / develop on my store**: a headless Nitrogen storefront, which is how a store gets a design of its own, or other custom development. Installs everything in Profile A **plus the Storefront MCP** (and, on plugin hosts, the Nitrogen and project-setup skills; other hosts read the Nitrogen skill from this repository when they build).
 
    If they are unsure, choose Profile A — you can always add the Profile B pieces later.
 
@@ -180,6 +180,7 @@ When working on a CloudCart store:
 - Read and write store data only through the CloudCart CLI: `cloudcart app execute`. Never guess the GraphQL — validate it with the Dev MCP first.
 - The first CloudCart Dev MCP call in any session must be `learn_cloudcart_api` with api "admin" and your own model name; reuse the returned conversationId for every later semantic_search, introspect_graphql_schema, and validate_graphql_codeblocks call that session, or the calls fail.
 - For "how does this work / where do I set it / is this by design" questions, answer from the platform wiki at ~/.cloudcart-ai-toolkit/wiki, not from memory.
+- When the merchant wants to make a design of their own or build a storefront, the path is a Nitrogen storefront, not editing a theme's templates (the wiki's nitrogen-vs-themes page). Before writing any of its code, read and follow the cloudcart-nitrogen skill: https://raw.githubusercontent.com/cloudcart/ai-toolkit/main/skills/cloudcart-nitrogen/SKILL.md, and the files in its references/ folder beside it.
 ```
 
 Continue to **Connect the store**.

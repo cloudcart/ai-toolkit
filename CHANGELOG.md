@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.5
+
+A merchant who wants to make a design is sent to Nitrogen.
+
+- **`cloudcart-platform-expert`:** for a design of the store's own, it answers from the wiki's comparison of Nitrogen and a standard theme, never with editing a theme's templates, and names `cloudcart-nitrogen` as the next step.
+- **`prompt.md`:** hosts without the plugin get the same rule in their standing instructions, with the address of the `cloudcart-nitrogen` skill.
+
 ## 0.4.4
 
 `cloudcart-nitrogen` covers Nitrogen 2.3.1.
