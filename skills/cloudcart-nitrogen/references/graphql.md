@@ -132,13 +132,13 @@ These are counted as `references/verification.md` says, on the page's first load
 
 ## Cache strategies
 
-`storefront.query(QUERY, {variables, cache})`. Without `cache`, a query gets `CacheDefault()`: fresh for 1 second, then served stale for up to a day while it refreshes. Mutations are never cached. A cached answer is stored under the query together with its variables: a query that passes the buyer is cached for that buyer alone, and never served to another visitor.
+`storefront.query(QUERY, {variables, cache})`. Without `cache`, a query gets `CacheDefault()`: fresh for 5 minutes, then served stale for up to a day while it refreshes: a price or a stock level it reads may be 5 minutes old, and older on the first visit after a quiet spell, which gets the kept answer while a fresh one is fetched. A query that reads a cart, a customer, an order or a return gets `CacheNone()` instead. Mutations are never cached. A cached answer is stored under the query together with its variables: a query that passes the buyer is cached for that buyer alone, and never served to another visitor.
 
 | Data | Strategy |
 |---|---|
 | Static lists that change only with a release | `CacheLong()`: fresh for 1 hour, then stale for 23 more while it refreshes |
 | Settings the merchant edits in the admin: the shop's name, logo, domain and contacts, the menus (the starter reads them with the header and footer), policies, `llmsTxt` (read by `robots.txt` and `llms.txt`), a form's fields and countries | `CacheSettings()`: fresh for 1 minute, then stale for up to a day while it refreshes |
-| Catalogue pages: products, categories, search, content | `CacheShort()` (fresh for 1 second, then stale for 9 more) or the default |
+| Catalogue pages: products, categories, search, content | The default (fresh for 5 minutes), which the starter's product, listing and search queries use; or `CacheShort()` (fresh for 1 second, then stale for 9 more) where a price or stock level must show within seconds |
 | What visitors must see at once after they change it (their own comment still awaiting approval, say) | `CacheNone()`, while they are signed in |
 
 `customerAccount.query` always uses `CacheNone()`. "Signed in" means `customerAccount.getBuyer()` returned a buyer. The starter's article page shows a signed-in reader their own comments that are still waiting for approval, so it skips the cache for them:

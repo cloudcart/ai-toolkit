@@ -19,7 +19,7 @@ How the store should look and be structured is decided in stage 1 (`references/d
 
 ## Caching
 
-- [ ] **Each query has the strategy its data needs** (the table in `references/graphql.md`): `CacheLong()` only for menus and static lists, `CacheSettings()` for the settings the merchant edits, `CacheShort()` or the default for the catalogue and content, `CacheNone()` for what a visitor must see at once after changing it.
+- [ ] **Each query has the strategy its data needs** (the table in `references/graphql.md`): `CacheLong()` only for menus and static lists, `CacheSettings()` for the settings the merchant edits, the default (5 minutes) for the catalogue and content, or `CacheShort()` where a price or stock level must show within seconds, `CacheNone()` for what a visitor must see at once after changing it.
 - [ ] **The cache is used:** on a second load, the profiler (`/__nitrogen/subrequests`) shows the shared calls as `HIT`, or `STALE` while they refresh, and none as `NONE` that is the same for every visitor.
 - [ ] **A buyer's data stays the buyer's:** a query that passes the buyer is cached under that buyer; the customer's own data goes through `customerAccount.query`, which never caches.
 - [ ] **The page cache holds only what is the same for everyone:** a page in it (`handle = SHARED_PAGE`) reads nothing of the visitor's in its loader; their cart, sign-in and forms come from `/visitor` in the browser; on the deployed storefront it answers `MISS`, then `HIT` (`references/speed.md`). Never set a shared `Cache-Control` (`public`, `s-maxage`) yourself.
