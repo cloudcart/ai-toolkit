@@ -6,7 +6,7 @@ compatibility: Claude Code, Claude Desktop, Cursor, OpenAI Codex, Gemini CLI, VS
 maintainer: CloudCart
 metadata:
   author: CloudCart
-  version: "0.4.4"
+  version: "0.4.8"
   nitrogen: "2.4"
 ---
 

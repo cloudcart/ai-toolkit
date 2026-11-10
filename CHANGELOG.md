@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.8
+
+`cloudcart-nitrogen` covers Nitrogen 2.4.
+
+- **A listing asks only what it shows (`references/graphql.md`, "A listing's filters and counts"):** `filters(ids:)` for the groups a page draws, `count` only where a number is printed (exact up to 5,000 products a value, an estimate above), `marketingFilters(groups:)` and `ProductFilter.anyOf` for the merchant's offers, and `collections(withProducts: true, productFilters:)` for a menu without empty categories or a brand's categories — never `productsCount` on every category, nor the category filter group walked up the tree. A row in "GraphQL, not REST" and a review item in `references/quality.md`.
+- **Aura Search (`references/tracking.md`):** the engine each search answers, `useSearchReport` for the impression and the clicks, the searched phrase carried to the order, the merchant's settings for the suggestions and the results page, the card's link to the named variant.
+- **The default cache:** since Nitrogen 2.4.2 a query that names no strategy is fresh for 5 minutes, then stale for a day while it refreshes, and one that reads a cart, a customer, an order or a return is not kept; `CacheShort()` where a price or stock level must show within seconds. The skill said 2.3's 1 second.
+- **A deploy (`references/speed.md`):** a shared page is kept per build, so a deploy never answers with a page whose scripts are gone; `reloadOnNewBuild()` in `app/entry.client.tsx` loads a page opened before a deploy again, once per build.
+- **"0. Which Nitrogen":** 2.4.2 as written; what 2.4.0 and 2.4.1, and 2.3.x, lack.
+
 ## 0.4.7
 
 The toolkit keeps itself updated.
