@@ -64,7 +64,32 @@ Never publish these yourself: they would be counted twice.
 
 - **The fast order:** `publish('fast_order_started', …)` when the form opens and `publish('fast_order_completed', …)` once the order is placed, with the event names the merchant chose (`FastOrderSettings.trackingEvents`). The server side of the purchase comes from the API: the action passes `analyticsInputFromRequest(request, {pixels, customerEmailHash})` to `fastOrderSubmit` as `analytics`, and the browser's event reuses the `analyticsEventId` the API answers with; `fast_order_completed` also takes the answer's `cloudCartAnalytics` (the order's report, which the browser sends). The starter's product page (`app/routes/product.$handle.tsx`) and `app/components/ProductRequestForms.tsx` do this; copy their pattern.
 - **The cart drawer:** opening it publishes `cart_viewed` with the cart (`publish('cart_viewed', {cart, prevCart, shop, url})`, as the starter's `app/components/Header.tsx` does on the cart icon): a cart shown without a page of its own is a cart view, not a page view.
+- **The search on a store with Aura Search:** its reports and its look, below.
 - **Your own events:** `publish('custom_<name>', payload)` from `useAnalytics()`, or `<Analytics.CustomView type="custom_<name>" data={…} />`. They reach only the subscribers you add (`useAnalytics().subscribe`): CloudCart Analytics and the pixels do not receive them.
+
+## The search on a store with Aura Search
+
+Aura Search is CloudCart's search app. The merchant turns it on and sets it up in the admin. It needs a Nitrogen release newer than 2.4.1, which has `useSearchReport` and `searchHighlights`; upgrade an older one first. The starter's `app/components/PredictiveSearch.tsx` (the suggestions) and `app/routes/search.tsx` (the results page) do all of this; copy their pattern.
+
+- **Which search answered:** `predictiveSearch` and `search` answer `engine`: `aura` on a store that runs it, `basic` otherwise. `shop.auraSearch` holds the merchant's settings, and is null without the app. Ask for it with the shop's other settings in the root's query, not on every keystroke, and read it with `useRouteLoaderData('root')`, as the starter's `useSearchLook()` does.
+- **The reports** go to the merchant's Aura Search reports, not to CloudCart Analytics: they are a separate record, so they do not count twice beside `<Analytics.SearchView>`. `useSearchReport` follows one answer: `engine` decides whether there is anything to follow (`basic` reports and keeps nothing), and `tracksEvents: false` skips the reports the store would drop (the phrase is still kept):
+
+  ```tsx
+  const report = useSearchReport({
+    query: term, // the phrase the answer is for, as it was sent
+    engine: result.engine,
+    tracksEvents: shop.auraSearch?.tracksEvents,
+    impression: true, // the results page only; the suggestions leave it out
+  });
+  <Link to={productUrl} onClick={() => report.click(product.id, index + 1)}>…</Link>;
+  ```
+
+  The results page reports one impression each time it shows a phrase's results; the same results loaded again, after a cart change say, are not a new one. `report.click(productId, position)` reports a product opened from the suggestions or the results, with its place in the list as the buyer sees it, from 1; in a list that loads more, the count goes on. Categories, brands, pages and articles in the suggestions are not products, so they report nothing.
+- **The phrase reaches the order:** `useSearchReport` keeps the last Aura phrase in the browser for seven days. Nitrogen adds it to the cart's attribution by itself, and `getAttribution()` returns it with the rest. Pass `getAttribution()` to an order placed without a cart, as the starter's fast order does; Nitrogen's express buttons pass it by themselves.
+- **The suggestions look as the merchant set them up:** `highlightMatches` marks the searched words in the titles. `searchHighlights(title, query)` returns the pieces (`{text, match}`), and each `match` piece goes in a `<mark>`. `showPrice` shows the price, and `showCompareAtPrice` the price before the discount beside it.
+- **The results page:** `showSort` decides whether the sort is offered. The cards stay the listing's.
+- **A card's link carries its variant's `selectedOptions`** as the product page's option parameters (the starter's `getVariantUrl()`). The card then opens the variant the words named, the one it shows.
+- **Without Aura Search,** `shop.auraSearch` is null and the search stays as it is: the words are not marked, the suggestions show their price, the results page offers the sort, and nothing is reported.
 
 ## Never
 
@@ -81,5 +106,6 @@ In the dev server, open the browser's console and network panel. A dev server re
 1. The console shows one `[nitrogen] CloudCart Analytics: PAGE_VIEW (…)` per page view, with the page's kind; a product page also a product view (`VIEW_CONTENT`), a search page a search (`SEARCH`); the cart page's view is its `PAGE_VIEW (CART)`, and opening the cart drawer shows a cart view (`VIEW_CART`).
 2. Before the visitor chooses in the banner, no request goes to the vendors (`google-analytics.com`, `googletagmanager.com`, `facebook.com/tr`, `analytics.tiktok.com`). After they accept a group, the vendors of that group load and receive the page's events (with the user's word, above).
 3. An add to cart shows `ADD_TO_CART` once.
+4. On a store with Aura Search and its click tracking on in the admin (`shop.auraSearch.tracksEvents` is true), the results page logs one `[nitrogen] Aura Search: IMPRESSION`, and opening a product from the suggestions or the results logs one `Aura Search: CLICK`. Like the other events, they are logged, not sent, from a dev server. On a store without Aura Search, neither appears.
 
 Report what you saw. If you could not open a browser, say so: the reporting is then not verified.
